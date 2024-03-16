@@ -1,6 +1,3 @@
-"""
-@author: Viet Nguyen <nhviet1009@gmail.com>
-"""
 import numpy as np
 import random
 
@@ -160,6 +157,7 @@ class Tetris:
         return num_filled
 
     def drop_active_tetromino(self):
+        # Todo: is there a more efficient way?
         while not self.check_collision(self.active_tetromino, self.x, self.y+1):
             self.y += 1
 
