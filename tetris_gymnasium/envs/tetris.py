@@ -1,8 +1,8 @@
-from typing import Any, SupportsFloat, List
+from typing import Any, List
 
 import numpy as np
 import gymnasium as gym
-from gymnasium.core import RenderFrame, ActType, ObsType
+from gymnasium.core import RenderFrame, ActType
 from gymnasium.spaces import Discrete, Box
 
 from tetris_gymnasium.components.scheduler import BagScheduler, Scheduler
@@ -14,6 +14,15 @@ REWARDS = {
     "game_over": -2,
 }
 
+ACTIONS = {
+    "move_left": 0,
+    "move_right": 1,
+    "move_down": 2,
+    "rotate_clockwise": 3,
+    "rotate_counterclockwise": 4,
+    "hard_drop": 5,
+}
+
 
 class Tetris(gym.Env):
     def __init__(self, render_mode=None, width=10, height=20, tetrominoes=STANDARD_TETROMINOES, scheduler=BagScheduler):
@@ -22,21 +31,24 @@ class Tetris(gym.Env):
         self.width: int = width
         self.window_width: int = width * 100
         self.window_height: int = height * 100
+
         # Tetrominoes & Schedule
         self.scheduler: Scheduler = scheduler(len(tetrominoes))
         self.tetrominoes: List[np.ndarray] = tetrominoes
         self.active_tetromino: np.ndarray = self.tetrominoes[self.scheduler.get_next_tetromino()]
         self.board: np.ndarray = np.zeros((self.height, self.width), dtype=np.int8)
+
         # Position
         self.x: int = 0
         self.y: int = 0
-        # Game
+
+        # Game state
         self.game_over: bool = False
 
         # Gymnasium
         self.observation_space = Box(low=0, high=len(self.tetrominoes), shape=(width, height), dtype=np.int8)
-        self.action_space = Discrete(6)
-        self.reward_range = (-2, 4)
+        self.action_space = Discrete(len(ACTIONS))
+        self.reward_range = (min(REWARDS.values()), max(REWARDS.values()))
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
@@ -51,44 +63,48 @@ class Tetris(gym.Env):
         # self.window = None
         # self.clock = None
 
-    def step(self, action: ActType) -> tuple[ObsType, SupportsFloat, bool, bool, dict[str, Any]]:
+    def step(self, action: ActType) -> tuple[np.ndarray, float, bool, bool, dict]:
         """
         https://gymnasium.farama.org/api/env/#gymnasium.Env.step
         """
+        # Todo: impl. truncation
+        truncated = False
+
         if self.active_tetromino is None:
             self.spawn_tetromino()
         else:
-            if action == 0:  # move left
+            if action == ACTIONS["move_left"]:  # move left
                 if not self.check_collision(self.active_tetromino, self.x - 1, self.y):
                     self.x -= 1
-            elif action == 1:  # move right
+            elif action == ACTIONS["move_left"]:  # move right
                 if not self.check_collision(self.active_tetromino, self.x + 1, self.y):
                     self.x += 1
-            elif action == 2:  # rotate clockwise
+            elif action == ACTIONS["rotate_clockwise"]:  # rotate clockwise
                 if not self.check_collision(self.rotate(self.active_tetromino, True), self.x, self.y):
                     self.active_tetromino = self.rotate(self.active_tetromino, True)
-            elif action == 3:  # rotate counterclockwise
+            elif action == ACTIONS["rotate_counterclockwise"]:  # rotate counterclockwise
                 if not self.check_collision(self.rotate(self.active_tetromino, False), self.x, self.y):
                     self.active_tetromino = self.rotate(self.active_tetromino, False)
-            elif action == 4:  # hard drop
+            elif action == ACTIONS["hard_drop"]:  # hard drop
                 self.drop_active_tetromino()
                 self.place_active_tetromino()
-                return self.board, REWARDS["game_over"] * self.clear_filled_rows() + REWARDS["alife"], False, None, None
-            elif action == 5:  # fall down
+                return self.board, REWARDS["game_over"] * self.clear_filled_rows() + REWARDS["alife"], False, truncated, {}
+            elif action == ACTIONS["move_down"]:  # move down (gravity)
+                # Todo: Separate move_down from gravity
                 if not self.check_collision(self.active_tetromino, self.x, self.y + 1):
                     self.y += 1
                 else:
                     self.place_active_tetromino()
                     return self.board, REWARDS["game_over"] * self.clear_filled_rows() + REWARDS[
-                        "alife"], False, None, None
+                        "alife"], False, truncated, {}
 
         if self.game_over:
-            return self.board, REWARDS["game_over"], True, None, None
+            return self.board, REWARDS["game_over"], True, truncated, {}
 
-        return self.board, REWARDS["alife"], False, None, None
+        return self.board, REWARDS["alife"], False, truncated, {}
 
     def reset(self, *, seed: int | None = None, options: dict[str, Any] | None = None) -> tuple[
-        ObsType, dict[str, Any]]:
+            np.ndarray, dict[str, Any]]:
         # Initialize fresh board
         self.board = np.zeros((self.height, self.width), dtype=np.int8)
 
@@ -100,6 +116,8 @@ class Tetris(gym.Env):
 
         self.x, self.y = (self.width // 2 - len(self.active_tetromino[0]) // 2, 0)
         self.game_over = False
+
+        return self.board, {}
 
     def render(self) -> RenderFrame | list[RenderFrame] | None:
         if self.active_tetromino is not None:
@@ -113,6 +131,8 @@ class Tetris(gym.Env):
         field_str = '\n'.join(''.join(row) for row in char_field)
         print(field_str)
         print("==========")
+
+        return None
 
     def spawn_tetromino(self):
         self.active_tetromino = self.tetrominoes[self.scheduler.get_next_tetromino()]

@@ -13,7 +13,7 @@ if __name__ == '__main__':
         tetris_game.render()
 
         # Take a random action (for demonstration purposes)
-        action = random.randint(0, 5)
+        action = tetris_game.action_space.sample()
 
         # Perform the action
         tetris_game.step(action)
