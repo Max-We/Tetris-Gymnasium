@@ -1,5 +1,3 @@
-import random
-
 from tetris_gymnasium.envs.tetris import Tetris
 
 
