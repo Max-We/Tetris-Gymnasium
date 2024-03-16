@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "tetris-gymnasium"
+version = "0.1.0"
+description = ""
+authors = ["mw <maximilian.weichart@icloud.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+gymnasium = "^0.29.1"
+numpy = "^1.26.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
