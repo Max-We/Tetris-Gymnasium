@@ -132,7 +132,6 @@ class Tetris:
         # # Use the mask to place the Tetromino's non-zero values onto the board
         # self.board[destination_y[mask], destination_x[mask]] = self.active_tetromino[mask]
         tetromino_height, tetromino_width = self.active_tetromino.shape
-        idk = self.board[self.y:self.y + tetromino_height, self.x:self.x + tetromino_width]
         self.board[self.y:self.y + tetromino_height, self.x:self.x + tetromino_width] += self.active_tetromino
         self.active_tetromino = None
 
