@@ -4,6 +4,7 @@ import numpy as np
 import gymnasium as gym
 from gymnasium.core import RenderFrame, ActType
 from gymnasium.spaces import Discrete, Box
+from gymnasium.vector.utils import batch_space
 
 from tetris_gymnasium.components.scheduler import BagScheduler, Scheduler
 from tetris_gymnasium.util.tetrominoes import STANDARD_TETROMINOES
@@ -36,7 +37,7 @@ class Tetris(gym.Env):
         self.scheduler: Scheduler = scheduler(len(tetrominoes))
         self.tetrominoes: List[np.ndarray] = tetrominoes
         self.active_tetromino: np.ndarray = self.tetrominoes[self.scheduler.get_next_tetromino()]
-        self.board: np.ndarray = np.zeros((self.height, self.width), dtype=np.int8)
+        self.board: np.ndarray = np.zeros((self.height, self.width), dtype=np.uint8)
 
         # Position
         self.x: int = 0
@@ -46,7 +47,7 @@ class Tetris(gym.Env):
         self.game_over: bool = False
 
         # Gymnasium
-        self.observation_space = Box(low=0, high=len(self.tetrominoes), shape=(width, height), dtype=np.int8)
+        self.observation_space = Box(low=0, high=len(self.tetrominoes), shape=(self.height * self.width,), dtype=np.float32)
         self.action_space = Discrete(len(ACTIONS))
         self.reward_range = (min(REWARDS.values()), max(REWARDS.values()))
 
@@ -68,6 +69,11 @@ class Tetris(gym.Env):
         https://gymnasium.farama.org/api/env/#gymnasium.Env.step
         """
         # Todo: impl. truncation
+        assert self.action_space.contains(
+            action
+        ), f"{action!r} ({type(action)}) invalid"
+        # assert self.state is not None, "Call reset before using step method."
+
         truncated = False
 
         if self.active_tetromino is None:
@@ -88,25 +94,25 @@ class Tetris(gym.Env):
             elif action == ACTIONS["hard_drop"]:  # hard drop
                 self.drop_active_tetromino()
                 self.place_active_tetromino()
-                return self.board, REWARDS["game_over"] * self.clear_filled_rows() + REWARDS["alife"], False, truncated, {}
+                return self._get_obs(), REWARDS["game_over"] * self.clear_filled_rows() + REWARDS["alife"], False, truncated, {}
             elif action == ACTIONS["move_down"]:  # move down (gravity)
                 # Todo: Separate move_down from gravity
                 if not self.check_collision(self.active_tetromino, self.x, self.y + 1):
                     self.y += 1
                 else:
                     self.place_active_tetromino()
-                    return self.board, REWARDS["game_over"] * self.clear_filled_rows() + REWARDS[
+                    return self._get_obs(), REWARDS["game_over"] * self.clear_filled_rows() + REWARDS[
                         "alife"], False, truncated, {}
 
         if self.game_over:
-            return self.board, REWARDS["game_over"], True, truncated, {}
+            return self._get_obs(), REWARDS["game_over"], True, truncated, {}
 
-        return self.board, REWARDS["alife"], False, truncated, {}
+        return self._get_obs(), REWARDS["alife"], False, truncated, {}
 
     def reset(self, *, seed: int | None = None, options: dict[str, Any] | None = None) -> tuple[
             np.ndarray, dict[str, Any]]:
         # Initialize fresh board
-        self.board = np.zeros((self.height, self.width), dtype=np.int8)
+        self.board = np.zeros((self.height, self.width), dtype=np.uint8)
 
         # Create bag
         self.scheduler = BagScheduler(len(self.tetrominoes))
@@ -117,7 +123,7 @@ class Tetris(gym.Env):
         self.x, self.y = (self.width // 2 - len(self.active_tetromino[0]) // 2, 0)
         self.game_over = False
 
-        return self.board, {}
+        return self._get_obs(), {}
 
     def render(self) -> RenderFrame | list[RenderFrame] | None:
         if self.active_tetromino is not None:
@@ -181,12 +187,16 @@ class Tetris(gym.Env):
             unfilled_rows = self.board[~filled_rows]
 
             # Create a new top part of the board with zeros to compensate for the cleared rows.
-            free_space = np.zeros((num_filled, self.width), dtype=np.int8)
+            free_space = np.zeros((num_filled, self.width), dtype=np.uint8)
 
             # Concatenate the new top with the unfilled rows to form the updated board.
             self.board[:] = np.concatenate((free_space, unfilled_rows), axis=0)
 
         return num_filled
+
+    def _get_obs(self):
+        return self.board.reshape(-1).astype(np.float32)
+        # return self.board.flatten().astype(np.float32)
 
     # def close(self):
     #     super().close()

@@ -161,3 +161,7 @@ cython_debug/
 
 # local experimentation folder, can be removed later
 local_experiments/
+
+# Examples / training outputs
+examples/runs
+runs
