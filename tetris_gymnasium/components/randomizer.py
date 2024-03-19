@@ -3,7 +3,7 @@ from abc import abstractmethod
 import numpy as np
 
 
-class Scheduler:
+class Randomizer:
     def __init__(self, size):
         self.size = size
 
@@ -12,7 +12,7 @@ class Scheduler:
         pass
 
 
-class BagScheduler(Scheduler):
+class BagRandomizer(Randomizer):
     def __init__(self, size):
         super().__init__(size)
         self.bag = np.arange(self.size, dtype=np.int8)
@@ -33,6 +33,6 @@ class BagScheduler(Scheduler):
         self.index = 0  # Reset index to the start
 
 
-class RandomScheduler(Scheduler):
+class RandomScheduler(Randomizer):
     def get_next_tetromino(self):
         return np.random.randint(0, self.size)

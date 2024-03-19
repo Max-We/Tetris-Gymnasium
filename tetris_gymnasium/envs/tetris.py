@@ -6,7 +6,7 @@ from gymnasium.core import RenderFrame, ActType
 from gymnasium.spaces import Discrete, Box
 from gymnasium.vector.utils import batch_space
 
-from tetris_gymnasium.components.scheduler import BagScheduler, Scheduler
+from tetris_gymnasium.components.randomizer import BagRandomizer, Randomizer
 from tetris_gymnasium.util.tetrominoes import STANDARD_TETROMINOES
 
 REWARDS = {
@@ -27,7 +27,7 @@ ACTIONS = {
 
 
 class Tetris(gym.Env):
-    def __init__(self, render_mode=None, width=10, height=20, tetrominoes=STANDARD_TETROMINOES, scheduler=BagScheduler):
+    def __init__(self, render_mode=None, width=10, height=20, tetrominoes=STANDARD_TETROMINOES, scheduler=BagRandomizer):
         # Dimensions
         self.height: int = height
         self.width: int = width
@@ -35,7 +35,7 @@ class Tetris(gym.Env):
         self.window_height: int = height * 100
 
         # Tetrominoes & Schedule
-        self.scheduler: Scheduler = scheduler(len(tetrominoes))
+        self.scheduler: Randomizer = scheduler(len(tetrominoes))
         self.tetrominoes: List[np.ndarray] = tetrominoes
         self.active_tetromino: np.ndarray = self.tetrominoes[self.scheduler.get_next_tetromino()]
         self.board: np.ndarray = np.zeros((self.height, self.width), dtype=np.uint8)
@@ -116,7 +116,7 @@ class Tetris(gym.Env):
         self.board = np.zeros((self.height, self.width), dtype=np.uint8)
 
         # Create bag
-        self.scheduler = BagScheduler(len(self.tetrominoes))
+        self.scheduler = BagRandomizer(len(self.tetrominoes))
 
         # Get first piece from bag
         self.active_tetromino = self.tetrominoes[self.scheduler.get_next_tetromino()]
