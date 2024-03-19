@@ -86,34 +86,34 @@ class Args:
     """the user or org name of the model repository from the Hugging Face Hub"""
 
     # Algorithm specific arguments
-    env_id: str = "CartPole-v1"
+    # env_id: str = "BreakoutNoFrameskip-v4"
     env_id: str = "tetris_gymnasium/Tetris"
     """the id of the environment"""
-    total_timesteps: int = 500000
+    total_timesteps: int = 10000000
     """total timesteps of the experiments"""
-    learning_rate: float = 2.5e-4
+    learning_rate: float = 1e-4
     """the learning rate of the optimizer"""
     num_envs: int = 1
     """the number of parallel game environments"""
-    buffer_size: int = 10000
+    buffer_size: int = 1000000
     """the replay memory buffer size"""
     gamma: float = 0.99
     """the discount factor gamma"""
     tau: float = 1.0
     """the target network update rate"""
-    target_network_frequency: int = 500
+    target_network_frequency: int = 1000
     """the timesteps it takes to update the target network"""
-    batch_size: int = 128
+    batch_size: int = 32
     """the batch size of sample from the reply memory"""
     start_e: float = 1
     """the starting epsilon for exploration"""
-    end_e: float = 0.05
+    end_e: float = 0.01
     """the ending epsilon for exploration"""
-    exploration_fraction: float = 0.5
+    exploration_fraction: float = 0.10
     """the fraction of `total-timesteps` it takes from start-e to go end-e"""
-    learning_starts: int = 10000
+    learning_starts: int = 80000
     """timestep to start learning"""
-    train_frequency: int = 10
+    train_frequency: int = 4
     """the frequency of training"""
 
 
@@ -127,6 +127,8 @@ def make_env(env_id, seed, idx, capture_video, run_name):
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env.action_space.seed(seed)
 
+        env = gym.wrappers.FrameStack(env, 4)
+
         return env
 
     return thunk
@@ -137,16 +139,20 @@ class QNetwork(nn.Module):
     def __init__(self, env):
         super().__init__()
         self.network = nn.Sequential(
-            nn.Linear(np.array(env.single_observation_space.shape).prod(), 120),
+            nn.Conv2d(4, 32, 3, stride=1),
             nn.ReLU(),
-            nn.Linear(120, 84),
+            nn.Conv2d(32, 64, 4, stride=2),
             nn.ReLU(),
-            nn.Linear(84, env.single_action_space.n),
+            nn.Conv2d(64, 64, 3, stride=1),
+            nn.ReLU(),
+            nn.Flatten(),
+            nn.Linear(384, 512),
+            nn.ReLU(),
+            nn.Linear(512, env.single_action_space.n),
         )
 
     def forward(self, x):
         return self.network(x)
-
 
 def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
     slope = (end_e - start_e) / duration
@@ -220,8 +226,9 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         if random.random() < epsilon:
             actions = np.array([envs.single_action_space.sample() for _ in range(envs.num_envs)])
         else:
-            # network_in = np.expand_dims(obs.flatten(),axis=0)
-            q_values = q_network(torch.Tensor(obs).to(device))
+            # Normalization by dividing with piece count
+            # Todo: Create api to get how many pieces are in env / do normalize
+            q_values = q_network(torch.Tensor(obs).to(device) / envs.observation_space.high)
             actions = torch.argmax(q_values, dim=1).cpu().numpy()
 
         # TRY NOT TO MODIFY: execute the game and log data.

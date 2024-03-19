@@ -25,6 +25,7 @@ ACTIONS = {
 }
 
 
+
 class Tetris(gym.Env):
     def __init__(self, render_mode=None, width=10, height=20, tetrominoes=STANDARD_TETROMINOES, scheduler=BagScheduler):
         # Dimensions
@@ -47,7 +48,7 @@ class Tetris(gym.Env):
         self.game_over: bool = False
 
         # Gymnasium
-        self.observation_space = Box(low=0, high=len(self.tetrominoes), shape=(self.height * self.width,), dtype=np.float32)
+        self.observation_space = Box(low=0, high=len(self.tetrominoes), shape=(self.height, self.width), dtype=np.float32)
         self.action_space = Discrete(len(ACTIONS))
         self.reward_range = (min(REWARDS.values()), max(REWARDS.values()))
 
@@ -195,8 +196,16 @@ class Tetris(gym.Env):
         return num_filled
 
     def _get_obs(self):
+        return self.board.astype(np.float32)
+
+class TetrisLin(Tetris):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.observation_space = Box(low=0, high=len(self.tetrominoes), shape=(self.height * self.width,),
+                                     dtype=np.float32)
+
+    def _get_obs(self):
         return self.board.reshape(-1).astype(np.float32)
-        # return self.board.flatten().astype(np.float32)
 
     # def close(self):
     #     super().close()
