@@ -24,7 +24,7 @@ jobs:
       - uses: abatilo/actions-poetry@v3
 
       - name: Install dependencies
-        run: "poetry install --with docs"
+        run: poetry install --with docs
 
       - name: Build
         run: poetry run sphinx-build -b dirhtml -v docs _build

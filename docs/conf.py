@@ -34,7 +34,7 @@ html_theme = "furo"
 html_static_path = ["_static"]
 
 html_title = "Tetris Gymnasium"
-# html_baseurl = ""
+html_baseurl = "https://max-we.github.io/Tetris-Gymnasium"
 html_copy_source = False
 # html_favicon = "_static/img/favicon.png"
 html_theme_options = {
