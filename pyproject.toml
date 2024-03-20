@@ -6,7 +6,7 @@ authors = ["mw <maximilian.weichart@icloud.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11"
+python = ">=3.9,<3.11"
 gymnasium = ">=0.28.1"
 numpy = "^1.21.6"
 
@@ -26,6 +26,43 @@ tensorboard = "^2.10.0"
 [tool.poetry.group.docs.dependencies]
 sphinx = "^7"
 furo = "^2024.1.29"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.3.0"
+pyright = "^1.1.355"
+pydocstyle = "^6.3.0"
+pre-commit = "^3.6.2"
+
+[tool.pyright]
+include = ["tetris_gymnasium/**"]
+exclude = ["**/node_modules", "**/__pycache__", "examples/**"]
+strict = []
+
+typeCheckingMode = "basic"
+pythonVersion = "3.8"
+pythonPlatform = "All"
+typeshedPath = "typeshed"
+enableTypeIgnoreComments = true
+
+# This is required as the CI pre-commit does not download the module (i.e. numpy, pygame, box2d)
+#   Therefore, we have to ignore missing imports
+reportMissingImports = "none"
+# Some modules are missing type stubs, which is an issue when running pyright locally
+reportMissingTypeStubs = false
+# For warning and error, will raise an error when
+reportInvalidTypeVarUse = "none"
+
+# reportUnknownMemberType = "warning"  # -> raises 6035 warnings
+# reportUnknownParameterType = "warning"  # -> raises 1327 warnings
+# reportUnknownVariableType = "warning"  # -> raises 2585 warnings
+# reportUnknownArgumentType = "warning"  # -> raises 2104 warnings
+reportGeneralTypeIssues = "none"  # -> commented out raises 489 errors
+# reportUntypedFunctionDecorator = "none"  # -> pytest.mark.parameterize issues
+
+reportPrivateUsage = "warning"
+reportUnboundVariable = "warning"
+
+reportPrivateImportUsage = "none"  # -> commented out raises 144 errors
 
 [build-system]
 requires = ["poetry-core"]

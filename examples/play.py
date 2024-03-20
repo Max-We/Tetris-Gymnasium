@@ -1,7 +1,6 @@
 from tetris_gymnasium.envs.tetris import Tetris
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Create an instance of Tetris
     tetris_game = Tetris()
 

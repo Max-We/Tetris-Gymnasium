@@ -1,8 +1,14 @@
-# docs and experiment results can be found at https://docs.cleanrl.dev/rl-algorithms/dqn/#dqnpy
+""" Script to train a DQN agent on Tetris environment using linear architecture.
+
+The script is a modified version of the [CleanRL's](https://github.com/vwxyzjn/cleanrl) DQN implementation.
+
+docs and experiment results can be found at https://docs.cleanrl.dev/rl-algorithms/dqn/#dqnpy
+"""
 import os
 import random
 import time
 from dataclasses import dataclass
+from typing import Callable
 
 import gymnasium as gym
 import numpy as np
@@ -14,14 +20,8 @@ import tyro
 from stable_baselines3.common.buffers import ReplayBuffer
 from torch.utils.tensorboard import SummaryWriter
 
-import random
-from typing import Callable
+from tetris_gymnasium.envs import Tetris
 
-import gymnasium as gym
-import numpy as np
-import torch
-
-import tetris_gymnasium.envs
 
 # Evaluation
 def evaluate(
@@ -44,7 +44,9 @@ def evaluate(
     episodic_returns = []
     while len(episodic_returns) < eval_episodes:
         if random.random() < epsilon:
-            actions = np.array([envs.single_action_space.sample() for _ in range(envs.num_envs)])
+            actions = np.array(
+                [envs.single_action_space.sample() for _ in range(envs.num_envs)]
+            )
         else:
             q_values = model(torch.Tensor(obs).to(device))
             actions = torch.argmax(q_values, dim=1).cpu().numpy()
@@ -53,11 +55,14 @@ def evaluate(
             for info in infos["final_info"]:
                 if "episode" not in info:
                     continue
-                print(f"eval_episode={len(episodic_returns)}, episodic_return={info['episode']['r']}")
+                print(
+                    f"eval_episode={len(episodic_returns)}, episodic_return={info['episode']['r']}"
+                )
                 episodic_returns += [info["episode"]["r"]]
         obs = next_obs
 
     return episodic_returns
+
 
 # Training
 @dataclass
@@ -181,7 +186,8 @@ poetry run pip install "stable_baselines3==2.0.0a1"
     writer = SummaryWriter(f"runs/{run_name}")
     writer.add_text(
         "hyperparameters",
-        "|param|value|\n|-|-|\n%s" % ("\n".join([f"|{key}|{value}|" for key, value in vars(args).items()])),
+        "|param|value|\n|-|-|\n%s"
+        % ("\n".join([f"|{key}|{value}|" for key, value in vars(args).items()])),
     )
 
     # TRY NOT TO MODIFY: seeding
@@ -194,9 +200,14 @@ poetry run pip install "stable_baselines3==2.0.0a1"
 
     # env setup
     envs = gym.vector.SyncVectorEnv(
-        [make_env(args.env_id, args.seed + i, i, args.capture_video, run_name) for i in range(args.num_envs)]
+        [
+            make_env(args.env_id, args.seed + i, i, args.capture_video, run_name)
+            for i in range(args.num_envs)
+        ]
     )
-    assert isinstance(envs.single_action_space, gym.spaces.Discrete), "only discrete action space is supported"
+    assert isinstance(
+        envs.single_action_space, gym.spaces.Discrete
+    ), "only discrete action space is supported"
 
     q_network = QNetwork(envs).to(device)
     optimizer = optim.Adam(q_network.parameters(), lr=args.learning_rate)
@@ -216,13 +227,22 @@ poetry run pip install "stable_baselines3==2.0.0a1"
     obs, _ = envs.reset(seed=args.seed)
     for global_step in range(args.total_timesteps):
         # ALGO LOGIC: put action logic here
-        epsilon = linear_schedule(args.start_e, args.end_e, args.exploration_fraction * args.total_timesteps, global_step)
+        epsilon = linear_schedule(
+            args.start_e,
+            args.end_e,
+            args.exploration_fraction * args.total_timesteps,
+            global_step,
+        )
         if random.random() < epsilon:
-            actions = np.array([envs.single_action_space.sample() for _ in range(envs.num_envs)])
+            actions = np.array(
+                [envs.single_action_space.sample() for _ in range(envs.num_envs)]
+            )
         else:
             # Normalization by dividing with piece count
             # Todo: Create api to get how many pieces are in env / do normalize
-            q_values = q_network(torch.Tensor(obs).to(device) / envs.observation_space.high)
+            q_values = q_network(
+                torch.Tensor(obs).to(device) / envs.observation_space.high
+            )
             actions = torch.argmax(q_values, dim=1).cpu().numpy()
 
         # TRY NOT TO MODIFY: execute the game and log data.
@@ -232,9 +252,15 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         if "final_info" in infos:
             for info in infos["final_info"]:
                 if info and "episode" in info:
-                    print(f"global_step={global_step}, episodic_return={info['episode']['r']}")
-                    writer.add_scalar("charts/episodic_return", info["episode"]["r"], global_step)
-                    writer.add_scalar("charts/episodic_length", info["episode"]["l"], global_step)
+                    print(
+                        f"global_step={global_step}, episodic_return={info['episode']['r']}"
+                    )
+                    writer.add_scalar(
+                        "charts/episodic_return", info["episode"]["r"], global_step
+                    )
+                    writer.add_scalar(
+                        "charts/episodic_length", info["episode"]["l"], global_step
+                    )
 
         # TRY NOT TO MODIFY: save data to reply buffer; handle `final_observation`
         real_next_obs = next_obs.copy()
@@ -252,15 +278,23 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                 data = rb.sample(args.batch_size)
                 with torch.no_grad():
                     target_max, _ = target_network(data.next_observations).max(dim=1)
-                    td_target = data.rewards.flatten() + args.gamma * target_max * (1 - data.dones.flatten())
+                    td_target = data.rewards.flatten() + args.gamma * target_max * (
+                        1 - data.dones.flatten()
+                    )
                 old_val = q_network(data.observations).gather(1, data.actions).squeeze()
                 loss = F.mse_loss(td_target, old_val)
 
                 if global_step % 100 == 0:
                     writer.add_scalar("losses/td_loss", loss, global_step)
-                    writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
+                    writer.add_scalar(
+                        "losses/q_values", old_val.mean().item(), global_step
+                    )
                     print("SPS:", int(global_step / (time.time() - start_time)))
-                    writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
+                    writer.add_scalar(
+                        "charts/SPS",
+                        int(global_step / (time.time() - start_time)),
+                        global_step,
+                    )
 
                 # optimize the model
                 optimizer.zero_grad()
@@ -269,9 +303,12 @@ poetry run pip install "stable_baselines3==2.0.0a1"
 
             # update target network
             if global_step % args.target_network_frequency == 0:
-                for target_network_param, q_network_param in zip(target_network.parameters(), q_network.parameters()):
+                for target_network_param, q_network_param in zip(
+                    target_network.parameters(), q_network.parameters()
+                ):
                     target_network_param.data.copy_(
-                        args.tau * q_network_param.data + (1.0 - args.tau) * target_network_param.data
+                        args.tau * q_network_param.data
+                        + (1.0 - args.tau) * target_network_param.data
                     )
 
     if args.save_model:
