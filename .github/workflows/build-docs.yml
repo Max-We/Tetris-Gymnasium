@@ -21,6 +21,8 @@ jobs:
         with:
             python-version: '3.9'
 
+      - uses: abatilo/actions-poetry@v2.1.3
+
       - name: Install dependencies
         run: poetry install --with docs
 
