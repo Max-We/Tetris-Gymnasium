@@ -21,10 +21,10 @@ jobs:
         with:
             python-version: '3.9'
 
-      - uses: abatilo/actions-poetry@v2.1.3
+      - uses: abatilo/actions-poetry@v3
 
       - name: Install dependencies
-        run: poetry install --with docs
+        run: "poetry install --with docs"
 
       - name: Build
         run: sphinx-build -b dirhtml -v docs _build
