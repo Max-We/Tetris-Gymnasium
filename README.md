@@ -1,4 +1,4 @@
-# Tetris Gymnasium Environment
+![logo](./docs/_static/logo.png "Tetris Gymnasium")
 
 > Tetris Gymnasium is currently under early development!
 
