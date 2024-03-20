@@ -27,7 +27,7 @@ jobs:
         run: "poetry install --with docs"
 
       - name: Build
-        run: sphinx-build -b dirhtml -v docs _build
+        run: poetry run sphinx-build -b dirhtml -v docs _build
 
       - name: Remove .doctrees
         run: rm -r _build/.doctrees
