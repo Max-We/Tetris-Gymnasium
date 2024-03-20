@@ -161,7 +161,7 @@ class Tetris(gym.Env):
         return self._get_obs(), REWARDS["alife"], False, truncated, {}
 
     def reset(
-        self, *, seed: int | None = None, options: "dict[str, Any]" | None = None
+        self, *, seed: "int | None" = None, options: "dict[str, Any] | None" = None
     ) -> "tuple[np.ndarray, dict[str, Any]]":
         """Resets the state of the environment.
 
@@ -187,7 +187,7 @@ class Tetris(gym.Env):
 
         return self._get_obs(), {}
 
-    def render(self) -> RenderFrame | "list[RenderFrame]" | None:
+    def render(self) -> "RenderFrame | list[RenderFrame] | None":
         """Renders the environment as text."""
         if self.active_tetromino is not None:
             tetromino_height, tetromino_width = self.active_tetromino.shape

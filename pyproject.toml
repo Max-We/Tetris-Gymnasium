@@ -25,7 +25,10 @@ tensorboard = "^2.10.0"
 
 [tool.poetry.group.docs.dependencies]
 sphinx = "^7"
-furo = "^2024.1.29"
+sphinx-autobuild = "^2024.2.4"
+furo = {git = "https://github.com/Max-We/Celshast"}
+pydata-sphinx-theme = "^0.15.2"
+myst-parser = "^2.0.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.3.0"
