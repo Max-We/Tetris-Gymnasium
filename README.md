@@ -24,6 +24,12 @@ for _ in range(1000):
 env.close()
 ```
 
+##
+
+The documentation can be found on [GitHub Pages](https://max-we.github.io/Tetris-Gymnasium/)
+
+## License
+
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgements
