@@ -266,8 +266,6 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="Tetris">
-<a class="viewcode-back" href="../../../../environments/tetris/#tetris_gymnasium.envs.tetris.Tetris">[docs]</a>
 <span class="k">class</span> <span class="nc">Tetris</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">Env</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tetris environment for Gymnasium.&quot;&quot;&quot;</span>
 
@@ -559,32 +557,8 @@
 
     <span class="k">def</span> <span class="nf">_get_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the current board as an observation.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
-
-
-<span class="k">class</span> <span class="nc">TetrisLin</span><span class="p">(</span><span class="n">Tetris</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tetris environment for Gymnasium with a linear observation space.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a new Tetris environment with a linear observation space.&quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">Box</span><span class="p">(</span>
-            <span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-            <span class="n">high</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tetrominoes</span><span class="p">),</span>
-            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,),</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_get_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the current board as a linear observation.</span>
-
-<span class="sd">        The linear observation is obtained by flattening the 2D board into a 1D array.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Todo: Decide if using `reshape(-1)` is better than `ravel()` or `flatten()`</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-
-    <span class="c1"># def close(self):</span>
     <span class="c1">#     super().close()</span>
     <span class="c1">#</span>
     <span class="c1"># @property</span>
