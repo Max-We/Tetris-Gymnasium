@@ -21,6 +21,7 @@ from stable_baselines3.common.buffers import ReplayBuffer
 from torch.utils.tensorboard import SummaryWriter
 
 from tetris_gymnasium.envs import Tetris
+from tetris_gymnasium.wrappers.observation import FlatObservation
 
 
 # Evaluation
@@ -92,7 +93,7 @@ class Args:
 
     # Algorithm specific arguments
     # env_id: str = "CartPole-v1"
-    env_id: str = "tetris_gymnasium/TetrisLin"
+    env_id: str = "tetris_gymnasium/Tetris"
     """the id of the environment"""
     total_timesteps: int = 500000
     """total timesteps of the experiments"""
@@ -129,6 +130,8 @@ def make_env(env_id, seed, idx, capture_video, run_name):
             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         else:
             env = gym.make(env_id)
+
+        env = FlatObservation(env)
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env.action_space.seed(seed)
 

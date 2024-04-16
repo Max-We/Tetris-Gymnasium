@@ -309,29 +309,6 @@ class Tetris(gym.Env):
         """Return the current board as an observation."""
         return self.board.astype(np.float32)
 
-
-class TetrisLin(Tetris):
-    """Tetris environment for Gymnasium with a linear observation space."""
-
-    def __init__(self, *args, **kwargs):
-        """Creates a new Tetris environment with a linear observation space."""
-        super().__init__(*args, **kwargs)
-        self.observation_space = Box(
-            low=0,
-            high=len(self.tetrominoes),
-            shape=(self.height * self.width,),
-            dtype=np.float32,
-        )
-
-    def _get_obs(self):
-        """Return the current board as a linear observation.
-
-        The linear observation is obtained by flattening the 2D board into a 1D array.
-        """
-        # Todo: Decide if using `reshape(-1)` is better than `ravel()` or `flatten()`
-        return self.board.reshape(-1).astype(np.float32)
-
-    # def close(self):
     #     super().close()
     #
     # @property
