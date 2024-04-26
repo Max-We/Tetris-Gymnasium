@@ -34,7 +34,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgements
 
-We would like to thank the creators and maintainers of Gymnasium, CleanRL and Tetris-deep-Q-learning-pytorch for providing a powerful frameworks and refrence implementations
+We would like to thank the creators and maintainers of Gymnasium, CleanRL and Tetris-deep-Q-learning-pytorch for providing a powerful frameworks and reference implementations
 
 ---
 

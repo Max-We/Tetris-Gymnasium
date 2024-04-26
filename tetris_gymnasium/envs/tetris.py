@@ -28,6 +28,8 @@ ACTIONS = {
 class Tetris(gym.Env):
     """Tetris environment for Gymnasium."""
 
+    metadata = {"render_modes": ["text"], "render_fps": 1, "render_human": True}
+
     def __init__(
         self,
         render_mode=None,
@@ -171,13 +173,14 @@ class Tetris(gym.Env):
 
         Returns: The initial observation of the space.
         """
-        # Todo: Implement seeding
         # Todo: Implement options
+        super().reset(seed=seed, options=options)
+
         # Initialize fresh board
         self.board = np.zeros((self.height, self.width), dtype=np.uint8)
 
         # Reset the randomizer
-        self.randomizer.reset()
+        self.randomizer.reset(seed=seed)
 
         # Get first piece from bag
         self.active_tetromino = self.tetrominoes[self.randomizer.get_next_tetromino()]
