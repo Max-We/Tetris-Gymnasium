@@ -192,19 +192,42 @@ class Tetris(gym.Env):
 
     def render(self) -> "RenderFrame | list[RenderFrame] | None":
         """Renders the environment as text."""
-        if self.active_tetromino is not None:
-            tetromino_height, tetromino_width = self.active_tetromino.shape
-            view = self.board.copy()
-            view[
-                self.y : self.y + tetromino_height, self.x : self.x + tetromino_width
-            ] += self.active_tetromino
-        else:
-            view = self.board
+        if self.render_mode == "ansi":
+            # Render active tetromino (because it's not on self.board)
+            if self.active_tetromino is not None:
+                tetromino_height, tetromino_width = self.active_tetromino.shape
+                view = self.board.copy()
+                view[
+                    self.y : self.y + tetromino_height,
+                    self.x : self.x + tetromino_width,
+                ] += self.active_tetromino
+            else:
+                view = self.board
 
-        char_field = np.where(view == 0, ".", view.astype(str))
-        field_str = "\n".join("".join(row) for row in char_field)
-        print(field_str)
-        print("==========")
+            char_field = np.where(view == 0, ".", view.astype(str))
+            field_str = "\n".join("".join(row) for row in char_field)
+            return field_str
+        elif self.render_mode == "rgb_array":
+            # Initialize rgb array
+            rgb = np.zeros(
+                (self.board.shape[0], self.board.shape[1], 3), dtype=np.uint8
+            )
+            # Display the board
+            # TODO: Use a color map for the tetrominoes
+            rgb[self.board > 0] = 255
+            # Render active tetromino (because it's not on self.board)
+            if self.active_tetromino is not None:
+                tetromino_height, tetromino_width = self.active_tetromino.shape
+                rgb[
+                    self.y + self.padding : self.y + self.padding + tetromino_height,
+                    self.x + self.padding : self.x + self.padding + tetromino_width,
+                ] += (
+                    np.repeat(self.active_tetromino[:, :, np.newaxis], 3, axis=2) * 255
+                )
+            return rgb[
+                self.padding : self.height + self.padding,
+                self.padding : self.width + self.padding,
+            ]
 
         return None
 
