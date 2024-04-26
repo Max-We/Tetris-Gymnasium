@@ -266,8 +266,12 @@
 <span class="p">}</span>
 
 
+<div class="viewcode-block" id="Tetris">
+<a class="viewcode-back" href="../../../../environments/tetris/#tetris_gymnasium.envs.tetris.Tetris">[docs]</a>
 <span class="k">class</span> <span class="nc">Tetris</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">Env</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tetris environment for Gymnasium.&quot;&quot;&quot;</span>
+
+    <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;render_modes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">],</span> <span class="s2">&quot;render_fps&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;render_human&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -417,13 +421,14 @@
 
 <span class="sd">        Returns: The initial observation of the space.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Todo: Implement seeding</span>
         <span class="c1"># Todo: Implement options</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+
         <span class="c1"># Initialize fresh board</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
 
         <span class="c1"># Reset the randomizer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">randomizer</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">randomizer</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
 
         <span class="c1"># Get first piece from bag</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tetrominoes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">randomizer</span><span class="o">.</span><span class="n">get_next_tetromino</span><span class="p">()]</span>
@@ -557,7 +562,8 @@
 
     <span class="k">def</span> <span class="nf">_get_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the current board as an observation.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+
 
     <span class="c1">#     super().close()</span>
     <span class="c1">#</span>
