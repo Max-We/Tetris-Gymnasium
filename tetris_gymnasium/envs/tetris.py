@@ -28,7 +28,11 @@ ACTIONS = {
 class Tetris(gym.Env):
     """Tetris environment for Gymnasium."""
 
-    metadata = {"render_modes": ["text"], "render_fps": 1, "render_human": True}
+    metadata = {
+        "render_modes": ["human", "rgb_array", "ansi"],
+        "render_fps": 1,
+        "render_human": True,
+    }
 
     def __init__(
         self,
