@@ -7,7 +7,7 @@ from gymnasium.core import ActType, RenderFrame
 from gymnasium.spaces import Box, Discrete
 
 from tetris_gymnasium.components.randomizer import BagRandomizer, Randomizer
-from tetris_gymnasium.util.tetrominoes import STANDARD_TETROMINOES
+from tetris_gymnasium.util.tetrominoes import STANDARD_COLORS, STANDARD_TETROMINOES
 
 REWARDS = {
     "alife": 0.001,
@@ -121,7 +121,7 @@ class Tetris(gym.Env):
             if action == ACTIONS["move_left"]:  # move left
                 if not self.check_collision(self.active_tetromino, self.x - 1, self.y):
                     self.x -= 1
-            elif action == ACTIONS["move_left"]:  # move right
+            elif action == ACTIONS["move_right"]:  # move right
                 if not self.check_collision(self.active_tetromino, self.x + 1, self.y):
                     self.x += 1
             elif action == ACTIONS["rotate_clockwise"]:  # rotate clockwise
@@ -217,21 +217,28 @@ class Tetris(gym.Env):
                 (self.board.shape[0], self.board.shape[1], 3), dtype=np.uint8
             )
             # Display the board
-            # TODO: Use a color map for the tetrominoes
-            rgb[self.board > 0] = 255
+            rgb[:, :, :] = STANDARD_COLORS[self.board]
+
             # Render active tetromino (because it's not on self.board)
             if self.active_tetromino is not None:
-                tetromino_height, tetromino_width = self.active_tetromino.shape
-                rgb[
-                    self.y + self.padding : self.y + self.padding + tetromino_height,
-                    self.x + self.padding : self.x + self.padding + tetromino_width,
-                ] += (
-                    np.repeat(self.active_tetromino[:, :, np.newaxis], 3, axis=2) * 255
+                inbound_tetromino, _ = self.cut_bounds(
+                    self.x, self.y, self.active_tetromino
                 )
-            return rgb[
-                self.padding : self.height + self.padding,
-                self.padding : self.width + self.padding,
-            ]
+
+                # Expand to 3 Dimensions
+                active_tetromino_rgb = np.repeat(
+                    inbound_tetromino[:, :, np.newaxis], 3, axis=2
+                )
+                active_tetromino_rgb[:, :, :] = STANDARD_COLORS[inbound_tetromino]
+
+                # Apply by masking
+                tetromino_height, tetromino_width = inbound_tetromino.shape
+                x, y = max(0, self.x), max(0, self.y)
+                rgb[
+                    y : y + tetromino_height,
+                    x : x + tetromino_width,
+                ] = active_tetromino_rgb
+            return rgb
 
         return None
 
@@ -246,10 +253,14 @@ class Tetris(gym.Env):
 
     def place_active_tetromino(self):
         """Locks the active tetromino in place on the board."""
-        tetromino_height, tetromino_width = self.active_tetromino.shape
+        # Boundary checks
+        inbound_tetromino, _ = self.cut_bounds(self.x, self.y, self.active_tetromino)
+
+        tetromino_height, tetromino_width = inbound_tetromino.shape
+        x, y = max(0, self.x), max(0, self.y)
         self.board[
-            self.y : self.y + tetromino_height, self.x : self.x + tetromino_width
-        ] += self.active_tetromino
+            y : y + tetromino_height, x : x + tetromino_width
+        ] += inbound_tetromino
         self.active_tetromino = None
 
     def check_collision(self, tetromino: np.ndarray, x: int, y: int) -> bool:
@@ -270,25 +281,53 @@ class Tetris(gym.Env):
         Returns:
             True if the tetromino collides with the board at the given position, False otherwise.
         """
-        tetromino_height, tetromino_width = tetromino.shape
+        inbound_tetromino, outbound_tetromino = self.cut_bounds(x, y, tetromino)
 
-        # Boundary check
-        if (x < 0 or x + tetromino_width > self.width) or (
-            y < 0 or y + tetromino_height > self.height
-        ):
+        # Tetromino moving outside the board
+        if (outbound_tetromino is not None) and np.any(outbound_tetromino != 0):
             return True
 
         # Extract the subarray of the board where the tetromino will be placed
+        x, y = max(0, x), max(0, y)
+        tetromino_height, tetromino_width = inbound_tetromino.shape
         board_subarray = self.board[y : y + tetromino_height, x : x + tetromino_width]
 
         # Check collision using numpy element-wise operations.
         # This checks if any corresponding cells (both non-zero) of the subarray and the
         # tetromino overlap, indicating a collision.
-        if np.any(board_subarray[tetromino > 0] > 0):
-            return True
+        return np.any(board_subarray[inbound_tetromino > 0] > 0)
 
-        # No collision detected
-        return False
+    def cut_bounds(self, x: int, y: int, tetromino: np.ndarray):
+        """Cut the tetromino to fit within the boundaries of the board.
+
+        Args:
+            x: The x position of the tetromino.
+            y: The y position of the tetromino.
+            tetromino: The tetromino to cut.
+
+        Returns:
+            Two new arrays. One is the part of the tetromino inside the board, and the other is the part outside.
+        """
+        # Default initial values
+        inbound_tetromino = tetromino  # the part of the tetromino inside the board
+        outbound_tetromino = None  # the part of the tetromino outside the board
+
+        # Boundary checks
+        tetromino_height, tetromino_width = tetromino.shape
+        if x < 0:
+            # Left overflow
+            outbound_tetromino = tetromino[:, : abs(x)]
+            inbound_tetromino = tetromino[:, abs(x) :]
+        elif x + tetromino_width > self.width:
+            # Right overflow
+            outbound_tetromino = tetromino[:, self.width - x :]
+            inbound_tetromino = tetromino[:, : self.width - x]
+        if y + tetromino_height > self.height:
+            # Bottom overflow
+            outbound_tetromino = tetromino[self.height - y :, :]
+            inbound_tetromino = tetromino[: self.height - y, :]
+
+        return inbound_tetromino, outbound_tetromino
 
     def rotate(self, tetromino: np.ndarray, clockwise=True) -> np.ndarray:
         """Rotate the given tetromino by 90 degrees.
