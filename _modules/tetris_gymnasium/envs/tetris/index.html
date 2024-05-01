@@ -248,7 +248,7 @@
 <span class="kn">from</span> <span class="nn">gymnasium.spaces</span> <span class="kn">import</span> <span class="n">Box</span><span class="p">,</span> <span class="n">Discrete</span>
 
 <span class="kn">from</span> <span class="nn">tetris_gymnasium.components.randomizer</span> <span class="kn">import</span> <span class="n">BagRandomizer</span><span class="p">,</span> <span class="n">Randomizer</span>
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.util.tetrominoes</span> <span class="kn">import</span> <span class="n">STANDARD_TETROMINOES</span>
+<span class="kn">from</span> <span class="nn">tetris_gymnasium.util.tetrominoes</span> <span class="kn">import</span> <span class="n">STANDARD_COLORS</span><span class="p">,</span> <span class="n">STANDARD_TETROMINOES</span>
 
 <span class="n">REWARDS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;alife&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
@@ -271,7 +271,11 @@
 <span class="k">class</span> <span class="nc">Tetris</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">Env</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tetris environment for Gymnasium.&quot;&quot;&quot;</span>
 
-    <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;render_modes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">],</span> <span class="s2">&quot;render_fps&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;render_human&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;render_modes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;human&quot;</span><span class="p">,</span> <span class="s2">&quot;rgb_array&quot;</span><span class="p">,</span> <span class="s2">&quot;ansi&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;render_fps&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;render_human&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -362,7 +366,7 @@
             <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="n">ACTIONS</span><span class="p">[</span><span class="s2">&quot;move_left&quot;</span><span class="p">]:</span>  <span class="c1"># move left</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_collision</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-=</span> <span class="mi">1</span>
-            <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">ACTIONS</span><span class="p">[</span><span class="s2">&quot;move_left&quot;</span><span class="p">]:</span>  <span class="c1"># move right</span>
+            <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">ACTIONS</span><span class="p">[</span><span class="s2">&quot;move_right&quot;</span><span class="p">]:</span>  <span class="c1"># move right</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_collision</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">ACTIONS</span><span class="p">[</span><span class="s2">&quot;rotate_clockwise&quot;</span><span class="p">]:</span>  <span class="c1"># rotate clockwise</span>
@@ -443,19 +447,49 @@
 <a class="viewcode-back" href="../../../../environments/tetris/#tetris_gymnasium.envs.tetris.Tetris.render">[docs]</a>
     <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RenderFrame | list[RenderFrame] | None&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Renders the environment as text.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">tetromino_height</span><span class="p">,</span> <span class="n">tetromino_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="o">.</span><span class="n">shape</span>
-            <span class="n">view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">view</span><span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">tetromino_height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">tetromino_width</span>
-            <span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">==</span> <span class="s2">&quot;ansi&quot;</span><span class="p">:</span>
+            <span class="c1"># Render active tetromino (because it&#39;s not on self.board)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">tetromino_height</span><span class="p">,</span> <span class="n">tetromino_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="o">.</span><span class="n">shape</span>
+                <span class="n">view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">view</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">tetromino_height</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">tetromino_width</span><span class="p">,</span>
+                <span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span>
 
-        <span class="n">char_field</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">view</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">view</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
-        <span class="n">field_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">char_field</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">field_str</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;==========&quot;</span><span class="p">)</span>
+            <span class="n">char_field</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">view</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">view</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
+            <span class="n">field_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">char_field</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">field_str</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">==</span> <span class="s2">&quot;rgb_array&quot;</span><span class="p">:</span>
+            <span class="c1"># Initialize rgb array</span>
+            <span class="n">rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span>
+            <span class="p">)</span>
+            <span class="c1"># Display the board</span>
+            <span class="n">rgb</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">STANDARD_COLORS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">]</span>
+
+            <span class="c1"># Render active tetromino (because it&#39;s not on self.board)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">inbound_tetromino</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cut_bounds</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Expand to 3 Dimensions</span>
+                <span class="n">active_tetromino_rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span>
+                    <span class="n">inbound_tetromino</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="mi">3</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span>
+                <span class="p">)</span>
+                <span class="n">active_tetromino_rgb</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">STANDARD_COLORS</span><span class="p">[</span><span class="n">inbound_tetromino</span><span class="p">]</span>
+
+                <span class="c1"># Apply by masking</span>
+                <span class="n">tetromino_height</span><span class="p">,</span> <span class="n">tetromino_width</span> <span class="o">=</span> <span class="n">inbound_tetromino</span><span class="o">.</span><span class="n">shape</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+                <span class="n">rgb</span><span class="p">[</span>
+                    <span class="n">y</span> <span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="n">tetromino_height</span><span class="p">,</span>
+                    <span class="n">x</span> <span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">tetromino_width</span><span class="p">,</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="n">active_tetromino_rgb</span>
+            <span class="k">return</span> <span class="n">rgb</span>
 
         <span class="k">return</span> <span class="kc">None</span></div>
 
@@ -471,10 +505,14 @@
 
     <span class="k">def</span> <span class="nf">place_active_tetromino</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Locks the active tetromino in place on the board.&quot;&quot;&quot;</span>
-        <span class="n">tetromino_height</span><span class="p">,</span> <span class="n">tetromino_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="o">.</span><span class="n">shape</span>
+        <span class="c1"># Boundary checks</span>
+        <span class="n">inbound_tetromino</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cut_bounds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">)</span>
+
+        <span class="n">tetromino_height</span><span class="p">,</span> <span class="n">tetromino_width</span> <span class="o">=</span> <span class="n">inbound_tetromino</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">tetromino_height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">tetromino_width</span>
-        <span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span>
+            <span class="n">y</span> <span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="n">tetromino_height</span><span class="p">,</span> <span class="n">x</span> <span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">tetromino_width</span>
+        <span class="p">]</span> <span class="o">+=</span> <span class="n">inbound_tetromino</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">check_collision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -495,25 +533,53 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            True if the tetromino collides with the board at the given position, False otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">tetromino_height</span><span class="p">,</span> <span class="n">tetromino_width</span> <span class="o">=</span> <span class="n">tetromino</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">inbound_tetromino</span><span class="p">,</span> <span class="n">outbound_tetromino</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cut_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">)</span>
 
-        <span class="c1"># Boundary check</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">x</span> <span class="o">+</span> <span class="n">tetromino_width</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
-            <span class="n">y</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">y</span> <span class="o">+</span> <span class="n">tetromino_height</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span>
-        <span class="p">):</span>
+        <span class="c1"># Tetromino moving outside the board</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">outbound_tetromino</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">outbound_tetromino</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">True</span>
 
         <span class="c1"># Extract the subarray of the board where the tetromino will be placed</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">tetromino_height</span><span class="p">,</span> <span class="n">tetromino_width</span> <span class="o">=</span> <span class="n">inbound_tetromino</span><span class="o">.</span><span class="n">shape</span>
         <span class="n">board_subarray</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">y</span> <span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="n">tetromino_height</span><span class="p">,</span> <span class="n">x</span> <span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">tetromino_width</span><span class="p">]</span>
 
         <span class="c1"># Check collision using numpy element-wise operations.</span>
         <span class="c1"># This checks if any corresponding cells (both non-zero) of the subarray and the</span>
         <span class="c1"># tetromino overlap, indicating a collision.</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">board_subarray</span><span class="p">[</span><span class="n">tetromino</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">board_subarray</span><span class="p">[</span><span class="n">inbound_tetromino</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
 
-        <span class="c1"># No collision detected</span>
-        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">def</span> <span class="nf">cut_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cut the tetromino to fit within the boundaries of the board.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: The x position of the tetromino.</span>
+<span class="sd">            y: The y position of the tetromino.</span>
+<span class="sd">            tetromino: The tetromino to cut.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Two new arrays. One is the part of the tetromino inside the board, and the other is the part outside.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Default initial values</span>
+        <span class="n">inbound_tetromino</span> <span class="o">=</span> <span class="n">tetromino</span>  <span class="c1"># the part of the tetromino inside the board</span>
+        <span class="n">outbound_tetromino</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the part of the tetromino outside the board</span>
+
+        <span class="c1"># Boundary checks</span>
+        <span class="n">tetromino_height</span><span class="p">,</span> <span class="n">tetromino_width</span> <span class="o">=</span> <span class="n">tetromino</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Left overflow</span>
+            <span class="n">outbound_tetromino</span> <span class="o">=</span> <span class="n">tetromino</span><span class="p">[:,</span> <span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span>
+            <span class="n">inbound_tetromino</span> <span class="o">=</span> <span class="n">tetromino</span><span class="p">[:,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">:]</span>
+        <span class="k">elif</span> <span class="n">x</span> <span class="o">+</span> <span class="n">tetromino_width</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">:</span>
+            <span class="c1"># Right overflow</span>
+            <span class="n">outbound_tetromino</span> <span class="o">=</span> <span class="n">tetromino</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="n">x</span> <span class="p">:]</span>
+            <span class="n">inbound_tetromino</span> <span class="o">=</span> <span class="n">tetromino</span><span class="p">[:,</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="n">x</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">y</span> <span class="o">+</span> <span class="n">tetromino_height</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">:</span>
+            <span class="c1"># Bottom overflow</span>
+            <span class="n">outbound_tetromino</span> <span class="o">=</span> <span class="n">tetromino</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">y</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="n">inbound_tetromino</span> <span class="o">=</span> <span class="n">tetromino</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">y</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">inbound_tetromino</span><span class="p">,</span> <span class="n">outbound_tetromino</span>
 
     <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">clockwise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate the given tetromino by 90 degrees.</span>
