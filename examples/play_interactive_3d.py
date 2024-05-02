@@ -2,6 +2,8 @@ import sys
 
 import cv2
 import gymnasium as gym
+import numpy as np
+from matplotlib import pyplot as plt
 
 from tetris_gymnasium.envs.tetris import Tetris
 
@@ -30,10 +32,37 @@ if __name__ == "__main__":
         # Render the current state of the game as text
         rgb = tetris_game.render()
 
-        # Render the current state of the game as an image using CV2
-        # CV2 uses BGR color format, so we need to convert the RGB image to BGR
-        cv2.imshow("Tetris", cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR))
-        cv2.waitKey(50)
+        # Setup the plot
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection="3d")
+
+        # Prepare data for scatter plotting
+        x = np.arange(rgb.shape[1])  # Width of the board (columns)
+        y = np.arange(rgb.shape[0])  # Height of the board (rows)
+        z = np.arange(rgb.shape[2])  # Depth (layers, each having an RGB)
+
+        # Meshgrid for coordinates in a 3D space
+        xx, yy, zz = np.meshgrid(x, y, z, indexing="ij")
+
+        # Flatten arrays for matplotlib
+        xx = xx.flatten()
+        yy = yy.flatten()
+        zz = zz.flatten()
+
+        # Colors need to be reshaped to match coordinates and normalized
+        colors = rgb / 255.0
+        colors = colors.reshape(-1, 3)  # Flatten to match coordinate points
+
+        # Plot each point with its corresponding color
+        ax.scatter(xx, yy, zz, c=colors, marker="s")
+
+        # Labeling Axes
+        ax.set_xlabel("Column Index")
+        ax.set_ylabel("Row Index")
+        ax.set_zlabel("Layer Index")
+
+        # Show the plot
+        plt.show()
 
         # Pick an action from user input mapped to the keyboard
         action = None

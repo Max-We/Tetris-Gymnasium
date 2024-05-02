@@ -32,7 +32,66 @@ STANDARD_TETROMINOES_MASKS = [
     np.array([[0, 0, 1], [1, 1, 1], [0, 0, 0]], dtype=np.uint8),  # J
 ]
 
-STANDARD_TETROMINOES = pre_process(STANDARD_TETROMINOES_MASKS)
+STANDARD_TETROMINOES_3D_MASKS = [
+    np.array(
+        [  # I Tetromino, extended in the 3rd dimension
+            [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0]],
+            [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+            [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+        ],
+        dtype=np.uint8,
+    ),
+    np.array(
+        [  # O Tetromino, remains largely the same but with a depth
+            [[1, 1], [1, 1]],
+            [[0, 0], [0, 0]],
+            [[0, 0], [0, 0]],
+        ],
+        dtype=np.uint8,
+    ),
+    np.array(
+        [  # T Tetromino, extended in the 3rd dimension
+            [[0, 1, 0], [1, 1, 1]],
+            [[0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0]],
+        ],
+        dtype=np.uint8,
+    ),
+    np.array(
+        [  # S Tetromino, extended in the 3rd dimension
+            [[0, 1, 1], [1, 1, 0]],
+            [[0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0]],
+        ],
+        dtype=np.uint8,
+    ),
+    np.array(
+        [  # Z Tetromino, extended in the 3rd dimension
+            [[1, 1, 0], [0, 1, 1]],
+            [[0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0]],
+        ],
+        dtype=np.uint8,
+    ),
+    np.array(
+        [  # L Tetromino, extended in the 3rd dimension
+            [[1, 0, 0], [1, 1, 1]],
+            [[0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0]],
+        ],
+        dtype=np.uint8,
+    ),
+    np.array(
+        [  # J Tetromino, extended in the 3rd dimension
+            [[0, 0, 1], [1, 1, 1]],
+            [[0, 0, 0], [0, 0, 0]],
+            [[0, 0, 0], [0, 0, 0]],
+        ],
+        dtype=np.uint8,
+    ),
+]
+
+STANDARD_TETROMINOES = pre_process(STANDARD_TETROMINOES_3D_MASKS)
 
 STANDARD_COLORS = np.array(
     [

@@ -1,4 +1,5 @@
 """Tetris environment for Gymnasium."""
+from itertools import permutations
 from typing import Any, List
 
 import gymnasium as gym
@@ -15,15 +16,6 @@ REWARDS = {
     "game_over": -2,
 }
 
-ACTIONS = {
-    "move_left": 0,
-    "move_right": 1,
-    "move_down": 2,
-    "rotate_clockwise": 3,
-    "rotate_counterclockwise": 4,
-    "hard_drop": 5,
-}
-
 
 class Tetris(gym.Env):
     """Tetris environment for Gymnasium."""
@@ -37,8 +29,7 @@ class Tetris(gym.Env):
     def __init__(
         self,
         render_mode=None,
-        width=10,
-        height=20,
+        dimensions=(20, 10),
         tetrominoes=STANDARD_TETROMINOES,
         randomizer=BagRandomizer,
     ):
@@ -46,16 +37,13 @@ class Tetris(gym.Env):
 
         Args:
             render_mode: The mode to use for rendering. If None, no rendering will be done.
-            width: The width of the game board.
-            height: The height of the game board.
+            dimensions: The dimensions of the board as a tuple (height, width).
             tetrominoes: A list of numpy arrays representing the tetrominoes to use.
             randomizer: The randomizer to use for selecting tetrominoes.
         """
         # Dimensions
-        self.height: int = height
-        self.width: int = width
-        self.window_width: int = width * 100
-        self.window_height: int = height * 100
+        self.window_height: int = dimensions[0] * 100
+        self.window_width: int = dimensions[1] * 100
 
         # Tetrominoes & Schedule
         self.randomizer: Randomizer = randomizer(len(tetrominoes))
@@ -63,21 +51,26 @@ class Tetris(gym.Env):
         self.active_tetromino: np.ndarray = self.tetrominoes[
             self.randomizer.get_next_tetromino()
         ]
-        self.board: np.ndarray = np.zeros((self.height, self.width), dtype=np.uint8)
+        self.dimensions = dimensions
+        self.board: np.ndarray = np.zeros(self.dimensions, dtype=np.uint8)
 
         self.padding = max(max(t.shape) for t in tetrominoes)
+        self.pad_mask = (
+            np.ones((len(self.dimensions), 2), dtype=np.integer) * self.padding
+        )
+        self.pad_mask[0, 0] = 0
         self.board = np.pad(
             self.board,
-            ((0, self.padding), (self.padding, self.padding)),
+            self.pad_mask,
             mode="constant",
             constant_values=1,
         )
-        self.width_padded = self.width + 2 * self.padding
-        self.height_padded = self.height + 2 * self.padding
 
         # Position
-        self.x: int = 0
-        self.y: int = 0
+        self.pos = np.zeros(len(self.dimensions), dtype=np.uint8)
+
+        all_axes = range(len(self.dimensions))
+        self.axis_pairs = list(permutations(all_axes, 2))
 
         # Game state
         self.game_over: bool = False
@@ -86,10 +79,11 @@ class Tetris(gym.Env):
         self.observation_space = Box(
             low=0,
             high=len(self.tetrominoes),
-            shape=(self.height, self.width),
+            shape=dimensions,
             dtype=np.float32,
         )
-        self.action_space = Discrete(len(ACTIONS))
+        # Actions: Movements + Rotations + Hard Drop
+        self.action_space = Discrete(len(dimensions) * 2 + len(self.axis_pairs) + 1)
         self.reward_range = (min(REWARDS.values()), max(REWARDS.values()))
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
@@ -128,25 +122,38 @@ class Tetris(gym.Env):
         if self.active_tetromino is None:
             self.spawn_tetromino()
         else:
-            if action == ACTIONS["move_left"]:  # move left
-                if not self.check_collision(self.active_tetromino, self.x - 1, self.y):
-                    self.x -= 1
-            elif action == ACTIONS["move_right"]:  # move right
-                if not self.check_collision(self.active_tetromino, self.x + 1, self.y):
-                    self.x += 1
-            elif action == ACTIONS["rotate_clockwise"]:  # rotate clockwise
-                if not self.check_collision(
-                    self.rotate(self.active_tetromino, True), self.x, self.y
-                ):
-                    self.active_tetromino = self.rotate(self.active_tetromino, True)
-            elif (
-                action == ACTIONS["rotate_counterclockwise"]
-            ):  # rotate counterclockwise
-                if not self.check_collision(
-                    self.rotate(self.active_tetromino, False), self.x, self.y
-                ):
-                    self.active_tetromino = self.rotate(self.active_tetromino, False)
-            elif action == ACTIONS["hard_drop"]:  # hard drop
+            dims = len(self.dimensions)
+
+            # Move: 0 -> dim * 2
+            if action in range(dims * 2):
+                for i in range(dims * 2):
+                    direction = 1 if i % 2 == 0 else -1
+                    if i == 1 and direction == -1:
+                        # Moving up is illegal
+                        break
+                    if action == i:
+                        axis = i // dims
+                        new_pos = self.pos.copy()
+                        new_pos[axis] += direction
+
+                        if not self.check_collision(self.active_tetromino, new_pos):
+                            self.pos = new_pos
+                        break
+            elif action in range(dims * 2, dims * 2 + len(self.axis_pairs)):
+                # Rotate: dim * 2 -> dim * 4
+                for i in range(dims * 2, dims * 2 + len(self.axis_pairs)):
+                    clockwise = 1 if i % 2 == 0 else -1
+                    if action == i:
+                        new_tetromino = np.rot90(
+                            self.active_tetromino,
+                            k=clockwise,
+                            axes=self.axis_pairs[i - (dims * 2)],
+                        )
+                        if not self.check_collision(new_tetromino, self.pos):
+                            self.active_tetromino = new_tetromino
+                        break
+            else:
+                # Hard drop
                 self.drop_active_tetromino()
                 self.place_active_tetromino()
                 return (
@@ -156,20 +163,6 @@ class Tetris(gym.Env):
                     truncated,
                     {},
                 )
-            elif action == ACTIONS["move_down"]:  # move down (gravity)
-                # Todo: Separate move_down from gravity
-                if not self.check_collision(self.active_tetromino, self.x, self.y + 1):
-                    self.y += 1
-                else:
-                    self.place_active_tetromino()
-                    return (
-                        self._get_obs(),
-                        REWARDS["game_over"] * self.clear_filled_rows()
-                        + REWARDS["alife"],
-                        False,
-                        truncated,
-                        {},
-                    )
 
         if self.game_over:
             return self._get_obs(), REWARDS["game_over"], True, truncated, {}
@@ -191,10 +184,10 @@ class Tetris(gym.Env):
         super().reset(seed=seed, options=options)
 
         # Initialize fresh board
-        self.board = np.zeros((self.height, self.width), dtype=np.uint8)
+        self.board: np.ndarray = np.zeros(self.dimensions, dtype=np.uint8)
         self.board = np.pad(
             self.board,
-            ((0, self.padding), (self.padding, self.padding)),
+            self.pad_mask,
             mode="constant",
             constant_values=1,
         )
@@ -205,10 +198,10 @@ class Tetris(gym.Env):
         # Get first piece from bag
         self.active_tetromino = self.tetrominoes[self.randomizer.get_next_tetromino()]
 
-        self.x, self.y = (
-            self.width_padded // 2 - len(self.active_tetromino[0]) // 2,
-            0,
-        )
+        for i in range(len(self.dimensions)):
+            self.pos[i] = self.board.shape[i] // 2 - len(self.active_tetromino[i]) // 2
+        self.pos[0] = 0
+
         self.game_over = False
 
         return self._get_obs(), {}
@@ -218,17 +211,23 @@ class Tetris(gym.Env):
         if self.render_mode == "ansi":
             # Render active tetromino (because it's not on self.board)
             if self.active_tetromino is not None:
-                tetromino_height, tetromino_width = self.active_tetromino.shape
                 view = self.board.copy()
-                view[
-                    self.y : self.y + tetromino_height,
-                    self.x : self.x + tetromino_width,
-                ] += self.active_tetromino
+                indices = tuple(
+                    slice(self.pos[i], self.pos[i] + self.active_tetromino.shape[i])
+                    for i in range(self.board.ndim)
+                )
+                view[indices] += self.active_tetromino
             else:
                 view = self.board
 
             # Crop padding away as we don't want to render it
-            view = view[0 : -self.padding, self.padding : -self.padding]
+            stripped_indices = tuple(
+                slice(0, -self.padding)
+                if i == 0
+                else slice(self.padding, -self.padding)
+                for i in range(len(self.dimensions))
+            )
+            view = view[stripped_indices]
 
             # Convert to string
             char_field = np.where(view == 0, ".", view.astype(str))
@@ -236,29 +235,36 @@ class Tetris(gym.Env):
             return field_str
         elif self.render_mode == "rgb_array":
             # Initialize rgb array
-            rgb = np.zeros(
-                (self.board.shape[0], self.board.shape[1], 3), dtype=np.uint8
-            )
-            # Render the board
-            rgb[:, :, :] = STANDARD_COLORS[self.board]
+            rgb = np.zeros(self.board.shape + (3,), dtype=np.uint8)
+            rgb[...] = STANDARD_COLORS[self.board]
 
             # Render active tetromino (because it's not on self.board)
             if self.active_tetromino is not None:
-                # Expand to 3 Dimensions
-                active_tetromino_rgb = np.repeat(
-                    self.active_tetromino[:, :, np.newaxis], 3, axis=2
+                # Render active tetromino (because it's not on self.board)
+                # Assuming active_tetromino is a smaller n-dimensional array within board's dimensions
+                active_dims = self.active_tetromino.ndim
+                indices = tuple(
+                    slice(self.pos[i], self.pos[i] + self.active_tetromino.shape[i])
+                    for i in range(active_dims)
                 )
-                active_tetromino_rgb[:, :, :] = STANDARD_COLORS[self.active_tetromino]
 
-                # Apply by masking
-                tetromino_height, tetromino_width = self.active_tetromino.shape
-                rgb[
-                    self.y : self.y + tetromino_height,
-                    self.x : self.x + tetromino_width,
-                ] += active_tetromino_rgb
+                # Ensure RGB channels for drawing
+                color_channels = 3
+                expanded_dims = self.active_tetromino.shape + (color_channels,)
+                active_tetromino_rgb = np.zeros(expanded_dims, dtype=np.uint8)
+                active_tetromino_rgb[..., :] = STANDARD_COLORS[self.active_tetromino]
+
+                # Place expanded and colored tetromino into the board (which is assumed to have space for colors)
+                rgb[indices] += active_tetromino_rgb
 
             # Crop padding away as we don't want to render it
-            rgb = rgb[0 : -self.padding, self.padding : -self.padding]
+            stripped_indices = tuple(
+                slice(0, -self.padding)
+                if i == 0
+                else slice(self.padding, -self.padding)
+                for i in range(active_dims)
+            )
+            rgb = rgb[stripped_indices]
             return rgb
 
         return None
@@ -269,20 +275,22 @@ class Tetris(gym.Env):
         If the tetromino collides with the top of the board, the game is over.
         """
         self.active_tetromino = self.tetrominoes[self.randomizer.get_next_tetromino()]
-        self.x, self.y = self.width_padded // 2 - self.active_tetromino.shape[0] // 2, 0
-        self.game_over = self.check_collision(self.active_tetromino, self.x, self.y)
+        for i in range(len(self.pos)):
+            self.pos[i] = self.board.shape[i] // 2 - len(self.active_tetromino[i]) // 2
+        self.pos[0] = 0
+        self.game_over = self.check_collision(self.active_tetromino, self.pos)
 
     def place_active_tetromino(self):
         """Locks the active tetromino in place on the board."""
         # Boundary checks
-        tetromino_height, tetromino_width = self.active_tetromino.shape
-        x, y = max(0, self.x), max(0, self.y)
-        self.board[
-            y : y + tetromino_height, x : x + tetromino_width
-        ] += self.active_tetromino
+        indices = tuple(
+            slice(self.pos[i], self.pos[i] + self.active_tetromino.shape[i])
+            for i in range(self.board.ndim)
+        )
+        self.board[indices] += self.active_tetromino
         self.active_tetromino = None
 
-    def check_collision(self, tetromino: np.ndarray, x: int, y: int) -> bool:
+    def check_collision(self, tetromino: np.ndarray, pos: np.ndarray) -> bool:
         """Check if the tetromino collides with the board at the given position.
 
         The collision check is performed in two steps:
@@ -300,8 +308,22 @@ class Tetris(gym.Env):
         Returns:
             True if the tetromino collides with the board at the given position, False otherwise.
         """
-        tetromino_height, tetromino_width = tetromino.shape
-        board_subarray = self.board[y : y + tetromino_height, x : x + tetromino_width]
+        # w = pos
+        # e = tetromino.shape
+        # r = self.dimensions
+
+        indices = tuple(
+            slice(pos[i], pos[i] + tetromino.shape[i])
+            for i in range(len(self.dimensions))
+        )
+        board_subarray = self.board[indices]
+
+        # Render active tetromino (because it's not on self.board)
+        # if tetromino is not None:
+        #     view = self.board.copy()
+        #     indices = tuple(
+        #         slice(pos[i], pos[i] + tetromino.shape[i]) for i in range(len(self.board.shape)))
+        #     view[indices] += tetromino
 
         # Check collision using numpy element-wise operations.
         # This checks if any corresponding cells (both non-zero) of the subarray and the
@@ -323,8 +345,12 @@ class Tetris(gym.Env):
     def drop_active_tetromino(self):
         """Drop the active tetromino to the lowest possible position on the board."""
         # Todo: is there a more efficient way to hard drop without loop?
-        while not self.check_collision(self.active_tetromino, self.x, self.y + 1):
-            self.y += 1
+        new_pos = self.pos.copy()
+        while not self.check_collision(self.active_tetromino, new_pos):
+            new_pos[0] += 1
+
+        new_pos[0] -= 1
+        self.pos = new_pos
 
     def clear_filled_rows(self) -> int:
         """Clear any filled rows on the board.
@@ -338,8 +364,12 @@ class Tetris(gym.Env):
             The number of rows that were cleared.
         """
         # Check for filled rows. A row is filled if it does not contain any zeros.
-        filled_rows = (~(self.board == 0).any(axis=1)) & (
-            ~(self.board == 1).all(axis=1)
+        filled_rows = np.all(
+            [
+                (~(self.board == 0).any(axis=ax)) & (~(self.board == 1).all(axis=ax))
+                for ax in range(1, self.board.ndim)
+            ],
+            axis=0,
         )
         num_filled = np.sum(filled_rows)
 
@@ -348,10 +378,12 @@ class Tetris(gym.Env):
             unfilled_rows = self.board[~filled_rows]
 
             # Create a new top part of the board with zeros to compensate for the cleared rows.
-            free_space = np.zeros((num_filled, self.width), dtype=np.uint8)
+            free_space = np.zeros((num_filled,) + self.dimensions[1:], dtype=np.uint8)
+            mm = self.pad_mask.copy()
+            mm[0] *= 0
             free_space = np.pad(
                 free_space,
-                ((0, 0), (self.padding, self.padding)),
+                mm,
                 mode="constant",
                 constant_values=1,
             )
@@ -363,7 +395,11 @@ class Tetris(gym.Env):
 
     def _get_obs(self) -> np.ndarray:
         """Return the current board as an observation."""
-        board_stripped = self.board[0 : -self.padding, self.padding : -self.padding]
+        stripped_indices = tuple(
+            slice(0, -self.padding) if i == 0 else slice(self.padding, -self.padding)
+            for i in range(len(self.dimensions))
+        )
+        board_stripped = self.board[stripped_indices]
         return board_stripped.astype(np.float32)
 
     #     super().close()
