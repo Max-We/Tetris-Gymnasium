@@ -1,21 +1,43 @@
 """Temporary file to store standard tetrominoes and their colors."""
+from typing import List
+
 import numpy as np
 
-STANDARD_TETROMINOES = [
+
+def pre_process(tetrominos: List[np.ndarray]):
+    """In order to make the tetrominos distinguishable, each tetromino should have a unique value.
+
+    The values start at 2, as 0 is the background and 1 is the bedrock.
+
+    Args:
+        tetrominos: The masks of the tetrominos.
+
+    Returns:
+        The preprocessed tetrominos.
+    """
+    for i in range(len(tetrominos)):
+        tetrominos[i] = tetrominos[i] * (i + 2)
+    return tetrominos
+
+
+STANDARD_TETROMINOES_MASKS = [
     np.array(
         [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]], dtype=np.uint8
     ),  # I
-    np.array([[2, 2], [2, 2]], dtype=np.uint8),  # O
-    np.array([[0, 3, 0], [3, 3, 3], [0, 0, 0]], dtype=np.uint8),  # T
-    np.array([[0, 4, 4], [4, 4, 0], [0, 0, 0]], dtype=np.uint8),  # S
-    np.array([[5, 5, 0], [0, 5, 5], [0, 0, 0]], dtype=np.uint8),  # Z
-    np.array([[6, 0, 0], [6, 6, 6], [0, 0, 0]], dtype=np.uint8),  # L
-    np.array([[0, 0, 7], [7, 7, 7], [0, 0, 0]], dtype=np.uint8),  # J
+    np.array([[1, 1], [1, 1]], dtype=np.uint8),  # O
+    np.array([[0, 1, 0], [1, 1, 1], [0, 0, 0]], dtype=np.uint8),  # T
+    np.array([[0, 1, 1], [1, 1, 0], [0, 0, 0]], dtype=np.uint8),  # S
+    np.array([[1, 1, 0], [0, 1, 1], [0, 0, 0]], dtype=np.uint8),  # Z
+    np.array([[1, 0, 0], [1, 1, 1], [0, 0, 0]], dtype=np.uint8),  # L
+    np.array([[0, 0, 1], [1, 1, 1], [0, 0, 0]], dtype=np.uint8),  # J
 ]
+
+STANDARD_TETROMINOES = pre_process(STANDARD_TETROMINOES_MASKS)
 
 STANDARD_COLORS = np.array(
     [
-        [0, 0, 0],  # Background color: black
+        [0, 0, 0],  # Background color: Black
+        [128, 128, 128],  # Bedrock: Grey
         [0, 240, 240],  # I: Cyan
         [240, 240, 0],  # O: Yellow
         [160, 0, 240],  # T: Purple
