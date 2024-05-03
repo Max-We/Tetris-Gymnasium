@@ -5,7 +5,7 @@ from typing import Optional
 import numpy as np
 
 
-class Holder:
+class TetrominoHolder:
     """Class for one or more tetrominoes for later use in a game of Tetris."""
 
     def __init__(self, size=1):
@@ -47,3 +47,7 @@ class Holder:
     def reset(self):
         """Reset the holder to its initial state."""
         self.queue.clear()
+
+    def get_tetrominoes(self):
+        """Get the tetrominoes currently in the holder."""
+        return list(self.queue)
