@@ -6,8 +6,9 @@ import numpy as np
 from gymnasium.core import ActType, RenderFrame
 from gymnasium.spaces import Box, Discrete
 
-from tetris_gymnasium.components.holder import Holder
-from tetris_gymnasium.components.randomizer import BagRandomizer, Randomizer
+from tetris_gymnasium.components.tetromino_holder import TetrominoHolder
+from tetris_gymnasium.components.tetromino_queue import TetrominoQueue
+from tetris_gymnasium.components.tetromino_randomizer import BagRandomizer, Randomizer
 from tetris_gymnasium.util.tetrominoes import STANDARD_COLORS, STANDARD_TETROMINOES
 
 REWARDS = {
@@ -43,7 +44,8 @@ class Tetris(gym.Env):
         height=20,
         tetrominoes=STANDARD_TETROMINOES,
         randomizer: Randomizer = BagRandomizer,
-        holder: Holder = Holder,
+        holder: TetrominoHolder = TetrominoHolder,
+        queue: TetrominoQueue = TetrominoQueue,
     ):
         """Creates a new Tetris environment.
 
@@ -54,18 +56,21 @@ class Tetris(gym.Env):
             tetrominoes: A list of numpy arrays representing the tetrominoes to use.
             randomizer: The randomizer to use for selecting tetrominoes.
             holder: The holder to use for storing tetrominoes.
+            queue: The queue to use for storing tetrominoes.
         """
         # Dimensions
         self.height: int = height
         self.width: int = width
 
-        # Tetrominoes & Schedule
-        self.randomizer: Randomizer = randomizer(len(tetrominoes))
+        # Utilities
+        self.queue = queue(randomizer(len(tetrominoes)), 5)
         self.holder = holder()
+
+        # Tetrominoes
         self.tetrominoes: List[np.ndarray] = tetrominoes
-        self.active_tetromino: np.ndarray = self.tetrominoes[
-            self.randomizer.get_next_tetromino()
-        ]
+        self.active_tetromino: np.ndarray = None
+        # The index is used to keep track of the active tetromino without comparing arrays
+        self.active_tetromino_i: int = 0
 
         # Padding
         self.padding: int = max(max(t.shape) for t in tetrominoes)
@@ -80,21 +85,30 @@ class Tetris(gym.Env):
         self.y: int = 0
 
         # Gymnasium
-        self.observation_space = Box(
-            low=0,
-            high=len(self.tetrominoes),
-            shape=(self.height, self.width),
-            dtype=np.float32,
+        self.observation_space = gym.spaces.Dict(
+            {
+                "board": Box(
+                    low=0,
+                    high=len(self.tetrominoes),
+                    shape=(self.height, self.width),
+                    dtype=np.float32,
+                ),
+                "holder": gym.spaces.MultiBinary(
+                    (self.holder.size, len(self.tetrominoes))
+                ),
+                "queue": gym.spaces.MultiBinary(
+                    (self.queue.size, len(self.tetrominoes))
+                ),
+            }
         )
         self.action_space = Discrete(len(ACTIONS))
         self.reward_range = (min(REWARDS.values()), max(REWARDS.values()))
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
-
         self.has_swapped = False
 
-    def step(self, action: ActType) -> "tuple[np.ndarray, float, bool, bool, dict]":
+    def step(self, action: ActType) -> "tuple[dict, float, bool, bool, dict]":
         """Perform one step of the environment's dynamics.
 
         Args:
@@ -136,9 +150,9 @@ class Tetris(gym.Env):
         elif action == ACTIONS["swap"]:
             if not self.has_swapped:
                 # Swap the active tetromino with the one in the holder
-                self.active_tetromino = self.holder.swap(self.active_tetromino)
+                self.active_tetromino_i = self.holder.swap(self.active_tetromino_i)
                 self.has_swapped = True
-                if self.active_tetromino is None:
+                if self.active_tetromino_i is None:
                     # If the holder is empty, spawn the next tetromino
                     # No need for collision check, as the holder is only empty at the start
                     self.spawn_tetromino()
@@ -158,7 +172,7 @@ class Tetris(gym.Env):
             # 3. Reset the swap flag (agent can swap once per tetromino)
             self.has_swapped = False
 
-        return self._get_obs(), reward, game_over, truncated, {}
+        return self._get_obs(), reward, game_over, truncated, self._get_info()
 
     def reset(
         self, *, seed: "int | None" = None, options: "dict[str, Any] | None" = None
@@ -177,10 +191,10 @@ class Tetris(gym.Env):
         self.board = self.create_board()
 
         # Reset the randomizer
-        self.randomizer.reset(seed=seed)
+        self.queue.reset(seed=seed)
 
         # Get the next tetromino and spawn it
-        self.active_tetromino = self.tetrominoes[self.randomizer.get_next_tetromino()]
+        self.set_active_tetromino(self.queue.get_next_tetromino())
         self.reset_tetromino_position()
 
         # Holder
@@ -193,20 +207,13 @@ class Tetris(gym.Env):
         """Renders the environment in various formats."""
         if self.render_mode == "ansi":
             # Render active tetromino (because it's not on self.board)
-            if self.active_tetromino is not None:
-                view = self.board.copy()
-                slices = self.get_active_tetromino_slices(
-                    self.active_tetromino, self.x, self.y
-                )
-                view[slices] += self.active_tetromino
-            else:
-                view = self.board
+            projection = self.project_active_tetromino()
 
             # Crop padding away as we don't want to render it
-            view = self.crop_padding(view)
+            projection = self.crop_padding(projection)
 
             # Convert to string
-            char_field = np.where(view == 0, ".", view.astype(str))
+            char_field = np.where(projection == 0, ".", projection.astype(str))
             field_str = "\n".join("".join(row) for row in char_field)
             return field_str
         elif self.render_mode == "rgb_array":
@@ -242,7 +249,7 @@ class Tetris(gym.Env):
         Returns
             True if the tetromino can be successfully spawned, False otherwise.
         """
-        self.active_tetromino = self.tetrominoes[self.randomizer.get_next_tetromino()]
+        self.set_active_tetromino(self.queue.get_next_tetromino())
         self.reset_tetromino_position()
         return not self.collision(self.active_tetromino, self.x, self.y)
 
@@ -251,6 +258,7 @@ class Tetris(gym.Env):
         slices = self.get_active_tetromino_slices(self.active_tetromino, self.x, self.y)
         self.board[slices] += self.active_tetromino
         self.active_tetromino = None
+        self.active_tetromino_i = 0
 
     def collision(self, tetromino: np.ndarray, x: int, y: int) -> bool:
         """Check if the tetromino collides with the board at the given position.
@@ -351,14 +359,48 @@ class Tetris(gym.Env):
         """Reset the x and y position of the active tetromino to the center of the board."""
         self.x, self.y = self.width_padded // 2 - self.active_tetromino.shape[0] // 2, 0
 
-    def _get_obs(self) -> np.ndarray:
-        """Return the current board as an observation."""
-        board_stripped = self.crop_padding(self.board)
-        return board_stripped.astype(np.float32)
+    def set_active_tetromino(self, index: int) -> None:
+        """Set the active tetromino to the given tetromino and position.
 
-    def _get_info(self) -> "dict[str, Any]":
+        Args:
+            index: The index of the tetromino to set as the active tetromino.
+        """
+        self.active_tetromino_i = index
+        self.active_tetromino = self.tetrominoes[index]
+
+    def project_active_tetromino(self):
+        """Project the active tetromino on the board.
+
+        By default, the active (moving) tetromino is not part of the board. This function projects the active tetromino
+        on the board to render it.
+        """
+        projection = self.board.copy()
+        slices = self.get_active_tetromino_slices(self.active_tetromino, self.x, self.y)
+        projection[slices] += self.active_tetromino
+        return projection
+
+    def _get_obs(self) -> "dict[str, Any]":
+        """Return the current board as an observation."""
+        # Include the active tetromino on the board for the observation.
+        board_obs = self.project_active_tetromino()
+        board_obs = self.crop_padding(board_obs).astype(np.float32)
+
+        holder_obs = np.array(self.holder.get_tetrominoes())
+        holder_one_hot_obs = np.zeros((self.holder.size, len(self.tetrominoes)))
+        if len(holder_obs) > 0:
+            holder_one_hot_obs += np.eye(len(self.tetrominoes))[holder_obs]
+
+        queue_one_hot_obs = np.array(self.queue.get_queue())
+        queue_one_hot_obs = np.eye(len(self.tetrominoes))[queue_one_hot_obs]
+
+        return {
+            "board": board_obs,
+            "queue": queue_one_hot_obs,
+            "holder": holder_one_hot_obs,
+        }
+
+    def _get_info(self) -> dict:
         """Return the current game state as info."""
-        # Todo: Implement score etc.
         return {}
 
     def score(self, rows_cleared) -> int:

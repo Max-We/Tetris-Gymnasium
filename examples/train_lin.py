@@ -17,11 +17,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import tyro
+from gymnasium.wrappers import FlattenObservation
 from stable_baselines3.common.buffers import ReplayBuffer
 from torch.utils.tensorboard import SummaryWriter
 
 from tetris_gymnasium.envs import Tetris
-from tetris_gymnasium.wrappers.observation import FlatObservation
 
 
 # Evaluation
@@ -131,7 +131,7 @@ def make_env(env_id, seed, idx, capture_video, run_name):
         else:
             env = gym.make(env_id)
 
-        env = FlatObservation(env)
+        env = FlattenObservation(env)
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env.action_space.seed(seed)
 
@@ -243,6 +243,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         else:
             # Normalization by dividing with piece count
             # Todo: Create api to get how many pieces are in env / do normalize
+            print(obs.shape)
             q_values = q_network(
                 torch.Tensor(obs).to(device) / envs.observation_space.high
             )
