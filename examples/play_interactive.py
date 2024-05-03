@@ -14,7 +14,8 @@ if __name__ == "__main__":
     cv2.resizeWindow("Tetris", 200, 400)
 
     # Main game loop
-    while not tetris_game.unwrapped.game_over:
+    terminated = False
+    while not terminated:
         # Render the current state of the game as text
         rgb = tetris_game.render()
 
@@ -48,7 +49,7 @@ if __name__ == "__main__":
                 sys.exit()
 
         # Perform the action
-        tetris_game.step(action)
+        observation, reward, terminated, truncated, info = tetris_game.step(action)
 
     # Game over
     print("Game Over!")

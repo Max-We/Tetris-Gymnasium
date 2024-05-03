@@ -8,7 +8,8 @@ if __name__ == "__main__":
     tetris_game.reset(seed=42)
 
     # Main game loop
-    while not tetris_game.unwrapped.game_over:
+    terminated = False
+    while not terminated:
         # Render the current state of the game as text
         ansi = tetris_game.render()
         print(ansi + "\n")
@@ -17,7 +18,7 @@ if __name__ == "__main__":
         action = tetris_game.action_space.sample()
 
         # Perform the action
-        tetris_game.step(action)
+        observation, reward, terminated, truncated, info = tetris_game.step(action)
 
     # Game over
     print("Game Over!")
