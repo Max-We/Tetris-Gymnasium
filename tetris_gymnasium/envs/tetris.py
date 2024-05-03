@@ -367,25 +367,3 @@ class Tetris(gym.Env):
             constant_values=1,
         )
         return board
-
-    #     super().close()
-    #
-    # @property
-    # def unwrapped(self) -> Env[ObsType, ActType]:
-    #     return super().unwrapped
-    #
-    # @property
-    # def np_random(self) -> np.random.Generator:
-    #     return super().np_random
-    #
-    # def __str__(self):
-    #     return super().__str__()
-    #
-    # def __enter__(self):
-    #     return super().__enter__()
-    #
-    # def __exit__(self, *args: Any):
-    #     return super().__exit__(*args)
-    #
-    # def get_wrapper_attr(self, name: str) -> Any:
-    #     return super().get_wrapper_attr(name)
