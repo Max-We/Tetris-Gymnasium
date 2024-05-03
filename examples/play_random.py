@@ -4,19 +4,21 @@ from tetris_gymnasium.envs.tetris import Tetris
 
 if __name__ == "__main__":
     # Create an instance of Tetris
-    tetris_game = gym.make("tetris_gymnasium/Tetris")
+    tetris_game = gym.make("tetris_gymnasium/Tetris", render_mode="ansi")
     tetris_game.reset(seed=42)
 
     # Main game loop
-    while not tetris_game.unwrapped.game_over:
+    terminated = False
+    while not terminated:
         # Render the current state of the game as text
-        tetris_game.render()
+        ansi = tetris_game.render()
+        print(ansi + "\n")
 
         # Take a random action (for demonstration purposes)
         action = tetris_game.action_space.sample()
 
         # Perform the action
-        tetris_game.step(action)
+        observation, reward, terminated, truncated, info = tetris_game.step(action)
 
     # Game over
     print("Game Over!")
