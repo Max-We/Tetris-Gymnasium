@@ -6,6 +6,7 @@ import numpy as np
 from gymnasium.core import ActType, RenderFrame
 from gymnasium.spaces import Box, Discrete
 
+from tetris_gymnasium.components.holder import Holder
 from tetris_gymnasium.components.randomizer import BagRandomizer, Randomizer
 from tetris_gymnasium.util.tetrominoes import STANDARD_COLORS, STANDARD_TETROMINOES
 
@@ -22,6 +23,7 @@ ACTIONS = {
     "rotate_clockwise": 3,
     "rotate_counterclockwise": 4,
     "hard_drop": 5,
+    "swap": 6,
 }
 
 
@@ -40,7 +42,8 @@ class Tetris(gym.Env):
         width=10,
         height=20,
         tetrominoes=STANDARD_TETROMINOES,
-        randomizer=BagRandomizer,
+        randomizer: Randomizer = BagRandomizer,
+        holder: Holder = Holder,
     ):
         """Creates a new Tetris environment.
 
@@ -50,6 +53,7 @@ class Tetris(gym.Env):
             height: The height of the game board.
             tetrominoes: A list of numpy arrays representing the tetrominoes to use.
             randomizer: The randomizer to use for selecting tetrominoes.
+            holder: The holder to use for storing tetrominoes.
         """
         # Dimensions
         self.height: int = height
@@ -57,6 +61,7 @@ class Tetris(gym.Env):
 
         # Tetrominoes & Schedule
         self.randomizer: Randomizer = randomizer(len(tetrominoes))
+        self.holder = holder
         self.tetrominoes: List[np.ndarray] = tetrominoes
         self.active_tetromino: np.ndarray = self.tetrominoes[
             self.randomizer.get_next_tetromino()
@@ -87,15 +92,7 @@ class Tetris(gym.Env):
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
 
-        # """
-        # If human-rendering is used, `self.window` will be a reference
-        # to the window that we draw to. `self.clock` will be a clock that is used
-        # to ensure that the environment is rendered at the correct framerate in
-        # human-mode. They will remain `None` until human-mode is used for the
-        # first time.
-        # """
-        # self.window = None
-        # self.clock = None
+        self.has_swapped = False
 
     def step(self, action: ActType) -> "tuple[np.ndarray, float, bool, bool, dict]":
         """Perform one step of the environment's dynamics.
@@ -136,6 +133,17 @@ class Tetris(gym.Env):
                 self.rotate(self.active_tetromino, False), self.x, self.y
             ):
                 self.active_tetromino = self.rotate(self.active_tetromino, False)
+        elif action == ACTIONS["swap"]:
+            if not self.has_swapped:
+                # Swap the active tetromino with the one in the holder
+                self.active_tetromino = self.holder.swap(self.active_tetromino)
+                self.has_swapped = True
+                if self.active_tetromino is None:
+                    # If the holder is empty, spawn the next tetromino
+                    # No need for collision check, as the holder is only empty at the start
+                    self.spawn_tetromino()
+                else:
+                    self.reset_tetromino_position()
         elif action == ACTIONS["hard_drop"]:
             # 1. Drop the tetromino and lock it in place
             self.drop_active_tetromino()
@@ -146,6 +154,9 @@ class Tetris(gym.Env):
             game_over = not self.spawn_tetromino()
             if game_over:
                 reward = REWARDS["game_over"]
+
+            # 3. Reset the swap flag (agent can swap once per tetromino)
+            self.has_swapped = False
 
         return self._get_obs(), reward, game_over, truncated, {}
 
@@ -171,6 +182,8 @@ class Tetris(gym.Env):
         # Get the next tetromino and spawn it
         self.active_tetromino = self.tetrominoes[self.randomizer.get_next_tetromino()]
         self.reset_tetromino_position()
+
+        self.has_swapped = False
 
         return self._get_obs(), self._get_info()
 
