@@ -304,7 +304,7 @@
 
         <span class="c1"># Tetrominoes &amp; Schedule</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">randomizer</span><span class="p">:</span> <span class="n">Randomizer</span> <span class="o">=</span> <span class="n">randomizer</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tetrominoes</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">holder</span> <span class="o">=</span> <span class="n">holder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">holder</span> <span class="o">=</span> <span class="n">holder</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tetrominoes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="n">tetrominoes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tetrominoes</span><span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">randomizer</span><span class="o">.</span><span class="n">get_next_tetromino</span><span class="p">()</span>
@@ -431,6 +431,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tetrominoes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">randomizer</span><span class="o">.</span><span class="n">get_next_tetromino</span><span class="p">()]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reset_tetromino_position</span><span class="p">()</span>
 
+        <span class="c1"># Holder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_swapped</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_obs</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_info</span><span class="p">()</span></div>
