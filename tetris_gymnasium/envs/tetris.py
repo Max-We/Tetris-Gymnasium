@@ -61,7 +61,7 @@ class Tetris(gym.Env):
 
         # Tetrominoes & Schedule
         self.randomizer: Randomizer = randomizer(len(tetrominoes))
-        self.holder = holder
+        self.holder = holder()
         self.tetrominoes: List[np.ndarray] = tetrominoes
         self.active_tetromino: np.ndarray = self.tetrominoes[
             self.randomizer.get_next_tetromino()
@@ -183,6 +183,8 @@ class Tetris(gym.Env):
         self.active_tetromino = self.tetrominoes[self.randomizer.get_next_tetromino()]
         self.reset_tetromino_position()
 
+        # Holder
+        self.holder.reset()
         self.has_swapped = False
 
         return self._get_obs(), self._get_info()

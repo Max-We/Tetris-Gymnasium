@@ -43,3 +43,7 @@ class Holder:
         result = self._get_tetromino()
         self._store_tetromino(tetromino)
         return result
+
+    def reset(self):
+        """Reset the holder to its initial state."""
+        self.queue.clear()
