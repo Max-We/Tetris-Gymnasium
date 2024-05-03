@@ -247,6 +247,7 @@
 <span class="kn">from</span> <span class="nn">gymnasium.core</span> <span class="kn">import</span> <span class="n">ActType</span><span class="p">,</span> <span class="n">RenderFrame</span>
 <span class="kn">from</span> <span class="nn">gymnasium.spaces</span> <span class="kn">import</span> <span class="n">Box</span><span class="p">,</span> <span class="n">Discrete</span>
 
+<span class="kn">from</span> <span class="nn">tetris_gymnasium.components.holder</span> <span class="kn">import</span> <span class="n">Holder</span>
 <span class="kn">from</span> <span class="nn">tetris_gymnasium.components.randomizer</span> <span class="kn">import</span> <span class="n">BagRandomizer</span><span class="p">,</span> <span class="n">Randomizer</span>
 <span class="kn">from</span> <span class="nn">tetris_gymnasium.util.tetrominoes</span> <span class="kn">import</span> <span class="n">STANDARD_COLORS</span><span class="p">,</span> <span class="n">STANDARD_TETROMINOES</span>
 
@@ -263,6 +264,7 @@
     <span class="s2">&quot;rotate_clockwise&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
     <span class="s2">&quot;rotate_counterclockwise&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
     <span class="s2">&quot;hard_drop&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="s2">&quot;swap&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
 <span class="p">}</span>
 
 
@@ -283,7 +285,8 @@
         <span class="n">width</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
         <span class="n">height</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
         <span class="n">tetrominoes</span><span class="o">=</span><span class="n">STANDARD_TETROMINOES</span><span class="p">,</span>
-        <span class="n">randomizer</span><span class="o">=</span><span class="n">BagRandomizer</span><span class="p">,</span>
+        <span class="n">randomizer</span><span class="p">:</span> <span class="n">Randomizer</span> <span class="o">=</span> <span class="n">BagRandomizer</span><span class="p">,</span>
+        <span class="n">holder</span><span class="p">:</span> <span class="n">Holder</span> <span class="o">=</span> <span class="n">Holder</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a new Tetris environment.</span>
 
@@ -293,6 +296,7 @@
 <span class="sd">            height: The height of the game board.</span>
 <span class="sd">            tetrominoes: A list of numpy arrays representing the tetrominoes to use.</span>
 <span class="sd">            randomizer: The randomizer to use for selecting tetrominoes.</span>
+<span class="sd">            holder: The holder to use for storing tetrominoes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Dimensions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">height</span>
@@ -300,6 +304,7 @@
 
         <span class="c1"># Tetrominoes &amp; Schedule</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">randomizer</span><span class="p">:</span> <span class="n">Randomizer</span> <span class="o">=</span> <span class="n">randomizer</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tetrominoes</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">holder</span> <span class="o">=</span> <span class="n">holder</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tetrominoes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="n">tetrominoes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tetrominoes</span><span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">randomizer</span><span class="o">.</span><span class="n">get_next_tetromino</span><span class="p">()</span>
@@ -330,15 +335,7 @@
         <span class="k">assert</span> <span class="n">render_mode</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">render_mode</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;render_modes&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">=</span> <span class="n">render_mode</span>
 
-        <span class="c1"># &quot;&quot;&quot;</span>
-        <span class="c1"># If human-rendering is used, `self.window` will be a reference</span>
-        <span class="c1"># to the window that we draw to. `self.clock` will be a clock that is used</span>
-        <span class="c1"># to ensure that the environment is rendered at the correct framerate in</span>
-        <span class="c1"># human-mode. They will remain `None` until human-mode is used for the</span>
-        <span class="c1"># first time.</span>
-        <span class="c1"># &quot;&quot;&quot;</span>
-        <span class="c1"># self.window = None</span>
-        <span class="c1"># self.clock = None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_swapped</span> <span class="o">=</span> <span class="kc">False</span>
 
 <div class="viewcode-block" id="Tetris.step">
 <a class="viewcode-back" href="../../../../environments/tetris/#tetris_gymnasium.envs.tetris.Tetris.step">[docs]</a>
@@ -381,6 +378,17 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span>
             <span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">ACTIONS</span><span class="p">[</span><span class="s2">&quot;swap&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_swapped</span><span class="p">:</span>
+                <span class="c1"># Swap the active tetromino with the one in the holder</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="o">.</span><span class="n">swap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">has_swapped</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># If the holder is empty, spawn the next tetromino</span>
+                    <span class="c1"># No need for collision check, as the holder is only empty at the start</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">spawn_tetromino</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">reset_tetromino_position</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="n">ACTIONS</span><span class="p">[</span><span class="s2">&quot;hard_drop&quot;</span><span class="p">]:</span>
             <span class="c1"># 1. Drop the tetromino and lock it in place</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">drop_active_tetromino</span><span class="p">()</span>
@@ -391,6 +399,9 @@
             <span class="n">game_over</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">spawn_tetromino</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">game_over</span><span class="p">:</span>
                 <span class="n">reward</span> <span class="o">=</span> <span class="n">REWARDS</span><span class="p">[</span><span class="s2">&quot;game_over&quot;</span><span class="p">]</span>
+
+            <span class="c1"># 3. Reset the swap flag (agent can swap once per tetromino)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">has_swapped</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_obs</span><span class="p">(),</span> <span class="n">reward</span><span class="p">,</span> <span class="n">game_over</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="p">{}</span></div>
 
@@ -419,6 +430,8 @@
         <span class="c1"># Get the next tetromino and spawn it</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tetrominoes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">randomizer</span><span class="o">.</span><span class="n">get_next_tetromino</span><span class="p">()]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reset_tetromino_position</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_swapped</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_obs</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_info</span><span class="p">()</span></div>
 
