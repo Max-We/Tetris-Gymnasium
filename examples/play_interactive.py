@@ -37,10 +37,12 @@ if __name__ == "__main__":
                 action = ACTIONS["move_down"]
             elif key == ord("w"):
                 action = ACTIONS["rotate_counterclockwise"]
-            elif key == ord("q"):
+            elif key == ord("e"):
                 action = ACTIONS["rotate_clockwise"]
             elif key == ord(" "):
                 action = ACTIONS["hard_drop"]
+            elif key == ord("q"):
+                action = ACTIONS["swap"]
             elif key == ord("r"):
                 tetris_game.reset(seed=42)
                 break
