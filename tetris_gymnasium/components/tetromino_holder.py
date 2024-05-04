@@ -2,7 +2,7 @@
 from collections import deque
 from typing import Optional
 
-import numpy as np
+from tetris_gymnasium.components.tetromino import Tetromino
 
 
 class TetrominoHolder:
@@ -17,15 +17,15 @@ class TetrominoHolder:
         self.size = size
         self.queue = deque(maxlen=size)
 
-    def _get_tetromino(self) -> Optional[np.ndarray]:
+    def _get_tetromino(self) -> Optional[Tetromino]:
         """Get the next tetromino from the holder."""
         return self.queue.popleft()
 
-    def _store_tetromino(self, tetromino: np.ndarray):
+    def _store_tetromino(self, tetromino: Tetromino):
         """Store a tetromino in the holder."""
         self.queue.append(tetromino)
 
-    def swap(self, tetromino: np.ndarray) -> Optional[np.ndarray]:
+    def swap(self, tetromino: Tetromino) -> Optional[Tetromino]:
         """Swap the given tetromino with the one in the holder.
 
         This implementation uses a queue to store the tetrominoes. Tetromioes are only returned once the queue is full.

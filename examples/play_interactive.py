@@ -3,7 +3,7 @@ import sys
 import cv2
 import gymnasium as gym
 
-from tetris_gymnasium.envs.tetris import ACTIONS
+from tetris_gymnasium.envs import Tetris
 
 if __name__ == "__main__":
     # Create an instance of Tetris
@@ -30,19 +30,19 @@ if __name__ == "__main__":
             key = cv2.waitKey(1)
 
             if key == ord("a"):
-                action = ACTIONS["move_left"]
+                action = tetris_game.unwrapped.actions.move_left
             elif key == ord("d"):
-                action = ACTIONS["move_right"]
+                action = tetris_game.unwrapped.actions.move_right
             elif key == ord("s"):
-                action = ACTIONS["move_down"]
+                action = tetris_game.unwrapped.actions.move_down
             elif key == ord("w"):
-                action = ACTIONS["rotate_counterclockwise"]
+                action = tetris_game.unwrapped.actions.rotate_counterclockwise
             elif key == ord("e"):
-                action = ACTIONS["rotate_clockwise"]
+                action = tetris_game.unwrapped.actions.rotate_clockwise
             elif key == ord(" "):
-                action = ACTIONS["hard_drop"]
+                action = tetris_game.unwrapped.actions.hard_drop
             elif key == ord("q"):
-                action = ACTIONS["swap"]
+                action = tetris_game.unwrapped.actions.swap
             elif key == ord("r"):
                 tetris_game.reset(seed=42)
                 break
