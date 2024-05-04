@@ -1,4 +1,5 @@
 """Tetris environment for Gymnasium."""
+from copy import copy
 from dataclasses import fields
 from typing import Any, List
 
@@ -105,7 +106,7 @@ class Tetris(gym.Env):
         # Padding
         self.padding: int = max(max(t.matrix.shape) for t in self.tetrominoes)
         self.width_padded: int = self.width + 2 * self.padding
-        self.height_padded: int = self.height + 2 * self.padding
+        self.height_padded: int = self.height + self.padding
 
         # Board
         self.board = self.create_board()
@@ -124,19 +125,25 @@ class Tetris(gym.Env):
                 "board": Box(
                     low=0,
                     high=len(self.pixels),
-                    shape=(self.height, self.width),
-                    dtype=np.float32,
+                    shape=(self.height_padded, self.width_padded),
+                    dtype=np.uint8,
                 ),
                 "holder": Box(
                     low=0,
                     high=len(self.pixels),
-                    shape=(self.holder.size,),
+                    shape=(
+                        self.padding,
+                        self.padding * self.holder.size,
+                    ),
                     dtype=np.uint8,
                 ),
                 "queue": gym.spaces.Box(
                     low=0,
                     high=len(self.pixels),
-                    shape=(self.queue.size,),
+                    shape=(
+                        self.padding,
+                        self.padding * self.queue.size,
+                    ),
                     dtype=np.uint8,
                 ),
             }
@@ -197,7 +204,7 @@ class Tetris(gym.Env):
                 self.active_tetromino = self.rotate(self.active_tetromino, False)
         elif action == self.actions.swap:
             if not self.has_swapped:
-                # Swap the active tetromino with the one in the holder
+                # Swap the active tetromino with the one in the holder (saves orientation)
                 self.active_tetromino = self.holder.swap(self.active_tetromino)
                 self.has_swapped = True
                 if self.active_tetromino is None:
@@ -428,24 +435,44 @@ class Tetris(gym.Env):
         """Return the current board as an observation."""
         # Include the active tetromino on the board for the observation.
         board_obs = self.project_active_tetromino()
-        board_obs = self.crop_padding(board_obs).astype(np.float32)
+
+        max_size = self.padding
+
         # Holder
-        holder_obs = np.array(
-            [t.id for t in self.holder.get_tetrominoes()], dtype=np.uint8
-        )
-        holder_obs = np.pad(
-            holder_obs,
-            (0, self.holder.size - len(holder_obs)),
-            mode="constant",
-            constant_values=0,
-        )
+        holder_tetrominoes = self.holder.get_tetrominoes()
+        if len(holder_tetrominoes) > 0:
+            # Pad all tetrominoes to be the same size
+            for index, t in enumerate(holder_tetrominoes):
+                holder_tetrominoes[index] = np.pad(
+                    t.matrix,
+                    (
+                        (0, max_size - t.matrix.shape[0]),
+                        (0, max_size - t.matrix.shape[1]),
+                    ),
+                )
+            # Concatenate all tetrominoes horizontally
+            holder_obs = np.hstack(holder_tetrominoes)
+        else:
+            holder_obs = np.ones((max_size, max_size * self.holder.size))
+
         # Queue
-        queue_obs = np.array(self.queue.get_queue(), dtype=np.uint8)
+        queue_tetrominoes = self.queue.get_queue()
+        for index, t_id in enumerate(queue_tetrominoes):
+            # Pad all tetrominoes to be the same size
+            t = copy(self.tetrominoes[t_id])
+            t.matrix = np.pad(
+                t.matrix,
+                ((0, max_size - t.matrix.shape[0]), (0, max_size - t.matrix.shape[1])),
+            )
+            # Safe padded result back to the array
+            queue_tetrominoes[index] = t.matrix
+        # Concatenate all tetrominoes horizontally
+        queue_obs = np.hstack(queue_tetrominoes)
 
         return {
-            "board": board_obs,
-            "holder": holder_obs,
-            "queue": queue_obs,
+            "board": board_obs.astype(np.uint8),
+            "holder": holder_obs.astype(np.uint8),
+            "queue": queue_obs.astype(np.uint8),
         }
 
     def _get_info(self) -> dict:
