@@ -240,6 +240,7 @@
             
             <h1>Source code for tetris_gymnasium.envs.tetris</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Tetris environment for Gymnasium.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">fields</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>
 
@@ -348,7 +349,7 @@
         <span class="c1"># Padding</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tetrominoes</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">width_padded</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">padding</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">height_padded</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">padding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height_padded</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">padding</span>
 
         <span class="c1"># Board</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_board</span><span class="p">()</span>
@@ -367,19 +368,25 @@
                 <span class="s2">&quot;board&quot;</span><span class="p">:</span> <span class="n">Box</span><span class="p">(</span>
                     <span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                     <span class="n">high</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">),</span>
-                    <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">),</span>
-                    <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                    <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height_padded</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width_padded</span><span class="p">),</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>
                 <span class="p">),</span>
                 <span class="s2">&quot;holder&quot;</span><span class="p">:</span> <span class="n">Box</span><span class="p">(</span>
                     <span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                     <span class="n">high</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">),</span>
-                    <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="o">.</span><span class="n">size</span><span class="p">,),</span>
+                    <span class="n">shape</span><span class="o">=</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+                    <span class="p">),</span>
                     <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>
                 <span class="p">),</span>
                 <span class="s2">&quot;queue&quot;</span><span class="p">:</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span>
                     <span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                     <span class="n">high</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">),</span>
-                    <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">size</span><span class="p">,),</span>
+                    <span class="n">shape</span><span class="o">=</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">padding</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+                    <span class="p">),</span>
                     <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>
                 <span class="p">),</span>
             <span class="p">}</span>
@@ -442,7 +449,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">swap</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_swapped</span><span class="p">:</span>
-                <span class="c1"># Swap the active tetromino with the one in the holder</span>
+                <span class="c1"># Swap the active tetromino with the one in the holder (saves orientation)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="o">.</span><span class="n">swap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">has_swapped</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -680,24 +687,44 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the current board as an observation.&quot;&quot;&quot;</span>
         <span class="c1"># Include the active tetromino on the board for the observation.</span>
         <span class="n">board_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_active_tetromino</span><span class="p">()</span>
-        <span class="n">board_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_padding</span><span class="p">(</span><span class="n">board_obs</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="n">max_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">padding</span>
+
         <span class="c1"># Holder</span>
-        <span class="n">holder_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="o">.</span><span class="n">get_tetrominoes</span><span class="p">()],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span>
-        <span class="p">)</span>
-        <span class="n">holder_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
-            <span class="n">holder_obs</span><span class="p">,</span>
-            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">holder_obs</span><span class="p">)),</span>
-            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">,</span>
-            <span class="n">constant_values</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="n">holder_tetrominoes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="o">.</span><span class="n">get_tetrominoes</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">holder_tetrominoes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Pad all tetrominoes to be the same size</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">holder_tetrominoes</span><span class="p">):</span>
+                <span class="n">holder_tetrominoes</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+                    <span class="n">t</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span>
+                    <span class="p">(</span>
+                        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_size</span> <span class="o">-</span> <span class="n">t</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_size</span> <span class="o">-</span> <span class="n">t</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+            <span class="c1"># Concatenate all tetrominoes horizontally</span>
+            <span class="n">holder_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">holder_tetrominoes</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">holder_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">max_size</span><span class="p">,</span> <span class="n">max_size</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+
         <span class="c1"># Queue</span>
-        <span class="n">queue_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">get_queue</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="n">queue_tetrominoes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">get_queue</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">t_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">queue_tetrominoes</span><span class="p">):</span>
+            <span class="c1"># Pad all tetrominoes to be the same size</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tetrominoes</span><span class="p">[</span><span class="n">t_id</span><span class="p">])</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+                <span class="n">t</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span>
+                <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_size</span> <span class="o">-</span> <span class="n">t</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_size</span> <span class="o">-</span> <span class="n">t</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span>
+            <span class="p">)</span>
+            <span class="c1"># Safe padded result back to the array</span>
+            <span class="n">queue_tetrominoes</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">matrix</span>
+        <span class="c1"># Concatenate all tetrominoes horizontally</span>
+        <span class="n">queue_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">queue_tetrominoes</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;board&quot;</span><span class="p">:</span> <span class="n">board_obs</span><span class="p">,</span>
-            <span class="s2">&quot;holder&quot;</span><span class="p">:</span> <span class="n">holder_obs</span><span class="p">,</span>
-            <span class="s2">&quot;queue&quot;</span><span class="p">:</span> <span class="n">queue_obs</span><span class="p">,</span>
+            <span class="s2">&quot;board&quot;</span><span class="p">:</span> <span class="n">board_obs</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+            <span class="s2">&quot;holder&quot;</span><span class="p">:</span> <span class="n">holder_obs</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+            <span class="s2">&quot;queue&quot;</span><span class="p">:</span> <span class="n">queue_obs</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
         <span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">_get_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
