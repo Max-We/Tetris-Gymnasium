@@ -46,5 +46,25 @@ html_theme_options = {
     "source_repository": "https://github.com/Max-We/Tetris-Gymnasium",
     "source_branch": "main",
     "source_directory": "docs/",
-    "announcement": "Tetris Gymnasium is under early development!",
+    # "announcement": "Tetris Gymnasium is under early development!",
 }
+
+# Autodoc
+autoclass_content = "both"
+autodoc_preserve_defaults = True
+
+
+# This function removes the content before the parameters in the __init__ function.
+# This content is often not useful for the website documentation as it replicates
+# the class docstring.
+def remove_lines_before_parameters(app, what, name, obj, options, lines):
+    if what == "class":
+        # ":param" represents args values
+        first_idx_to_keep = next(
+            (i for i, line in enumerate(lines) if line.startswith(":param")), 0
+        )
+        lines[:] = lines[first_idx_to_keep:]
+
+
+def setup(app):
+    app.connect("autodoc-process-docstring", remove_lines_before_parameters)

@@ -11,8 +11,9 @@ if __name__ == "__main__":
     tetris_game = gym.make("tetris_gymnasium/Tetris", render_mode="rgb_array")
     tetris_game.reset(seed=42)
 
-    cv2.namedWindow("Tetris", cv2.WINDOW_GUI_NORMAL)
-    cv2.resizeWindow("Tetris", 200, 400)
+    window_name = "Tetris Gymnasium"
+    cv2.namedWindow(window_name, cv2.WINDOW_GUI_NORMAL)
+    cv2.resizeWindow(window_name, 200, 400)
 
     # Main game loop
     terminated = False
@@ -22,7 +23,7 @@ if __name__ == "__main__":
 
         # Render the current state of the game as an image using CV2q
         # CV2 uses BGR color format, so we need to convert the RGB image to BGR
-        cv2.imshow("Tetris", cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR))
+        cv2.imshow(window_name, cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR))
         cv2.waitKey(50)
 
         # Pick an action from user input mapped to the keyboard
@@ -48,7 +49,7 @@ if __name__ == "__main__":
                 tetris_game.reset(seed=42)
                 break
 
-            if cv2.getWindowProperty("Tetris", cv2.WND_PROP_VISIBLE) == 0:
+            if cv2.getWindowProperty(window_name, cv2.WND_PROP_VISIBLE) == 0:
                 sys.exit()
 
         # Perform the action

@@ -6,7 +6,10 @@ from tetris_gymnasium.components.tetromino import Tetromino
 
 
 class TetrominoHolder:
-    """Class for one or more tetrominoes for later use in a game of Tetris."""
+    """A holder can store one or more tetrominoes for later use in a game of Tetris.
+
+    Tetrominoes can be swapped in- and out during the game.
+    """
 
     def __init__(self, size=1):
         """Create a new holder with the given number of tetrominoes.
@@ -28,13 +31,14 @@ class TetrominoHolder:
     def swap(self, tetromino: Tetromino) -> Optional[Tetromino]:
         """Swap the given tetromino with the one in the holder.
 
-        This implementation uses a queue to store the tetrominoes. Tetromioes are only returned once the queue is full.
+        This implementation uses a queue to store the tetrominoes. Tetrominoes are only returned once the queue is full.
+        If this is not the case, the provided tetromino is stored in the queue and None is returned.
 
         Args:
             tetromino: The tetromino to store in the holder.
 
         Returns:
-            The tetromino that was in the holder before the swap.
+            The oldest tetromino that's stored in the queue, if the queue is full. Otherwise, None.
         """
         if len(self.queue) < self.size:
             self._store_tetromino(tetromino)
@@ -45,9 +49,9 @@ class TetrominoHolder:
         return result
 
     def reset(self):
-        """Reset the holder to its initial state."""
+        """Reset the holder to its initial state. This involves clearing the queue."""
         self.queue.clear()
 
     def get_tetrominoes(self):
-        """Get the tetrominoes currently in the holder."""
+        """Get all the tetrominoes currently in the holder."""
         return list(self.queue)

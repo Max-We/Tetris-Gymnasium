@@ -45,10 +45,21 @@ introduction/quickstart
 
 ```{toctree}
 :maxdepth: 2
-:caption: API
+:caption: Environment
 :hidden:
 
 environments/tetris
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Components
+:hidden:
+
+components/tetromino
+components/queue
+components/holder
+components/randomizer
 ```
 
 ```{toctree}
