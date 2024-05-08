@@ -7,12 +7,12 @@
     <meta property="og:title" content="Tetris Gymnasium" />
     <meta property="og:type" content="website" />
     <meta property="og:description" content="A high performance, high customization Tetris environments for Gymnasium." />
-    <meta property="og:url" content="https://max-we.github.io/Tetris-Gymnasium/development/contributing.html" /><meta name="twitter:card" content="summary_large_image"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="prev" title="Randomizer" href="../../components/randomizer/" />
-        <link rel="canonical" href="https://max-we.github.io/Tetris-Gymnasium/development/contributing.html" />
+    <meta property="og:url" content="https://max-we.github.io/Tetris-Gymnasium/components/queue.html" /><meta name="twitter:card" content="summary_large_image"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Holder" href="../holder/" /><link rel="prev" title="Tetromino" href="../tetromino/" />
+        <link rel="canonical" href="https://max-we.github.io/Tetris-Gymnasium/components/queue.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19.dev1 -->
-        <title>Contributing - Tetris Gymnasium</title>
+        <title>Queue - Tetris Gymnasium</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=3e7f4c72" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=49cbaffd" />
@@ -159,7 +159,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -186,15 +186,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../../environments/tetris/">Tetris</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Components</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../components/tetromino/">Tetromino</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../components/queue/">Queue</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../components/holder/">Holder</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../components/randomizer/">Randomizer</a></li>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tetromino/">Tetromino</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Queue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../holder/">Holder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../randomizer/">Randomizer</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
-<ul class="current">
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Contributing</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../development/contributing/">Contributing</a></li>
 </ul>
 
 </div>
@@ -220,7 +220,7 @@
             <span>Back to top</span>
           </a>
           <div class="content-icon-container"><div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/Max-We/Tetris-Gymnasium/edit/main/docs/development/contributing.md" title="Edit this page">
+  <a class="muted-link" href="https://github.com/Max-We/Tetris-Gymnasium/edit/main/docs/components/queue.md" title="Edit this page">
     <svg aria-hidden="true" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
       <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
       <path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" />
@@ -242,7 +242,7 @@
                 </svg>
               </button>
             </div>
-            <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <label class="toc-overlay-icon toc-content-icon" for="__toc">
               <div class="visually-hidden">Toggle table of contents sidebar</div>
               <i class="icon"><svg>
                   <use href="#svg-toc"></use>
@@ -251,9 +251,51 @@
           </div>
           <article role="main">
             
-            <section class="tex2jax_ignore mathjax_ignore" id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">#</a></h1>
-<p>Under construction.</p>
+            <section class="tex2jax_ignore mathjax_ignore" id="queue">
+<h1>Queue<a class="headerlink" href="#queue" title="Link to this heading">#</a></h1>
+<p><img alt="Queue" src="../../_images/queue.png" /></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_queue.TetrominoQueue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.components.tetromino_queue.</span></span><span class="sig-name descname"><span class="pre">TetrominoQueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">randomizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../randomizer/#tetris_gymnasium.components.tetromino_randomizer.Randomizer" title="tetris_gymnasium.components.tetromino_randomizer.Randomizer"><span class="pre">Randomizer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_queue/#TetrominoQueue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_queue.TetrominoQueue" title="Link to this definition">#</a></dt>
+<dd><p>The queue shows the incoming tetrominoes in a game of Tetris.</p>
+<p>The sequence of pieces is generated by a <code class="xref py py-class docutils literal notranslate"><span class="pre">Randomizer</span></code>, which can be customized by the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>randomizer</strong> – The randomizer that generates the tetrominoes sequence.</p></li>
+<li><p><strong>size</strong> – The number of tetrominoes to store. Defaults to 4.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_queue.TetrominoQueue.reset">
+<span class="sig-prename descclassname"><span class="pre">TetrominoQueue.</span></span><span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_queue/#TetrominoQueue.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_queue.TetrominoQueue.reset" title="Link to this definition">#</a></dt>
+<dd><p>Reset the queue to its initial state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>seed</strong> – The seed to use for the randomizer. Defaults to None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_queue.TetrominoQueue.get_next_tetromino">
+<span class="sig-prename descclassname"><span class="pre">TetrominoQueue.</span></span><span class="sig-name descname"><span class="pre">get_next_tetromino</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_queue/#TetrominoQueue.get_next_tetromino"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_queue.TetrominoQueue.get_next_tetromino" title="Link to this definition">#</a></dt>
+<dd><p>Gets the next tetromino from the queue and generates a new one.</p>
+<p>Generating a new Tetromino makes sure that the queue will always be full.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_queue.TetrominoQueue.get_queue">
+<span class="sig-prename descclassname"><span class="pre">TetrominoQueue.</span></span><span class="sig-name descname"><span class="pre">get_queue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_queue/#TetrominoQueue.get_queue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_queue.TetrominoQueue.get_queue" title="Link to this definition">#</a></dt>
+<dd><p>Get all tetrominoes currently in the queue.</p>
+</dd></dl>
+
+</section>
 </section>
 
           </article>
@@ -261,8 +303,30 @@
         <footer>
           
           <div class="related-pages">
-            
-            
+            <a class="next-page" href="../holder/">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Holder</div>
+              </div>
+              <svg class="furo-related-icon">
+                <use href="#svg-arrow-right"></use>
+              </svg>
+            </a>
+            <a class="prev-page" href="../tetromino/">
+              <svg class="furo-related-icon">
+                <use href="#svg-arrow-right"></use>
+              </svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Tetromino</div>
+                
+              </div>
+            </a>
           </div>
           <div class="bottom-of-page">
             <div class="left-details">
@@ -291,8 +355,33 @@
           
         </footer>
       </div>
-      <aside class="toc-drawer no-toc">
+      <aside class="toc-drawer">
         
+        
+        <div class="toc-sticky toc-scroll">
+          <div class="toc-title-container">
+            <span class="toc-title">
+              On this page
+            </span>
+          </div>
+          <div class="toc-tree-container">
+            <div class="toc-tree">
+              <ul>
+<li><a class="reference internal" href="#">Queue</a><ul>
+<li><a class="reference internal" href="#tetris_gymnasium.components.tetromino_queue.TetrominoQueue"><code class="docutils literal notranslate"><span class="pre">TetrominoQueue</span></code></a></li>
+<li><a class="reference internal" href="#methods">Methods</a><ul>
+<li><a class="reference internal" href="#tetris_gymnasium.components.tetromino_queue.TetrominoQueue.reset"><code class="docutils literal notranslate"><span class="pre">TetrominoQueue.reset()</span></code></a></li>
+<li><a class="reference internal" href="#tetris_gymnasium.components.tetromino_queue.TetrominoQueue.get_next_tetromino"><code class="docutils literal notranslate"><span class="pre">TetrominoQueue.get_next_tetromino()</span></code></a></li>
+<li><a class="reference internal" href="#tetris_gymnasium.components.tetromino_queue.TetrominoQueue.get_queue"><code class="docutils literal notranslate"><span class="pre">TetrominoQueue.get_queue()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
         
         
       </aside>

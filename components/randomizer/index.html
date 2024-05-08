@@ -7,12 +7,12 @@
     <meta property="og:title" content="Tetris Gymnasium" />
     <meta property="og:type" content="website" />
     <meta property="og:description" content="A high performance, high customization Tetris environments for Gymnasium." />
-    <meta property="og:url" content="https://max-we.github.io/Tetris-Gymnasium/introduction/quickstart.html" /><meta name="twitter:card" content="summary_large_image"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Tetris" href="../../environments/tetris/" /><link rel="prev" title="Installation" href="../installation/" />
-        <link rel="canonical" href="https://max-we.github.io/Tetris-Gymnasium/introduction/quickstart.html" />
+    <meta property="og:url" content="https://max-we.github.io/Tetris-Gymnasium/components/randomizer.html" /><meta name="twitter:card" content="summary_large_image"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Contributing" href="../../development/contributing/" /><link rel="prev" title="Holder" href="../holder/" />
+        <link rel="canonical" href="https://max-we.github.io/Tetris-Gymnasium/components/randomizer.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19.dev1 -->
-        <title>Quickstart - Tetris Gymnasium</title>
+        <title>Randomizer - Tetris Gymnasium</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=3e7f4c72" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=49cbaffd" />
@@ -177,20 +177,20 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Quickstart</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/installation/">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction/quickstart/">Quickstart</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Environment</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../environments/tetris/">Tetris</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Components</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../components/tetromino/">Tetromino</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../components/queue/">Queue</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../components/holder/">Holder</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../components/randomizer/">Randomizer</a></li>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tetromino/">Tetromino</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../queue/">Queue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../holder/">Holder</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Randomizer</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -220,7 +220,7 @@
             <span>Back to top</span>
           </a>
           <div class="content-icon-container"><div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/Max-We/Tetris-Gymnasium/edit/main/docs/introduction/quickstart.md" title="Edit this page">
+  <a class="muted-link" href="https://github.com/Max-We/Tetris-Gymnasium/edit/main/docs/components/randomizer.md" title="Edit this page">
     <svg aria-hidden="true" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
       <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
       <path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" />
@@ -251,47 +251,87 @@
           </div>
           <article role="main">
             
-            <section class="tex2jax_ignore mathjax_ignore" id="quickstart">
-<h1>Quickstart<a class="headerlink" href="#quickstart" title="Link to this heading">#</a></h1>
-<p>After completing the installation, you can start using the library by importing it in your Python code and calling the <code class="docutils literal notranslate"><span class="pre">gym.make</span></code> function with the name of the environment you want to use.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.envs</span> <span class="kn">import</span> <span class="n">Tetris</span>
+            <section class="tex2jax_ignore mathjax_ignore" id="randomizer">
+<h1>Randomizer<a class="headerlink" href="#randomizer" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_randomizer.Randomizer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.components.tetromino_randomizer.</span></span><span class="sig-name descname"><span class="pre">Randomizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#Randomizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.Randomizer" title="Link to this definition">#</a></dt>
+<dd><p>Abstract class for tetromino randomizers.</p>
+<p>A randomizer is an object that can be used to generate the order of tetrominoes in a game of Tetris. When it’s
+called via <a class="reference internal" href="#tetris_gymnasium.components.tetromino_randomizer.Randomizer.get_next_tetromino" title="tetris_gymnasium.components.tetromino_randomizer.Randomizer.get_next_tetromino"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_next_tetromino()</span></code></a>, it returns the <strong>index</strong> of the next tetromino to be used in the game.
+This information can be used by the caller to get the actual tetromino object from a list of tetrominoes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>size</strong> – The number of tetrominoes to choose from.</p>
+</dd>
+</dl>
+</dd></dl>
 
-<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;tetris_gymnasium/Tetris&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>With the environment created, you can interact with it by calling the Gymnasium typical <code class="docutils literal notranslate"><span class="pre">reset</span></code> and <code class="docutils literal notranslate"><span class="pre">step</span></code> methods. The <code class="docutils literal notranslate"><span class="pre">reset</span></code> method initializes the environment and returns the initial observation and info. The <code class="docutils literal notranslate"><span class="pre">step</span></code> method takes an action as input and returns the next observation, reward, termination flag, truncation flag, and info.</p>
-<section id="random-agent">
-<h2>Random agent<a class="headerlink" href="#random-agent" title="Link to this heading">#</a></h2>
-<p>For example, a simple loop that interacts with the environment using random actions could look like this:</p>
-<blockquote>
-<div><p>Note: Currently there is only a text renderer available. A graphical renderer is in development.</p>
-</div></blockquote>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.envs</span> <span class="kn">import</span> <span class="n">Tetris</span>
+<section id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_randomizer.Randomizer.get_next_tetromino">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Randomizer.</span></span><span class="sig-name descname"><span class="pre">get_next_tetromino</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#Randomizer.get_next_tetromino"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.Randomizer.get_next_tetromino" title="Link to this definition">#</a></dt>
+<dd><p>Get the index of the next tetromino to be used in the game.</p>
+<p>Returns: The index of the next tetromino to be used in the game.</p>
+</dd></dl>
 
-<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;tetris_gymnasium/Tetris&quot;</span><span class="p">)</span>
-<span class="n">observation</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
-   <span class="n">action</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>  <span class="c1"># this is where you would insert your policy</span>
-   <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+<dl class="py method">
+<dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_randomizer.Randomizer.reset">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Randomizer.</span></span><span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#Randomizer.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.Randomizer.reset" title="Link to this definition">#</a></dt>
+<dd><p>Resets the randomizer.</p>
+<p>This function is implemented after the usage pattern in Gymnasium, where seed is passed to the reset function
+only for the very first call after initialization. In all other cases, seed=None and the RNG is not reset.</p>
+</dd></dl>
 
-   <span class="k">if</span> <span class="n">terminated</span> <span class="ow">or</span> <span class="n">truncated</span><span class="p">:</span>
-      <span class="n">observation</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-
-<span class="n">env</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</pre></div>
-</div>
 </section>
-<section id="training-a-dqn-agent">
-<h2>Training a DQN agent<a class="headerlink" href="#training-a-dqn-agent" title="Link to this heading">#</a></h2>
-<p>In order to do Reinforcement Learning, you need to train an agent. To give some real-world examples, the code in the files <code class="docutils literal notranslate"><span class="pre">train_lin.py</span></code> and <code class="docutils literal notranslate"><span class="pre">train_cnn.py</span></code> in the <code class="docutils literal notranslate"><span class="pre">examples</span></code> directory show how to train a DQN agent on the Tetris environment.</p>
-<p>To run the training, you can use the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/train_lin.py<span class="w"> </span><span class="c1"># uses a linear model</span>
-<span class="c1"># or</span>
-poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/train_cnn.py<span class="w"> </span><span class="c1"># uses convolutions</span>
-</pre></div>
-</div>
+<section id="implementations">
+<h2>Implementations<a class="headerlink" href="#implementations" title="Link to this heading">#</a></h2>
+<p>In Tetris Gymnasium, there are different randomizers available by default. The default randomizer is the <code class="docutils literal notranslate"><span class="pre">BagRandomizer</span></code>,
+which is the same as the one used in the most Tetris games. The <code class="docutils literal notranslate"><span class="pre">TrueRandomizer</span></code> is a randomizer that generates
+tetrominoes with a uniform distribution.</p>
+<p>If these randomizers do not fit your needs, you can easily implement your own randomizer by subclassing the <code class="docutils literal notranslate"><span class="pre">Randomizer</span></code>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_randomizer.BagRandomizer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.components.tetromino_randomizer.</span></span><span class="sig-name descname"><span class="pre">BagRandomizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#BagRandomizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.BagRandomizer" title="Link to this definition">#</a></dt>
+<dd><p>Randomly selects tetrominoes from a bag, ensuring that each tetromino is used once before reshuffling.</p>
+<p>The bag randomizer is a common and popular approach in Tetris. It ensures that each tetromino is used once before
+reshuffling the bag, thus avoiding long sequences of the same tetromino.
+The functionality is explained on the tetris wiki page: <a class="reference external" href="https://tetris.fandom.com/wiki/Random_Generator">https://tetris.fandom.com/wiki/Random_Generator</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>size</strong> – The number of tetrominoes to choose from.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_randomizer.BagRandomizer.get_next_tetromino">
+<span class="sig-prename descclassname"><span class="pre">BagRandomizer.</span></span><span class="sig-name descname"><span class="pre">get_next_tetromino</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#BagRandomizer.get_next_tetromino"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.BagRandomizer.get_next_tetromino" title="Link to this definition">#</a></dt>
+<dd><p>Samples a new tetromino from the bag.</p>
+<p>Once the bag has been fully exploited, it is reshuffled and the process starts over.</p>
+<p>Returns: The index of the next tetromino to be used in the game.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_randomizer.TrueRandomizer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.components.tetromino_randomizer.</span></span><span class="sig-name descname"><span class="pre">TrueRandomizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#TrueRandomizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.TrueRandomizer" title="Link to this definition">#</a></dt>
+<dd><p>Randomly selects tetrominoes.</p>
+<p>This is the simplest form of randomizer, where each tetromino is chosen randomly. This approach can lead to
+sequences of the same tetromino, which may or may not be desired.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>size</strong> – The number of tetrominoes to choose from.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_randomizer.TrueRandomizer.get_next_tetromino">
+<span class="sig-prename descclassname"><span class="pre">TrueRandomizer.</span></span><span class="sig-name descname"><span class="pre">get_next_tetromino</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#TrueRandomizer.get_next_tetromino"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.TrueRandomizer.get_next_tetromino" title="Link to this definition">#</a></dt>
+<dd><p>Samples a new tetromino randomly.</p>
+</dd></dl>
+
 </section>
 </section>
 
@@ -300,18 +340,18 @@ poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> 
         <footer>
           
           <div class="related-pages">
-            <a class="next-page" href="../../environments/tetris/">
+            <a class="next-page" href="../../development/contributing/">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Tetris</div>
+                <div class="title">Contributing</div>
               </div>
               <svg class="furo-related-icon">
                 <use href="#svg-arrow-right"></use>
               </svg>
             </a>
-            <a class="prev-page" href="../installation/">
+            <a class="prev-page" href="../holder/">
               <svg class="furo-related-icon">
                 <use href="#svg-arrow-right"></use>
               </svg>
@@ -320,7 +360,7 @@ poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> 
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Installation</div>
+                <div class="title">Holder</div>
                 
               </div>
             </a>
@@ -364,9 +404,24 @@ poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> 
           <div class="toc-tree-container">
             <div class="toc-tree">
               <ul>
-<li><a class="reference internal" href="#">Quickstart</a><ul>
-<li><a class="reference internal" href="#random-agent">Random agent</a></li>
-<li><a class="reference internal" href="#training-a-dqn-agent">Training a DQN agent</a></li>
+<li><a class="reference internal" href="#">Randomizer</a><ul>
+<li><a class="reference internal" href="#tetris_gymnasium.components.tetromino_randomizer.Randomizer"><code class="docutils literal notranslate"><span class="pre">Randomizer</span></code></a></li>
+<li><a class="reference internal" href="#methods">Methods</a><ul>
+<li><a class="reference internal" href="#tetris_gymnasium.components.tetromino_randomizer.Randomizer.get_next_tetromino"><code class="docutils literal notranslate"><span class="pre">Randomizer.get_next_tetromino()</span></code></a></li>
+<li><a class="reference internal" href="#tetris_gymnasium.components.tetromino_randomizer.Randomizer.reset"><code class="docutils literal notranslate"><span class="pre">Randomizer.reset()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementations">Implementations</a><ul>
+<li><a class="reference internal" href="#tetris_gymnasium.components.tetromino_randomizer.BagRandomizer"><code class="docutils literal notranslate"><span class="pre">BagRandomizer</span></code></a><ul>
+<li><a class="reference internal" href="#tetris_gymnasium.components.tetromino_randomizer.BagRandomizer.get_next_tetromino"><code class="docutils literal notranslate"><span class="pre">BagRandomizer.get_next_tetromino()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tetris_gymnasium.components.tetromino_randomizer.TrueRandomizer"><code class="docutils literal notranslate"><span class="pre">TrueRandomizer</span></code></a><ul>
+<li><a class="reference internal" href="#tetris_gymnasium.components.tetromino_randomizer.TrueRandomizer.get_next_tetromino"><code class="docutils literal notranslate"><span class="pre">TrueRandomizer.get_next_tetromino()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
