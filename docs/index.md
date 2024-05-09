@@ -64,6 +64,15 @@ components/randomizer
 
 ```{toctree}
 :maxdepth: 2
+:caption: Utilities
+:hidden:
+
+utilities/wrappers
+utilities/mappings
+```
+
+```{toctree}
+:maxdepth: 2
 :caption: Development
 :hidden:
 
