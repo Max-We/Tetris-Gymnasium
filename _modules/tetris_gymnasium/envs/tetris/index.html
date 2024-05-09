@@ -191,6 +191,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/holder/">Holder</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/randomizer/">Randomizer</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Utilities</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../utilities/wrappers/">Wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../utilities/mappings/">Mappings</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../development/contributing/">Contributing</a></li>
@@ -409,8 +414,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">=</span> <span class="n">render_mode</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_swapped</span> <span class="o">=</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="Tetris.step">
-<a class="viewcode-back" href="../../../../environments/tetris/#tetris_gymnasium.envs.tetris.Tetris.step">[docs]</a>
     <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[dict, float, bool, bool, dict]&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform one step of the environment&#39;s dynamics.</span>
 
@@ -475,11 +478,8 @@
             <span class="c1"># 3. Reset the swap flag (agent can swap once per tetromino)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">has_swapped</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_obs</span><span class="p">(),</span> <span class="n">reward</span><span class="p">,</span> <span class="n">game_over</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_info</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_obs</span><span class="p">(),</span> <span class="n">reward</span><span class="p">,</span> <span class="n">game_over</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_info</span><span class="p">()</span>
 
-
-<div class="viewcode-block" id="Tetris.reset">
-<a class="viewcode-back" href="../../../../environments/tetris/#tetris_gymnasium.envs.tetris.Tetris.reset">[docs]</a>
     <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="s2">&quot;int | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="s2">&quot;dict[str, Any] | None&quot;</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[dict[str, Any], dict[str, Any]]&quot;</span><span class="p">:</span>
@@ -507,11 +507,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_swapped</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_obs</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_info</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_obs</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_info</span><span class="p">()</span>
 
-
-<div class="viewcode-block" id="Tetris.render">
-<a class="viewcode-back" href="../../../../environments/tetris/#tetris_gymnasium.envs.tetris.Tetris.render">[docs]</a>
     <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RenderFrame | list[RenderFrame] | None&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Renders the environment in various formats.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">==</span> <span class="s2">&quot;ansi&quot;</span><span class="p">:</span>
@@ -551,8 +548,7 @@
             <span class="c1"># Crop padding away as we don&#39;t want to render it</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_padding</span><span class="p">(</span><span class="n">rgb</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="kc">None</span></div>
-
+        <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">spawn_tetromino</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Spawns a new tetromino at the top of the board and checks for collision.</span>

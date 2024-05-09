@@ -192,6 +192,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../components/holder/">Holder</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../components/randomizer/">Randomizer</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Utilities</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../utilities/wrappers/">Wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utilities/mappings/">Mappings</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../development/contributing/">Contributing</a></li>
@@ -253,6 +258,90 @@
             
             <section class="tex2jax_ignore mathjax_ignore" id="tetris">
 <h1>Tetris<a class="headerlink" href="#tetris" title="Link to this heading">#</a></h1>
+<p><img alt="Tetris" src="../../_images/holder.png" /></p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Description</p></th>
+<th class="head"><p>Details</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Action Space</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Discrete(7)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Observation Space</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Dict</span></code> containing three fields:</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>1. <code class="docutils literal notranslate"><span class="pre">board</span></code>: <code class="docutils literal notranslate"><span class="pre">Box</span> <span class="pre">(0,</span> <span class="pre">9,</span> <span class="pre">(24,</span> <span class="pre">18),</span> <span class="pre">uint8)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>2. <code class="docutils literal notranslate"><span class="pre">holder</span></code>: <code class="docutils literal notranslate"><span class="pre">Box</span> <span class="pre">(0,</span> <span class="pre">9,</span> <span class="pre">(4,</span> <span class="pre">4),</span> <span class="pre">uint8)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>3. <code class="docutils literal notranslate"><span class="pre">queue</span></code>: <code class="docutils literal notranslate"><span class="pre">Box</span> <span class="pre">(0,</span> <span class="pre">9,</span> <span class="pre">(4,</span> <span class="pre">20),</span> <span class="pre">uint8)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>import</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">gymnasium.make(&quot;tetris_gymnasium/Tetris&quot;)</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Link to this heading">#</a></h2>
+<p>This is the base Tetris environment. It is designed to be customizable and can be altered with Wrappers.</p>
+<p>The base environment consists of the following components, which can all be adjusted either by using Wrappers or passing arguments to the environment constructor:</p>
+<ul class="simple">
+<li><p>Board: The playing field where the tetrominoes are placed.</p></li>
+<li><p>Holder: A place where the player can store a tetromino for later use.</p></li>
+<li><p>Queue: A queue of tetrominoes that will be spawned next.</p></li>
+<li><p>Randomizer: A component that generates the tetrominoes in the queue.</p></li>
+<li><p>Queue: A component that holds the tetrominoes that will be spawned next.</p></li>
+<li><p>Tetrominoes: The pieces that the player can move and rotate.</p></li>
+</ul>
+</section>
+<section id="actions-space">
+<h2>Actions Space<a class="headerlink" href="#actions-space" title="Link to this heading">#</a></h2>
+<p>The environment supports the following actions:</p>
+<ul class="simple">
+<li><p>0: Move left</p></li>
+<li><p>1: Move right</p></li>
+<li><p>2: Move down</p></li>
+<li><p>3: Rotate clockwise</p></li>
+<li><p>4: Rotate counterclockwise</p></li>
+<li><p>5: Hard drop</p></li>
+<li><p>6: Swap (= hold piece)</p></li>
+</ul>
+</section>
+<section id="observation-space">
+<h2>Observation Space<a class="headerlink" href="#observation-space" title="Link to this heading">#</a></h2>
+<p>The observation space is a dictionary containing the following elements:</p>
+<ul class="simple">
+<li><p>The board: 2D-array of shape <code class="docutils literal notranslate"><span class="pre">height</span></code> x <code class="docutils literal notranslate"><span class="pre">width</span></code> (padded)</p>
+<ul>
+<li><p>The padding is equal to the largest tetromino in the game, which is usually the I-Tetromino, therefore 4</p></li>
+</ul>
+</li>
+<li><p>The holder: 1D-array of tetrominoes (padded to the same size)</p></li>
+<li><p>The queue: 1D-array of tetrominoes (padded to the same size)</p></li>
+</ul>
+<p>The observation space can be altered to your needs by using <a class="reference internal" href="../../utilities/wrappers/"><span class="std std-doc">Observation wrappers</span></a>.</p>
+</section>
+<section id="rewards">
+<h2>Rewards<a class="headerlink" href="#rewards" title="Link to this heading">#</a></h2>
+<p>TODO</p>
+</section>
+<section id="starting-state">
+<h2>Starting state<a class="headerlink" href="#starting-state" title="Link to this heading">#</a></h2>
+<p>The environment starts with an empty board and a random tetromino placed at the top center of the board.</p>
+</section>
+<section id="episode-termination">
+<h2>Episode Termination<a class="headerlink" href="#episode-termination" title="Link to this heading">#</a></h2>
+<p>The episode ends, a tetromino cannot be spawned at the top of the board.</p>
+</section>
+<section id="arguments">
+<h2>Arguments<a class="headerlink" href="#arguments" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="tetris_gymnasium.envs.tetris.Tetris">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.envs.tetris.</span></span><span class="sig-name descname"><span class="pre">Tetris</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">render_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../components/randomizer/#tetris_gymnasium.components.tetromino_randomizer.Randomizer" title="tetris_gymnasium.components.tetromino_randomizer.Randomizer"><span class="pre">Randomizer</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">BagRandomizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../components/holder/#tetris_gymnasium.components.tetromino_holder.TetrominoHolder" title="tetris_gymnasium.components.tetromino_holder.TetrominoHolder"><span class="pre">TetrominoHolder</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">TetrominoHolder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../components/queue/#tetris_gymnasium.components.tetromino_queue.TetrominoQueue" title="tetris_gymnasium.components.tetromino_queue.TetrominoQueue"><span class="pre">TetrominoQueue</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">TetrominoQueue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ActionsMapping()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rewards_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">RewardsMapping()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tetrominoes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/envs/tetris/#Tetris"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.envs.tetris.Tetris" title="Link to this definition">#</a></dt>
@@ -275,57 +364,111 @@
 </dl>
 </dd></dl>
 
-<section id="methods">
-<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading">#</a></h2>
-<dl class="py method">
-<dt class="sig sig-object py" id="tetris_gymnasium.envs.tetris.Tetris.step">
-<span class="sig-prename descclassname"><span class="pre">Tetris.</span></span><span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ActType</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/tetris_gymnasium/envs/tetris/#Tetris.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.envs.tetris.Tetris.step" title="Link to this definition">#</a></dt>
-<dd><p>Perform one step of the environment’s dynamics.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>action</strong> – The action to be executed.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The observation of the current board as np array.
-reward: Amount of reward returned after previous action.
-done: Whether the episode has ended, in which case further step() calls will return undefined results.
-info: Contains auxiliary diagnostic information (helpful for debugging, and sometimes learning).</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>observation</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tetris_gymnasium.envs.tetris.Tetris.reset">
-<span class="sig-prename descclassname"><span class="pre">Tetris.</span></span><span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/tetris_gymnasium/envs/tetris/#Tetris.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.envs.tetris.Tetris.reset" title="Link to this definition">#</a></dt>
-<dd><p>Resets the state of the environment.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>seed</strong> – The random seed to use for the reset.</p></li>
-<li><p><strong>options</strong> – A dictionary of options to use for the reset.</p></li>
+<section id="mappings">
+<h3>Mappings<a class="headerlink" href="#mappings" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">mappings</span></code> passed to the environment are useful for keeping the code readable, avoiding magic numbers. More information
+on how to use them can be found in the dedicated section to <a class="reference internal" href="../../utilities/mappings/"><span class="std std-doc">Mappings</span></a>.</p>
+</section>
+<section id="pixels-and-tetrominoes">
+<h3>Pixels and Tetrominoes<a class="headerlink" href="#pixels-and-tetrominoes" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">base_pixels</span></code> and <code class="docutils literal notranslate"><span class="pre">tetrominoes</span></code> arguments are used to customize the very basic components of the game. To get an overview of the
+meaning of these components, please refer to the dedicated section about <a class="reference internal" href="../../components/tetromino/"><span class="std std-doc">Tetrominoes</span></a>.</p>
+<p>During the initialization of the environment, the passed tetrominoes will be preprocessed. This involves changing the binary values
+in the matrix to the according pixel ids. The pixel ids are later used to render the tetrominoes on the board.</p>
+<p>The default tetrominoes and pixels are stored as constants in the environment. They are the following:</p>
+<ul class="simple">
+<li><p>Pixels</p>
+<ul>
+<li><p>0: Empty</p></li>
+<li><p>1: Bedrock (also used as padding / border)</p></li>
 </ul>
-</dd>
-</dl>
-<p>Returns: The initial observation of the space.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tetris_gymnasium.envs.tetris.Tetris.render">
-<span class="sig-prename descclassname"><span class="pre">Tetris.</span></span><span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">RenderFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">RenderFrame</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/tetris_gymnasium/envs/tetris/#Tetris.render"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.envs.tetris.Tetris.render" title="Link to this definition">#</a></dt>
-<dd><p>Renders the environment in various formats.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tetris_gymnasium.envs.tetris.Tetris.close">
-<span class="sig-prename descclassname"><span class="pre">Tetris.</span></span><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tetris_gymnasium.envs.tetris.Tetris.close" title="Link to this definition">#</a></dt>
-<dd><p>After the user has finished using the environment, close contains the code necessary to “clean up” the environment.</p>
-<p>This is critical for closing rendering windows, database or HTTP connections.
-Calling <code class="docutils literal notranslate"><span class="pre">close</span></code> on an already closed environment has no effect and won’t raise an error.</p>
-</dd></dl>
-
+</li>
+<li><p>Tetrominoes</p>
+<ul>
+<li><p>I, J, L, O, S, T, Z</p></li>
+</ul>
+</li>
+</ul>
+<p>In particular, the matrices of the default Tetrominoes (before adjusting the binary values with their respective ids) look like this:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Tetromino</p></th>
+<th class="head"><p>Matrix</p></th>
+<th class="head"><p>Tetromino</p></th>
+<th class="head"><p>Matrix</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>I</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[[0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0],</span></code></p></td>
+<td><p><strong>J</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[[1,</span> <span class="pre">0,</span> <span class="pre">0],</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p><code class="docutils literal notranslate"> <span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">1],</span></code></p></td>
+<td><p></p></td>
+<td><p><code class="docutils literal notranslate"> <span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1],</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p><code class="docutils literal notranslate"> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0],</span></code></p></td>
+<td><p></p></td>
+<td><p><code class="docutils literal notranslate"> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p><code class="docutils literal notranslate"> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0]]</span></code></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>L</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[[0,</span> <span class="pre">0,</span> <span class="pre">1],</span></code></p></td>
+<td><p><strong>O</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[[1,</span> <span class="pre">1],</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p><code class="docutils literal notranslate"> <span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1],</span></code></p></td>
+<td><p></p></td>
+<td><p><code class="docutils literal notranslate"> <span class="pre">[1,</span> <span class="pre">1]]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p><code class="docutils literal notranslate"> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]]</span></code></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>S</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[[0,</span> <span class="pre">1,</span> <span class="pre">1],</span></code></p></td>
+<td><p><strong>T</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[[0,</span> <span class="pre">1,</span> <span class="pre">0],</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p><code class="docutils literal notranslate"> <span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">0],</span></code></p></td>
+<td><p></p></td>
+<td><p><code class="docutils literal notranslate"> <span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1],</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p><code class="docutils literal notranslate"> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]]</span></code></p></td>
+<td><p></p></td>
+<td><p><code class="docutils literal notranslate"> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Z</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[[1,</span> <span class="pre">1,</span> <span class="pre">0],</span></code></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p><code class="docutils literal notranslate"> <span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">1],</span></code></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p><code class="docutils literal notranslate"> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]]</span></code></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 </section>
 </section>
 
@@ -399,12 +542,16 @@ Calling <code class="docutils literal notranslate"><span class="pre">close</span
             <div class="toc-tree">
               <ul>
 <li><a class="reference internal" href="#">Tetris</a><ul>
+<li><a class="reference internal" href="#description">Description</a></li>
+<li><a class="reference internal" href="#actions-space">Actions Space</a></li>
+<li><a class="reference internal" href="#observation-space">Observation Space</a></li>
+<li><a class="reference internal" href="#rewards">Rewards</a></li>
+<li><a class="reference internal" href="#starting-state">Starting state</a></li>
+<li><a class="reference internal" href="#episode-termination">Episode Termination</a></li>
+<li><a class="reference internal" href="#arguments">Arguments</a><ul>
 <li><a class="reference internal" href="#tetris_gymnasium.envs.tetris.Tetris"><code class="docutils literal notranslate"><span class="pre">Tetris</span></code></a></li>
-<li><a class="reference internal" href="#methods">Methods</a><ul>
-<li><a class="reference internal" href="#tetris_gymnasium.envs.tetris.Tetris.step"><code class="docutils literal notranslate"><span class="pre">Tetris.step()</span></code></a></li>
-<li><a class="reference internal" href="#tetris_gymnasium.envs.tetris.Tetris.reset"><code class="docutils literal notranslate"><span class="pre">Tetris.reset()</span></code></a></li>
-<li><a class="reference internal" href="#tetris_gymnasium.envs.tetris.Tetris.render"><code class="docutils literal notranslate"><span class="pre">Tetris.render()</span></code></a></li>
-<li><a class="reference internal" href="#tetris_gymnasium.envs.tetris.Tetris.close"><code class="docutils literal notranslate"><span class="pre">Tetris.close()</span></code></a></li>
+<li><a class="reference internal" href="#mappings">Mappings</a></li>
+<li><a class="reference internal" href="#pixels-and-tetrominoes">Pixels and Tetrominoes</a></li>
 </ul>
 </li>
 </ul>

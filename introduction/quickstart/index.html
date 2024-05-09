@@ -192,6 +192,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../components/holder/">Holder</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../components/randomizer/">Randomizer</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Utilities</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../utilities/wrappers/">Wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utilities/mappings/">Mappings</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../development/contributing/">Contributing</a></li>
@@ -253,7 +258,7 @@
             
             <section class="tex2jax_ignore mathjax_ignore" id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Link to this heading">#</a></h1>
-<p>After completing the installation, you can start using the library by importing it in your Python code and calling the <code class="docutils literal notranslate"><span class="pre">gym.make</span></code> function with the name of the environment you want to use.</p>
+<p>After completing the <a class="reference internal" href="../installation/"><span class="std std-doc">Installation</span></a>, you can start using the environment by importing it in your Python code and calling the <code class="docutils literal notranslate"><span class="pre">gymnasium.make</span></code> function.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
 <span class="kn">from</span> <span class="nn">tetris_gymnasium.envs</span> <span class="kn">import</span> <span class="n">Tetris</span>
 
@@ -261,30 +266,104 @@
 </pre></div>
 </div>
 <p>With the environment created, you can interact with it by calling the Gymnasium typical <code class="docutils literal notranslate"><span class="pre">reset</span></code> and <code class="docutils literal notranslate"><span class="pre">step</span></code> methods. The <code class="docutils literal notranslate"><span class="pre">reset</span></code> method initializes the environment and returns the initial observation and info. The <code class="docutils literal notranslate"><span class="pre">step</span></code> method takes an action as input and returns the next observation, reward, termination flag, truncation flag, and info.</p>
-<section id="random-agent">
-<h2>Random agent<a class="headerlink" href="#random-agent" title="Link to this heading">#</a></h2>
+<section id="simple-random-agent">
+<h2>Simple random agent<a class="headerlink" href="#simple-random-agent" title="Link to this heading">#</a></h2>
 <p>For example, a simple loop that interacts with the environment using random actions could look like this:</p>
-<blockquote>
-<div><p>Note: Currently there is only a text renderer available. A graphical renderer is in development.</p>
-</div></blockquote>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.envs</span> <span class="kn">import</span> <span class="n">Tetris</span>
 
-<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;tetris_gymnasium/Tetris&quot;</span><span class="p">)</span>
-<span class="n">observation</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
-   <span class="n">action</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>  <span class="c1"># this is where you would insert your policy</span>
-   <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">tetris_gymnasium.envs.tetris</span> <span class="kn">import</span> <span class="n">Tetris</span>
 
-   <span class="k">if</span> <span class="n">terminated</span> <span class="ow">or</span> <span class="n">truncated</span><span class="p">:</span>
-      <span class="n">observation</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># Create an instance of Tetris</span>
+    <span class="n">tetris_game</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;tetris_gymnasium/Tetris&quot;</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;ansi&quot;</span><span class="p">)</span>
+    <span class="n">tetris_game</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 
-<span class="n">env</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="c1"># Main game loop</span>
+    <span class="n">terminated</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">terminated</span><span class="p">:</span>
+        <span class="c1"># Render the current state of the game as text</span>
+        <span class="n">ansi</span> <span class="o">=</span> <span class="n">tetris_game</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">ansi</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Take a random action (for demonstration purposes)</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">tetris_game</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+
+        <span class="c1"># Perform the action</span>
+        <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">tetris_game</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+    <span class="c1"># Game over</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Game Over!&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="training-a-dqn-agent">
-<h2>Training a DQN agent<a class="headerlink" href="#training-a-dqn-agent" title="Link to this heading">#</a></h2>
+<section id="interactive-environment">
+<h2>Interactive environment<a class="headerlink" href="#interactive-environment" title="Link to this heading">#</a></h2>
+<p>You can play around with the environment by using the interactive scripts in the <code class="docutils literal notranslate"><span class="pre">examples</span></code> directory.</p>
+<p>For example, the <code class="docutils literal notranslate"><span class="pre">play_interactive.py</span></code> script allows you to play the Tetris environment using the keyboard.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
+
+<span class="kn">from</span> <span class="nn">tetris_gymnasium.envs</span> <span class="kn">import</span> <span class="n">Tetris</span>
+<span class="kn">from</span> <span class="nn">tetris_gymnasium.wrappers.observation</span> <span class="kn">import</span> <span class="n">CnnObservation</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># Create an instance of Tetris</span>
+    <span class="n">tetris_game</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;tetris_gymnasium/Tetris&quot;</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;rgb_array&quot;</span><span class="p">)</span>
+    <span class="n">tetris_game</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+    <span class="n">window_name</span> <span class="o">=</span> <span class="s2">&quot;Tetris Gymnasium&quot;</span>
+    <span class="n">cv2</span><span class="o">.</span><span class="n">namedWindow</span><span class="p">(</span><span class="n">window_name</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">WINDOW_GUI_NORMAL</span><span class="p">)</span>
+    <span class="n">cv2</span><span class="o">.</span><span class="n">resizeWindow</span><span class="p">(</span><span class="n">window_name</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+
+    <span class="c1"># Main game loop</span>
+    <span class="n">terminated</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">terminated</span><span class="p">:</span>
+        <span class="c1"># Render the current state of the game as text</span>
+        <span class="n">rgb</span> <span class="o">=</span> <span class="n">tetris_game</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+
+        <span class="c1"># Render the current state of the game as an image using CV2q</span>
+        <span class="c1"># CV2 uses BGR color format, so we need to convert the RGB image to BGR</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">window_name</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2BGR</span><span class="p">))</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+
+        <span class="c1"># Pick an action from user input mapped to the keyboard</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="n">action</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">):</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">tetris_game</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">move_left</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">):</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">tetris_game</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">move_right</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">):</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">tetris_game</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">move_down</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">):</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">tetris_game</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">rotate_counterclockwise</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">):</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">tetris_game</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">rotate_clockwise</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">tetris_game</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">hard_drop</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">):</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">tetris_game</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">swap</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">):</span>
+                <span class="n">tetris_game</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+                <span class="k">break</span>
+
+            <span class="k">if</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getWindowProperty</span><span class="p">(</span><span class="n">window_name</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">WND_PROP_VISIBLE</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+        <span class="c1"># Perform the action</span>
+        <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">tetris_game</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+    <span class="c1"># Game over</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Game Over!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="training">
+<h2>Training<a class="headerlink" href="#training" title="Link to this heading">#</a></h2>
 <p>In order to do Reinforcement Learning, you need to train an agent. To give some real-world examples, the code in the files <code class="docutils literal notranslate"><span class="pre">train_lin.py</span></code> and <code class="docutils literal notranslate"><span class="pre">train_cnn.py</span></code> in the <code class="docutils literal notranslate"><span class="pre">examples</span></code> directory show how to train a DQN agent on the Tetris environment.</p>
 <p>To run the training, you can use the following command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/train_lin.py<span class="w"> </span><span class="c1"># uses a linear model</span>
@@ -365,8 +444,9 @@ poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> 
             <div class="toc-tree">
               <ul>
 <li><a class="reference internal" href="#">Quickstart</a><ul>
-<li><a class="reference internal" href="#random-agent">Random agent</a></li>
-<li><a class="reference internal" href="#training-a-dqn-agent">Training a DQN agent</a></li>
+<li><a class="reference internal" href="#simple-random-agent">Simple random agent</a></li>
+<li><a class="reference internal" href="#interactive-environment">Interactive environment</a></li>
+<li><a class="reference internal" href="#training">Training</a></li>
 </ul>
 </li>
 </ul>
