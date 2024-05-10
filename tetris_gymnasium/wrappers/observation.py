@@ -1,4 +1,5 @@
 """Observation wrapper module for the Tetris Gymnasium environment."""
+import cv2
 import gymnasium as gym
 import numpy as np
 from gymnasium.core import RenderFrame
@@ -8,16 +9,13 @@ from tetris_gymnasium.envs import Tetris
 
 
 class CnnObservation(gym.ObservationWrapper):
-    """Wrapper that displays all observations (board, holder, queue) in a single 2D matrix.
+    """Observation wrapper that displays all observations (board, holder, queue) in a single 2D matrix, instead of a dictionary.
 
     The 2D matrix contains the board on the left, the queue on the top right and the holder on the bottom right.
     """
 
     def __init__(self, env: Tetris):
-        """Initializes the observation space to be a single 2D matrix.
-
-        The size of the matrix depends on how many tetrominoes can be stored in the queue / holder.
-        """
+        """The size of the matrix depends on how many tetrominoes can be stored in the queue / holder."""
         super().__init__(env)
         self.observation_space = Box(
             low=0,
@@ -63,7 +61,8 @@ class CnnObservation(gym.ObservationWrapper):
     def render(self) -> "RenderFrame | list[RenderFrame] | None":
         """Renders the environment in various formats.
 
-        This render function is different from the default as it uses the observation space to render the environment.
+        This render function is different from the default as it uses the values from :func:`observation`  to render
+        the environment.
         """
         matrix = self.observation(self.env.unwrapped._get_obs()).astype(np.integer)
 
@@ -71,13 +70,25 @@ class CnnObservation(gym.ObservationWrapper):
             char_field = np.where(matrix == 0, ".", matrix.astype(str))
             field_str = "\n".join("".join(row) for row in char_field)
             return field_str
-        if self.render_mode == "rgb_array":
+        if self.render_mode == "human" or self.render_mode == "rgb_array":
             # Initialize rgb array
             rgb = np.zeros((matrix.shape[0], matrix.shape[1], 3), dtype=np.uint8)
             # Render the board
             colors = np.array(list(p.color_rgb for p in self.pixels), dtype=np.uint8)
             rgb[...] = colors[matrix]
 
-            return rgb
+            if self.render_mode == "rgb_array":
+                return rgb
+
+            if self.render_mode == "human":
+                if self.env.unwrapped.window_name is None:
+                    self.env.unwrapped.window_name = "Tetris Gymnasium"
+                    cv2.namedWindow(
+                        self.env.unwrapped.window_name, cv2.WINDOW_GUI_NORMAL
+                    )
+                    cv2.resizeWindow(self.env.unwrapped.window_name, 395, 250)
+                cv2.imshow(
+                    self.env.unwrapped.window_name, cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+                )
 
         return None

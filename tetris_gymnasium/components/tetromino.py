@@ -10,7 +10,7 @@ class Pixel:
 
     A pixel is the basic building block of the game and has an id and a color.
 
-    The basic pixels are in the most cases the empty pixel (id=0) and the bedrock pixel (id=1).
+    The basic pixels are by default the empty pixel (id=0) and the bedrock pixel (id=1).
     Additionally, multiple pixels can be combined to form a tetromino.
     """
 

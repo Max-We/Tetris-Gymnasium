@@ -3,6 +3,7 @@ from copy import copy
 from dataclasses import fields
 from typing import Any, List
 
+import cv2
 import gymnasium as gym
 import numpy as np
 from gymnasium.core import ActType, RenderFrame
@@ -74,15 +75,15 @@ class Tetris(gym.Env):
 
         Args:
             render_mode: The mode to use for rendering. If None, no rendering will be done.
-            width: The width of the game board.
-            height: The height of the game board.
-            randomizer: The randomizer to use for selecting tetrominoes.
-            holder: The holder to use for storing tetrominoes.
-            queue: The queue to use for storing tetrominoes.
+            width: The width of the board.
+            height: The height of the board.
+            randomizer: The :class:`Randomizer` to use for selecting tetrominoes.
+            holder: The :class:`TetrominoHolder` to use for storing tetrominoes.
+            queue: The :class:`TetrominoQueue` to use for holding tetrominoes temporarily.
             actions_mapping: The mapping for the actions that the agent can take.
             rewards_mapping: The mapping for the rewards that the agent can receive.
-            base_pixels: The base pixels to use for the environment (e.g. empty, bedrock).
-            tetrominoes: The tetrominoes to use for the environment.
+            base_pixels: A list of base (non-Tetromino) :class:`Pixel` to use for the environment (e.g. empty, bedrock).
+            tetrominoes: A list of :class:`Tetromino` to use in the environment.
         """
         # Dimensions
         self.height: int = height
@@ -114,6 +115,7 @@ class Tetris(gym.Env):
         # Utilities
         self.queue = queue(randomizer(len(tetrominoes)), 5)
         self.holder = holder()
+        self.has_swapped = False
 
         # Position
         self.x: int = 0
@@ -161,7 +163,7 @@ class Tetris(gym.Env):
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
-        self.has_swapped = False
+        self.window_name = None
 
     def step(self, action: ActType) -> "tuple[dict, float, bool, bool, dict]":
         """Perform one step of the environment's dynamics.
@@ -234,6 +236,8 @@ class Tetris(gym.Env):
     ) -> "tuple[dict[str, Any], dict[str, Any]]":
         """Resets the state of the environment.
 
+        As with all Gymnasium environments, the reset method is called once at the beginning of an episode.
+
         Args:
             seed: The random seed to use for the reset.
             options: A dictionary of options to use for the reset.
@@ -256,6 +260,9 @@ class Tetris(gym.Env):
         self.holder.reset()
         self.has_swapped = False
 
+        # Render
+        self.window_name = None
+
         return self._get_obs(), self._get_info()
 
     def render(self) -> "RenderFrame | list[RenderFrame] | None":
@@ -271,7 +278,7 @@ class Tetris(gym.Env):
             char_field = np.where(projection == 0, ".", projection.astype(str))
             field_str = "\n".join("".join(row) for row in char_field)
             return field_str
-        elif self.render_mode == "rgb_array":
+        elif self.render_mode == "human" or self.render_mode == "rgb_array":
             # Initialize rgb array
             rgb = np.zeros(
                 (self.board.shape[0], self.board.shape[1], 3), dtype=np.uint8
@@ -295,7 +302,17 @@ class Tetris(gym.Env):
                 rgb[slices] += active_tetromino_rgb
 
             # Crop padding away as we don't want to render it
-            return self.crop_padding(rgb)
+            rgb = self.crop_padding(rgb)
+
+            if self.render_mode == "rgb_array":
+                return rgb
+
+            if self.render_mode == "human":
+                if self.window_name is None:
+                    self.window_name = "Tetris Gymnasium"
+                    cv2.namedWindow(self.window_name, cv2.WINDOW_GUI_NORMAL)
+                    cv2.resizeWindow(self.window_name, 200, 400)
+                cv2.imshow(self.window_name, cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR))
 
         return None
 
@@ -318,7 +335,7 @@ class Tetris(gym.Env):
         """Check if the tetromino collides with the board at the given position.
 
         A collision is detected if the tetromino overlaps with any non-zero cell on the board.
-        These non-zero cells represent the padding / bedrock (value 1) or other tetrominoes (values 2+).
+        These non-zero cells represent the padding / bedrock (value 1) or other tetrominoes (values >=2).
 
         Args:
             tetromino: The tetromino to check for collision.
