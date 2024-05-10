@@ -4,7 +4,6 @@ import cv2
 import gymnasium as gym
 
 from tetris_gymnasium.envs import Tetris
-from tetris_gymnasium.wrappers.observation import CnnObservation
 
 if __name__ == "__main__":
     # Create an instance of Tetris
