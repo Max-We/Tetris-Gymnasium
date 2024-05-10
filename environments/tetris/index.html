@@ -342,28 +342,6 @@
 </section>
 <section id="arguments">
 <h2>Arguments<a class="headerlink" href="#arguments" title="Link to this heading">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="tetris_gymnasium.envs.tetris.Tetris">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.envs.tetris.</span></span><span class="sig-name descname"><span class="pre">Tetris</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">render_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../components/randomizer/#tetris_gymnasium.components.tetromino_randomizer.Randomizer" title="tetris_gymnasium.components.tetromino_randomizer.Randomizer"><span class="pre">Randomizer</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">BagRandomizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../components/holder/#tetris_gymnasium.components.tetromino_holder.TetrominoHolder" title="tetris_gymnasium.components.tetromino_holder.TetrominoHolder"><span class="pre">TetrominoHolder</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">TetrominoHolder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../components/queue/#tetris_gymnasium.components.tetromino_queue.TetrominoQueue" title="tetris_gymnasium.components.tetromino_queue.TetrominoQueue"><span class="pre">TetrominoQueue</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">TetrominoQueue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ActionsMapping()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rewards_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">RewardsMapping()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tetrominoes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/envs/tetris/#Tetris"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.envs.tetris.Tetris" title="Link to this definition">#</a></dt>
-<dd><p>Tetris environment for Gymnasium.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>render_mode</strong> – The mode to use for rendering. If None, no rendering will be done.</p></li>
-<li><p><strong>width</strong> – The width of the game board.</p></li>
-<li><p><strong>height</strong> – The height of the game board.</p></li>
-<li><p><strong>randomizer</strong> – The randomizer to use for selecting tetrominoes.</p></li>
-<li><p><strong>holder</strong> – The holder to use for storing tetrominoes.</p></li>
-<li><p><strong>queue</strong> – The queue to use for storing tetrominoes.</p></li>
-<li><p><strong>actions_mapping</strong> – The mapping for the actions that the agent can take.</p></li>
-<li><p><strong>rewards_mapping</strong> – The mapping for the rewards that the agent can receive.</p></li>
-<li><p><strong>base_pixels</strong> – The base pixels to use for the environment (e.g. empty, bedrock).</p></li>
-<li><p><strong>tetrominoes</strong> – The tetrominoes to use for the environment.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
 <section id="mappings">
 <h3>Mappings<a class="headerlink" href="#mappings" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">mappings</span></code> passed to the environment are useful for keeping the code readable, avoiding magic numbers. More information
@@ -549,7 +527,6 @@ in the matrix to the according pixel ids. The pixel ids are later used to render
 <li><a class="reference internal" href="#starting-state">Starting state</a></li>
 <li><a class="reference internal" href="#episode-termination">Episode Termination</a></li>
 <li><a class="reference internal" href="#arguments">Arguments</a><ul>
-<li><a class="reference internal" href="#tetris_gymnasium.envs.tetris.Tetris"><code class="docutils literal notranslate"><span class="pre">Tetris</span></code></a></li>
 <li><a class="reference internal" href="#mappings">Mappings</a></li>
 <li><a class="reference internal" href="#pixels-and-tetrominoes">Pixels and Tetrominoes</a></li>
 </ul>

@@ -267,31 +267,8 @@ Alternatively, you can use predefined wrappers from Tetris Gymnasium or Gymnasiu
 shape of the observation space or for adding additional information to the observation space.</p>
 <section id="implementations">
 <h3>Implementations<a class="headerlink" href="#implementations" title="Link to this heading">#</a></h3>
-<dl class="py class">
-<dt class="sig sig-object py" id="tetris_gymnasium.wrappers.observation.CnnObservation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.wrappers.observation.</span></span><span class="sig-name descname"><span class="pre">CnnObservation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../environments/tetris/#tetris_gymnasium.envs.tetris.Tetris" title="tetris_gymnasium.envs.tetris.Tetris"><span class="pre">Tetris</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/wrappers/observation/#CnnObservation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.wrappers.observation.CnnObservation" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper that displays all observations (board, holder, queue) in a single 2D matrix.</p>
-<p>The 2D matrix contains the board on the left, the queue on the top right and the holder on the bottom right.</p>
-<p>Initializes the observation space to be a single 2D matrix.</p>
-<p>The size of the matrix depends on how many tetrominoes can be stored in the queue / holder.</p>
-</dd></dl>
-
 <section id="methods">
 <h4>Methods<a class="headerlink" href="#methods" title="Link to this heading">#</a></h4>
-<dl class="py method">
-<dt class="sig sig-object py" id="tetris_gymnasium.wrappers.observation.CnnObservation.observation">
-<span class="sig-prename descclassname"><span class="pre">CnnObservation.</span></span><span class="sig-name descname"><span class="pre">observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/wrappers/observation/#CnnObservation.observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.wrappers.observation.CnnObservation.observation" title="Link to this definition">#</a></dt>
-<dd><p>Wrapper that displays all observations (board, holder, queue) in a single 2D matrix.</p>
-<p>The 2D matrix contains the board on the left, the queue on the top right and the holder on the bottom right.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tetris_gymnasium.wrappers.observation.CnnObservation.render">
-<span class="sig-prename descclassname"><span class="pre">CnnObservation.</span></span><span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">RenderFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">RenderFrame</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/tetris_gymnasium/wrappers/observation/#CnnObservation.render"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.wrappers.observation.CnnObservation.render" title="Link to this definition">#</a></dt>
-<dd><p>Renders the environment in various formats.</p>
-<p>This render function is different from the default as it uses the observation space to render the environment.</p>
-</dd></dl>
-
 </section>
 </section>
 </section>
@@ -369,12 +346,7 @@ shape of the observation space or for adding additional information to the obser
 <li><a class="reference internal" href="#">Wrappers</a><ul>
 <li><a class="reference internal" href="#observation-wrappers">Observation wrappers</a><ul>
 <li><a class="reference internal" href="#implementations">Implementations</a><ul>
-<li><a class="reference internal" href="#tetris_gymnasium.wrappers.observation.CnnObservation"><code class="docutils literal notranslate"><span class="pre">CnnObservation</span></code></a></li>
-<li><a class="reference internal" href="#methods">Methods</a><ul>
-<li><a class="reference internal" href="#tetris_gymnasium.wrappers.observation.CnnObservation.observation"><code class="docutils literal notranslate"><span class="pre">CnnObservation.observation()</span></code></a></li>
-<li><a class="reference internal" href="#tetris_gymnasium.wrappers.observation.CnnObservation.render"><code class="docutils literal notranslate"><span class="pre">CnnObservation.render()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#methods">Methods</a></li>
 </ul>
 </li>
 </ul>

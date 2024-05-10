@@ -306,27 +306,17 @@
 <span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
 
 <span class="kn">from</span> <span class="nn">tetris_gymnasium.envs</span> <span class="kn">import</span> <span class="n">Tetris</span>
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.wrappers.observation</span> <span class="kn">import</span> <span class="n">CnnObservation</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="c1"># Create an instance of Tetris</span>
-    <span class="n">tetris_game</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;tetris_gymnasium/Tetris&quot;</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;rgb_array&quot;</span><span class="p">)</span>
+    <span class="n">tetris_game</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;tetris_gymnasium/Tetris&quot;</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;human&quot;</span><span class="p">)</span>
     <span class="n">tetris_game</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
-
-    <span class="n">window_name</span> <span class="o">=</span> <span class="s2">&quot;Tetris Gymnasium&quot;</span>
-    <span class="n">cv2</span><span class="o">.</span><span class="n">namedWindow</span><span class="p">(</span><span class="n">window_name</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">WINDOW_GUI_NORMAL</span><span class="p">)</span>
-    <span class="n">cv2</span><span class="o">.</span><span class="n">resizeWindow</span><span class="p">(</span><span class="n">window_name</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
 
     <span class="c1"># Main game loop</span>
     <span class="n">terminated</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">while</span> <span class="ow">not</span> <span class="n">terminated</span><span class="p">:</span>
         <span class="c1"># Render the current state of the game as text</span>
-        <span class="n">rgb</span> <span class="o">=</span> <span class="n">tetris_game</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
-
-        <span class="c1"># Render the current state of the game as an image using CV2q</span>
-        <span class="c1"># CV2 uses BGR color format, so we need to convert the RGB image to BGR</span>
-        <span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">window_name</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2BGR</span><span class="p">))</span>
-        <span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">tetris_game</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
 
         <span class="c1"># Pick an action from user input mapped to the keyboard</span>
         <span class="n">action</span> <span class="o">=</span> <span class="kc">None</span>
@@ -351,7 +341,12 @@
                 <span class="n">tetris_game</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
                 <span class="k">break</span>
 
-            <span class="k">if</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getWindowProperty</span><span class="p">(</span><span class="n">window_name</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">WND_PROP_VISIBLE</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">cv2</span><span class="o">.</span><span class="n">getWindowProperty</span><span class="p">(</span>
+                    <span class="n">tetris_game</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">window_name</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">WND_PROP_VISIBLE</span>
+                <span class="p">)</span>
+                <span class="o">==</span> <span class="mi">0</span>
+            <span class="p">):</span>
                 <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
 
         <span class="c1"># Perform the action</span>
