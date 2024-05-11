@@ -21,6 +21,7 @@ from stable_baselines3.common.buffers import ReplayBuffer
 from torch.utils.tensorboard import SummaryWriter
 
 from tetris_gymnasium.envs import Tetris
+from tetris_gymnasium.wrappers.observation import CnnObservation
 
 
 # Evaluation
@@ -132,6 +133,7 @@ def make_env(env_id, seed, idx, capture_video, run_name):
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env.action_space.seed(seed)
 
+        env = CnnObservation(env)
         env = gym.wrappers.FrameStack(env, 4)
 
         return env
@@ -151,7 +153,7 @@ class QNetwork(nn.Module):
             nn.Conv2d(64, 64, 3, stride=1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(384, 512),
+            nn.Linear(7680, 512),
             nn.ReLU(),
             nn.Linear(512, env.single_action_space.n),
         )

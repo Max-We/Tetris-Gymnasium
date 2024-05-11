@@ -128,7 +128,7 @@ class Tetris(gym.Env):
                     low=0,
                     high=len(self.pixels),
                     shape=(self.height_padded, self.width_padded),
-                    dtype=np.uint8,
+                    dtype=np.float32,
                 ),
                 "holder": Box(
                     low=0,
@@ -137,7 +137,7 @@ class Tetris(gym.Env):
                         self.padding,
                         self.padding * self.holder.size,
                     ),
-                    dtype=np.uint8,
+                    dtype=np.float32,
                 ),
                 "queue": gym.spaces.Box(
                     low=0,
@@ -146,7 +146,7 @@ class Tetris(gym.Env):
                         self.padding,
                         self.padding * self.queue.size,
                     ),
-                    dtype=np.uint8,
+                    dtype=np.float32,
                 ),
             }
         )
@@ -487,9 +487,9 @@ class Tetris(gym.Env):
         queue_obs = np.hstack(queue_tetrominoes)
 
         return {
-            "board": board_obs.astype(np.uint8),
-            "holder": holder_obs.astype(np.uint8),
-            "queue": queue_obs.astype(np.uint8),
+            "board": board_obs.astype(np.float32),
+            "holder": holder_obs.astype(np.float32),
+            "queue": queue_obs.astype(np.float32),
         }
 
     def _get_info(self) -> dict:

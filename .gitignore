@@ -165,3 +165,5 @@ local_experiments/
 # Examples / training outputs
 examples/runs
 runs
+wandb
+videos

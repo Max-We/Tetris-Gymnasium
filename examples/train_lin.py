@@ -243,7 +243,6 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         else:
             # Normalization by dividing with piece count
             # Todo: Create api to get how many pieces are in env / do normalize
-            print(obs.shape)
             q_values = q_network(
                 torch.Tensor(obs).to(device) / envs.observation_space.high
             )

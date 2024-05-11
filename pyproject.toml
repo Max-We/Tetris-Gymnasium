@@ -22,6 +22,8 @@ typer = "^0.9.0"
 stable-baselines3 = "^2.2.1"
 tyro = "^0.7.3"
 tensorboard = "^2.10.0"
+wandb = "^0.17.0"
+moviepy = "^1.0.3"
 
 [tool.poetry.group.docs.dependencies]
 sphinx = "^7"
