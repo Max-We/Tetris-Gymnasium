@@ -244,7 +244,8 @@ poetry run pip install "stable_baselines3==2.0.0a1"
             # Normalization by dividing with piece count
             # Todo: Create api to get how many pieces are in env / do normalize
             q_values = q_network(
-                torch.Tensor(obs).to(device) / envs.observation_space.high
+                torch.Tensor(obs).to(device)
+                / torch.Tensor(envs.observation_space.high).to(device)
             )
             actions = torch.argmax(q_values, dim=1).cpu().numpy()
 
