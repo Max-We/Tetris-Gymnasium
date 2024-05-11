@@ -78,7 +78,7 @@ class Args:
     """if toggled, cuda will be enabled by default"""
     track: bool = True
     """if toggled, this experiment will be tracked with Weights and Biases"""
-    wandb_project_name: str = "cleanRL"
+    wandb_project_name: str = "tetris_gymnasium"
     """the wandb's project name"""
     wandb_entity: str = None
     """the entity (team) of wandb's project"""

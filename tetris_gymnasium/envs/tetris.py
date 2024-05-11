@@ -183,7 +183,7 @@ class Tetris(gym.Env):
 
         game_over = False
         truncated = False  # Tetris without levels will never truncate
-        reward = self.rewards.alife
+        reward = 0
 
         if action == self.actions.move_left:
             if not self.collision(self.active_tetromino, self.x - 1, self.y):
@@ -194,6 +194,7 @@ class Tetris(gym.Env):
         elif action == self.actions.move_down:
             if not self.collision(self.active_tetromino, self.x, self.y + 1):
                 self.y += 1
+                reward = self.rewards.alife
         elif action == self.actions.rotate_clockwise:
             if not self.collision(
                 self.rotate(self.active_tetromino, True), self.x, self.y
