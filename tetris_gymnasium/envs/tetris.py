@@ -194,7 +194,7 @@ class Tetris(gym.Env):
         elif action == self.actions.move_down:
             if not self.collision(self.active_tetromino, self.x, self.y + 1):
                 self.y += 1
-                reward = self.rewards.alife
+                reward += self.rewards.alife
         elif action == self.actions.rotate_clockwise:
             if not self.collision(
                 self.rotate(self.active_tetromino, True), self.x, self.y
@@ -220,6 +220,7 @@ class Tetris(gym.Env):
             # 1. Drop the tetromino and lock it in place
             self.drop_active_tetromino()
             self.place_active_tetromino()
+            reward += self.rewards.alife
             reward += self.score(self.clear_filled_rows())
 
             # 2. Spawn the next tetromino and check if the game continues
