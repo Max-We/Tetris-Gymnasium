@@ -11,4 +11,4 @@ class RewardsMapping:
 
     alife: float = 0
     clear_line: float = 1
-    game_over: float = -2
+    game_over: float = 0

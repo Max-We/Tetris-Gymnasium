@@ -17,11 +17,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import tyro
+from stable_baselines3.common.atari_wrappers import ClipRewardEnv
 from stable_baselines3.common.buffers import ReplayBuffer
 from torch.utils.tensorboard import SummaryWriter
 
 from tetris_gymnasium.envs import Tetris
-from tetris_gymnasium.wrappers.observation import CnnObservation
+from tetris_gymnasium.wrappers.observation import RgbObservation
 
 
 # Evaluation
@@ -127,12 +128,18 @@ def make_env(env_id, seed, idx, capture_video, run_name):
     def thunk():
         if capture_video and idx == 0:
             env = gym.make(env_id, render_mode="rgb_array")
-            env = CnnObservation(env)
+            env = RgbObservation(env)
             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         else:
             env = gym.make(env_id)
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env.action_space.seed(seed)
+
+        # env = NoopResetEnv(env, noop_max=30)
+        env = ClipRewardEnv(env)
+
+        env = gym.wrappers.ResizeObservation(env, (84, 84))
+        env = gym.wrappers.GrayScaleObservation(env)
 
         env = gym.wrappers.FrameStack(env, 4)
 
@@ -146,20 +153,20 @@ class QNetwork(nn.Module):
     def __init__(self, env):
         super().__init__()
         self.network = nn.Sequential(
-            nn.Conv2d(4, 32, 4, stride=2),
+            nn.Conv2d(4, 32, 8, stride=4),
             nn.ReLU(),
-            nn.Conv2d(32, 64, 2, stride=2),
+            nn.Conv2d(32, 64, 4, stride=2),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 2, stride=1),
+            nn.Conv2d(64, 64, 3, stride=1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(2048, 512),
+            nn.Linear(3136, 512),
             nn.ReLU(),
             nn.Linear(512, env.single_action_space.n),
         )
 
     def forward(self, x):
-        return self.network(x)
+        return self.network(x / 255.0)
 
 
 def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
@@ -249,10 +256,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         else:
             # Normalization by dividing with piece count
             # Todo: Create api to get how many pieces are in env / do normalize
-            q_values = q_network(
-                torch.Tensor(obs).to(device)
-                / torch.Tensor(envs.observation_space.high).to(device)
-            )
+            q_values = q_network(torch.Tensor(obs).to(device))
             actions = torch.argmax(q_values, dim=1).cpu().numpy()
 
         # TRY NOT TO MODIFY: execute the game and log data.
@@ -263,7 +267,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
             for info in infos["final_info"]:
                 if info and "episode" in info:
                     print(
-                        f"global_step={global_step}, episodic_return={info['episode']['r']}"
+                        f"global_step={global_step}, episodic_return={info['episode']['r']}, episodic_len={info['episode']['l']}"
                     )
                     writer.add_scalar(
                         "charts/episodic_return", info["episode"]["r"], global_step

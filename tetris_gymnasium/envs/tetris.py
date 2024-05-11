@@ -229,7 +229,7 @@ class Tetris(gym.Env):
             # 3. Reset the swap flag (agent can swap once per tetromino)
             self.has_swapped = False
 
-        # Cheap fake gravity
+        # # Cheap fake gravity
         if not self.collision(self.active_tetromino, self.x, self.y + 1):
             self.y += 1
         else:
@@ -461,6 +461,9 @@ class Tetris(gym.Env):
         on the board to render it.
         """
         projection = self.board.copy()
+        if self.collision(self.active_tetromino, self.x, self.y):
+            return projection
+
         slices = self.get_tetromino_slices(self.active_tetromino, self.x, self.y)
         projection[slices] += self.active_tetromino.matrix
         return projection

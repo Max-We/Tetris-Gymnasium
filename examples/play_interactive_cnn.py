@@ -9,13 +9,13 @@ from tetris_gymnasium.wrappers.observation import CnnObservation
 if __name__ == "__main__":
     # Create an instance of Tetris
     tetris_game = gym.make("tetris_gymnasium/Tetris", render_mode="human")
-    tetris_game.reset(seed=42)
     tetris_game = CnnObservation(tetris_game)
+    tetris_game.reset(seed=42)
 
     # Main game loop
     terminated = False
     while not terminated:
-        # Render the current state of the game as text
+        # Render the current state of the game as texta
         tetris_game.render()
 
         # Pick an action from user input mapped to the keyboard
@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
         # Perform the action
         observation, reward, terminated, truncated, info = tetris_game.step(action)
-        print(reward)
+        print(info)
 
     # Game over
     print("Game Over!")

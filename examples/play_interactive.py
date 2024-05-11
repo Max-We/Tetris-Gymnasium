@@ -49,6 +49,7 @@ if __name__ == "__main__":
 
         # Perform the action
         observation, reward, terminated, truncated, info = tetris_game.step(action)
+        print(info)
 
     # Game over
     print("Game Over!")
