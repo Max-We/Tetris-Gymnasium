@@ -50,7 +50,7 @@ class Args:
     # Algorithm specific arguments
     env_id: str = "ALE/Tetris-v5"
     """the id of the environment"""
-    total_timesteps: int = 10000000
+    total_timesteps: int = 500000
     """total timesteps of the experiments"""
     learning_rate: float = 1e-4
     """the learning rate of the optimizer"""

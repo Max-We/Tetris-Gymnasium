@@ -95,7 +95,7 @@ class Args:
     # env_id: str = "BreakoutNoFrameskip-v4"
     env_id: str = "tetris_gymnasium/Tetris"
     """the id of the environment"""
-    total_timesteps: int = 10000000
+    total_timesteps: int = 500000
     """total timesteps of the experiments"""
     learning_rate: float = 1e-4
     """the learning rate of the optimizer"""
@@ -146,14 +146,14 @@ class QNetwork(nn.Module):
     def __init__(self, env):
         super().__init__()
         self.network = nn.Sequential(
-            nn.Conv2d(4, 32, 3, stride=2),
+            nn.Conv2d(4, 32, 4, stride=2),
             nn.ReLU(),
-            nn.Conv2d(32, 64, 4, stride=2),
+            nn.Conv2d(32, 64, 2, stride=2),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, stride=1),
+            nn.Conv2d(64, 64, 2, stride=1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(7680, 512),
+            nn.Linear(2048, 512),
             nn.ReLU(),
             nn.Linear(512, env.single_action_space.n),
         )
