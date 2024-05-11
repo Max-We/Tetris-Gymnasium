@@ -229,6 +229,23 @@ class Tetris(gym.Env):
             # 3. Reset the swap flag (agent can swap once per tetromino)
             self.has_swapped = False
 
+        # Cheap fake gravity
+        if not self.collision(self.active_tetromino, self.x, self.y + 1):
+            self.y += 1
+        else:
+            # 1. Drop the tetromino and lock it in place
+            self.drop_active_tetromino()
+            self.place_active_tetromino()
+            reward += self.score(self.clear_filled_rows())
+
+            # 2. Spawn the next tetromino and check if the game continues
+            game_over = not self.spawn_tetromino()
+            if game_over:
+                reward = self.rewards.game_over
+
+            # 3. Reset the swap flag (agent can swap once per tetromino)
+            self.has_swapped = False
+
         return self._get_obs(), reward, game_over, truncated, self._get_info()
 
     def reset(
