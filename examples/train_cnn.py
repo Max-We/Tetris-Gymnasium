@@ -32,7 +32,7 @@ def evaluate(
     eval_episodes: int,
     run_name: str,
     Model: torch.nn.Module,
-    device: torch.device = torch.device("cpu"),
+    device: torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu"),
     epsilon: float = 0.05,
     capture_video: bool = True,
 ):
