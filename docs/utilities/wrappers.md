@@ -12,11 +12,11 @@ shape of the observation space or for adding additional information to the obser
 ### Implementations
 
 ```{eval-rst}
-.. autoclass:: tetris_gymnasium.wrappers.observation.CnnObservation
+.. autoclass:: tetris_gymnasium.wrappers.observation.RgbObservation
 ```
 
 #### Methods
 ```{eval-rst}
-.. automethod:: tetris_gymnasium.wrappers.observation.CnnObservation.observation
-.. automethod:: tetris_gymnasium.wrappers.observation.CnnObservation.render
+.. automethod:: tetris_gymnasium.wrappers.observation.RgbObservation.observation
+.. automethod:: tetris_gymnasium.wrappers.observation.RgbObservation.render
 ```

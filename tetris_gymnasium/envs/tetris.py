@@ -63,6 +63,7 @@ class Tetris(gym.Env):
         render_mode=None,
         width=10,
         height=20,
+        gravity=True,
         randomizer: Randomizer = BagRandomizer,
         holder: TetrominoHolder = TetrominoHolder,
         queue: TetrominoQueue = TetrominoQueue,
@@ -77,6 +78,7 @@ class Tetris(gym.Env):
             render_mode: The mode to use for rendering. If None, no rendering will be done.
             width: The width of the board.
             height: The height of the board.
+            gravity: Whether gravity is enabled in the game.
             randomizer: The :class:`Randomizer` to use for selecting tetrominoes.
             holder: The :class:`TetrominoHolder` to use for storing tetrominoes.
             queue: The :class:`TetrominoQueue` to use for holding tetrominoes temporarily.
@@ -116,6 +118,7 @@ class Tetris(gym.Env):
         self.queue = queue(randomizer(len(tetrominoes)), 5)
         self.holder = holder()
         self.has_swapped = False
+        self.gravity_enabled = gravity
 
         # Position
         self.x: int = 0
@@ -183,7 +186,7 @@ class Tetris(gym.Env):
 
         game_over = False
         truncated = False  # Tetris without levels will never truncate
-        reward = self.rewards.alife
+        reward = 0
 
         if action == self.actions.move_left:
             if not self.collision(self.active_tetromino, self.x - 1, self.y):
@@ -216,18 +219,15 @@ class Tetris(gym.Env):
                 else:
                     self.reset_tetromino_position()
         elif action == self.actions.hard_drop:
-            # 1. Drop the tetromino and lock it in place
-            self.drop_active_tetromino()
-            self.place_active_tetromino()
-            reward += self.score(self.clear_filled_rows())
+            reward, game_over = self.commit_active_tetromino()
 
-            # 2. Spawn the next tetromino and check if the game continues
-            game_over = not self.spawn_tetromino()
-            if game_over:
-                reward = self.rewards.game_over
-
-            # 3. Reset the swap flag (agent can swap once per tetromino)
-            self.has_swapped = False
+        # Gravity
+        if self.gravity_enabled and action != self.actions.hard_drop:
+            if not self.collision(self.active_tetromino, self.x, self.y + 1):
+                self.y += 1
+            else:
+                # If there's no more room to move, lock in the tetromino
+                reward, game_over = self.commit_active_tetromino()
 
         return self._get_obs(), reward, game_over, truncated, self._get_info()
 
@@ -373,6 +373,31 @@ class Tetris(gym.Env):
         while not self.collision(self.active_tetromino, self.x, self.y + 1):
             self.y += 1
 
+    def commit_active_tetromino(self):
+        """Commit the active tetromino to the board.
+
+        After locking in the tetromino, the game checks if any rows are filled and clears them.
+        Finally, it spawns the next tetromino.
+
+        Returns
+            The reward for the current step and whether the game is over.
+        """
+        # 1. Drop the tetromino and lock it in place
+        self.drop_active_tetromino()
+        self.place_active_tetromino()
+        reward = self.score(self.clear_filled_rows())
+
+        # 2. Spawn the next tetromino and check if the game continues
+        game_over = not self.spawn_tetromino()
+        reward += self.rewards.alife
+        if game_over:
+            reward = self.rewards.game_over
+
+        # 3. Reset the swap flag (agent can swap once per tetromino)
+        self.has_swapped = False
+
+        return reward, game_over
+
     def clear_filled_rows(self) -> int:
         """Clear any filled rows on the board.
 
@@ -444,6 +469,9 @@ class Tetris(gym.Env):
         on the board to render it.
         """
         projection = self.board.copy()
+        if self.collision(self.active_tetromino, self.x, self.y):
+            return projection
+
         slices = self.get_tetromino_slices(self.active_tetromino, self.x, self.y)
         projection[slices] += self.active_tetromino.matrix
         return projection

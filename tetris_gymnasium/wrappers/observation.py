@@ -8,10 +8,10 @@ from gymnasium.spaces import Box
 from tetris_gymnasium.envs import Tetris
 
 
-class CnnObservation(gym.ObservationWrapper):
-    """Observation wrapper that displays all observations (board, holder, queue) in a single 2D matrix, instead of a dictionary.
+class RgbObservation(gym.ObservationWrapper):
+    """Observation wrapper that displays all observations (board, holder, queue) as one single RGB Image.
 
-    The 2D matrix contains the board on the left, the queue on the top right and the holder on the bottom right.
+    The observation contains the board on the left, the queue on the top right and the holder on the bottom right.
     """
 
     def __init__(self, env: Tetris):
@@ -25,14 +25,15 @@ class CnnObservation(gym.ObservationWrapper):
                 env.unwrapped.width_padded
                 + max(env.unwrapped.holder.size, env.unwrapped.queue.size)
                 * env.unwrapped.padding,
+                3,
             ),
-            dtype=np.float32,
+            dtype=np.uint8,
         )
 
     def observation(self, observation):
-        """Wrapper that displays all observations (board, holder, queue) in a single 2D matrix.
+        """Observation wrapper that displays all observations (board, holder, queue) as one single RGB Image.
 
-        The 2D matrix contains the board on the left, the queue on the top right and the holder on the bottom right.
+        The observation contains the board on the left, the queue on the top right and the holder on the bottom right.
         """
         # Board
         board_obs = observation["board"]
@@ -56,7 +57,14 @@ class CnnObservation(gym.ObservationWrapper):
         v_padding = np.ones((board_obs.shape[0] - 2 * max_size, max_len))
         cnn_extra = np.vstack((queue_obs, v_padding, holder_obs))
 
-        return np.hstack((board_obs, cnn_extra))
+        stack = np.hstack((board_obs, cnn_extra)).astype(np.integer)
+
+        # Convert to RGB
+        rgb = np.zeros((stack.shape[0], stack.shape[1], 3))
+        colors = np.array(list(p.color_rgb for p in self.pixels), dtype=np.uint8)
+        rgb[...] = colors[stack]
+
+        return rgb.astype(np.uint8)
 
     def render(self) -> "RenderFrame | list[RenderFrame] | None":
         """Renders the environment in various formats.
@@ -64,21 +72,11 @@ class CnnObservation(gym.ObservationWrapper):
         This render function is different from the default as it uses the values from :func:`observation`  to render
         the environment.
         """
-        matrix = self.observation(self.env.unwrapped._get_obs()).astype(np.integer)
+        matrix = self.observation(self.env.unwrapped._get_obs())
 
-        if self.render_mode == "ansi":
-            char_field = np.where(matrix == 0, ".", matrix.astype(str))
-            field_str = "\n".join("".join(row) for row in char_field)
-            return field_str
         if self.render_mode == "human" or self.render_mode == "rgb_array":
-            # Initialize rgb array
-            rgb = np.zeros((matrix.shape[0], matrix.shape[1], 3), dtype=np.uint8)
-            # Render the board
-            colors = np.array(list(p.color_rgb for p in self.pixels), dtype=np.uint8)
-            rgb[...] = colors[matrix]
-
             if self.render_mode == "rgb_array":
-                return rgb
+                return matrix
 
             if self.render_mode == "human":
                 if self.env.unwrapped.window_name is None:
@@ -88,7 +86,8 @@ class CnnObservation(gym.ObservationWrapper):
                     )
                     cv2.resizeWindow(self.env.unwrapped.window_name, 395, 250)
                 cv2.imshow(
-                    self.env.unwrapped.window_name, cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+                    self.env.unwrapped.window_name,
+                    cv2.cvtColor(matrix, cv2.COLOR_RGB2BGR),
                 )
 
         return None

@@ -17,10 +17,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import tyro
+from stable_baselines3.common.atari_wrappers import ClipRewardEnv
 from stable_baselines3.common.buffers import ReplayBuffer
 from torch.utils.tensorboard import SummaryWriter
 
 from tetris_gymnasium.envs import Tetris
+from tetris_gymnasium.wrappers.observation import RgbObservation
 
 
 # Evaluation
@@ -75,13 +77,13 @@ class Args:
     """if toggled, `torch.backends.cudnn.deterministic=False`"""
     cuda: bool = True
     """if toggled, cuda will be enabled by default"""
-    track: bool = False
+    track: bool = True
     """if toggled, this experiment will be tracked with Weights and Biases"""
-    wandb_project_name: str = "cleanRL"
+    wandb_project_name: str = "tetris_gymnasium"
     """the wandb's project name"""
     wandb_entity: str = None
     """the entity (team) of wandb's project"""
-    capture_video: bool = False
+    capture_video: bool = True
     """whether to capture videos of the agent performances (check out `videos` folder)"""
     save_model: bool = False
     """whether to save model into the `runs/{run_name}` folder"""
@@ -94,7 +96,7 @@ class Args:
     # env_id: str = "BreakoutNoFrameskip-v4"
     env_id: str = "tetris_gymnasium/Tetris"
     """the id of the environment"""
-    total_timesteps: int = 10000000
+    total_timesteps: int = 2000000
     """total timesteps of the experiments"""
     learning_rate: float = 1e-4
     """the learning rate of the optimizer"""
@@ -126,11 +128,17 @@ def make_env(env_id, seed, idx, capture_video, run_name):
     def thunk():
         if capture_video and idx == 0:
             env = gym.make(env_id, render_mode="rgb_array")
+            env = RgbObservation(env)
             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         else:
             env = gym.make(env_id)
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env.action_space.seed(seed)
+
+        env = ClipRewardEnv(env)
+
+        env = gym.wrappers.ResizeObservation(env, (84, 84))
+        env = gym.wrappers.GrayScaleObservation(env)
 
         env = gym.wrappers.FrameStack(env, 4)
 
@@ -144,20 +152,20 @@ class QNetwork(nn.Module):
     def __init__(self, env):
         super().__init__()
         self.network = nn.Sequential(
-            nn.Conv2d(4, 32, 3, stride=1),
+            nn.Conv2d(4, 32, 8, stride=4),
             nn.ReLU(),
             nn.Conv2d(32, 64, 4, stride=2),
             nn.ReLU(),
             nn.Conv2d(64, 64, 3, stride=1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(384, 512),
+            nn.Linear(3136, 512),
             nn.ReLU(),
             nn.Linear(512, env.single_action_space.n),
         )
 
     def forward(self, x):
-        return self.network(x)
+        return self.network(x / 255.0)
 
 
 def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
@@ -247,9 +255,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         else:
             # Normalization by dividing with piece count
             # Todo: Create api to get how many pieces are in env / do normalize
-            q_values = q_network(
-                torch.Tensor(obs).to(device) / envs.observation_space.high
-            )
+            q_values = q_network(torch.Tensor(obs).to(device))
             actions = torch.argmax(q_values, dim=1).cpu().numpy()
 
         # TRY NOT TO MODIFY: execute the game and log data.
@@ -260,7 +266,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
             for info in infos["final_info"]:
                 if info and "episode" in info:
                     print(
-                        f"global_step={global_step}, episodic_return={info['episode']['r']}"
+                        f"global_step={global_step}, episodic_return={info['episode']['r']}, episodic_len={info['episode']['l']}"
                     )
                     writer.add_scalar(
                         "charts/episodic_return", info["episode"]["r"], global_step
