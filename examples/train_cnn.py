@@ -135,7 +135,6 @@ def make_env(env_id, seed, idx, capture_video, run_name):
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env.action_space.seed(seed)
 
-        # env = NoopResetEnv(env, noop_max=30)
         env = ClipRewardEnv(env)
 
         env = gym.wrappers.ResizeObservation(env, (84, 84))

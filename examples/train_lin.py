@@ -97,7 +97,7 @@ class Args:
     """the id of the environment"""
     total_timesteps: int = 500000
     """total timesteps of the experiments"""
-    learning_rate: float = 1e-3
+    learning_rate: float = 2.5e-4
     """the learning rate of the optimizer"""
     num_envs: int = 1
     """the number of parallel game environments"""
@@ -113,7 +113,7 @@ class Args:
     """the batch size of sample from the reply memory"""
     start_e: float = 1
     """the starting epsilon for exploration"""
-    end_e: float = 1e-3
+    end_e: float = 0.05
     """the ending epsilon for exploration"""
     exploration_fraction: float = 0.5
     """the fraction of `total-timesteps` it takes from start-e to go end-e"""
@@ -241,12 +241,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                 [envs.single_action_space.sample() for _ in range(envs.num_envs)]
             )
         else:
-            # Normalization by dividing with piece count
-            # Todo: Create api to get how many pieces are in env / do normalize
-            q_values = q_network(
-                torch.Tensor(obs).to(device)
-                / torch.Tensor(envs.observation_space.high).to(device)
-            )
+            q_values = q_network(torch.Tensor(obs).to(device))
             actions = torch.argmax(q_values, dim=1).cpu().numpy()
 
         # TRY NOT TO MODIFY: execute the game and log data.

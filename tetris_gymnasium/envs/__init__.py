@@ -10,5 +10,4 @@ from tetris_gymnasium.envs.tetris import Tetris
 register(
     id="tetris_gymnasium/Tetris",
     entry_point="tetris_gymnasium.envs:Tetris",
-    max_episode_steps=1000,
 )
