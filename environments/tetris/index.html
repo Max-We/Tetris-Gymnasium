@@ -11,7 +11,7 @@
 <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Tetromino" href="../../components/tetromino/" /><link rel="prev" title="Quickstart" href="../../introduction/quickstart/" />
         <link rel="canonical" href="https://max-we.github.io/Tetris-Gymnasium/environments/tetris.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19.dev1 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2023.08.19.dev1 -->
         <title>Tetris - Tetris Gymnasium</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=3e7f4c72" />
@@ -257,7 +257,7 @@
           <article role="main">
             
             <section class="tex2jax_ignore mathjax_ignore" id="tetris">
-<h1>Tetris<a class="headerlink" href="#tetris" title="Link to this heading">#</a></h1>
+<h1>Tetris<a class="headerlink" href="#tetris" title="Link to this heading">¶</a></h1>
 <p><img alt="Tetris" src="../../_images/holder.png" /></p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
@@ -289,7 +289,7 @@
 </table>
 </div>
 <section id="description">
-<h2>Description<a class="headerlink" href="#description" title="Link to this heading">#</a></h2>
+<h2>Description<a class="headerlink" href="#description" title="Link to this heading">¶</a></h2>
 <p>This is the base Tetris environment. It is designed to be customizable and can be altered with Wrappers.</p>
 <p>The base environment consists of the following components, which can all be adjusted either by using Wrappers or passing arguments to the environment constructor:</p>
 <ul class="simple">
@@ -302,7 +302,7 @@
 </ul>
 </section>
 <section id="actions-space">
-<h2>Actions Space<a class="headerlink" href="#actions-space" title="Link to this heading">#</a></h2>
+<h2>Actions Space<a class="headerlink" href="#actions-space" title="Link to this heading">¶</a></h2>
 <p>The environment supports the following actions:</p>
 <ul class="simple">
 <li><p>0: Move left</p></li>
@@ -315,7 +315,7 @@
 </ul>
 </section>
 <section id="observation-space">
-<h2>Observation Space<a class="headerlink" href="#observation-space" title="Link to this heading">#</a></h2>
+<h2>Observation Space<a class="headerlink" href="#observation-space" title="Link to this heading">¶</a></h2>
 <p>The observation space is a dictionary containing the following elements:</p>
 <ul class="simple">
 <li><p>The board: 2D-array of shape <code class="docutils literal notranslate"><span class="pre">height</span></code> x <code class="docutils literal notranslate"><span class="pre">width</span></code> (padded)</p>
@@ -329,26 +329,26 @@
 <p>The observation space can be altered to your needs by using <a class="reference internal" href="../../utilities/wrappers/"><span class="std std-doc">Observation wrappers</span></a>.</p>
 </section>
 <section id="rewards">
-<h2>Rewards<a class="headerlink" href="#rewards" title="Link to this heading">#</a></h2>
+<h2>Rewards<a class="headerlink" href="#rewards" title="Link to this heading">¶</a></h2>
 <p>TODO</p>
 </section>
 <section id="starting-state">
-<h2>Starting state<a class="headerlink" href="#starting-state" title="Link to this heading">#</a></h2>
+<h2>Starting state<a class="headerlink" href="#starting-state" title="Link to this heading">¶</a></h2>
 <p>The environment starts with an empty board and a random tetromino placed at the top center of the board.</p>
 </section>
 <section id="episode-termination">
-<h2>Episode Termination<a class="headerlink" href="#episode-termination" title="Link to this heading">#</a></h2>
+<h2>Episode Termination<a class="headerlink" href="#episode-termination" title="Link to this heading">¶</a></h2>
 <p>The episode ends, a tetromino cannot be spawned at the top of the board.</p>
 </section>
 <section id="arguments">
-<h2>Arguments<a class="headerlink" href="#arguments" title="Link to this heading">#</a></h2>
+<h2>Arguments<a class="headerlink" href="#arguments" title="Link to this heading">¶</a></h2>
 <section id="mappings">
-<h3>Mappings<a class="headerlink" href="#mappings" title="Link to this heading">#</a></h3>
+<h3>Mappings<a class="headerlink" href="#mappings" title="Link to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">mappings</span></code> passed to the environment are useful for keeping the code readable, avoiding magic numbers. More information
 on how to use them can be found in the dedicated section to <a class="reference internal" href="../../utilities/mappings/"><span class="std std-doc">Mappings</span></a>.</p>
 </section>
 <section id="pixels-and-tetrominoes">
-<h3>Pixels and Tetrominoes<a class="headerlink" href="#pixels-and-tetrominoes" title="Link to this heading">#</a></h3>
+<h3>Pixels and Tetrominoes<a class="headerlink" href="#pixels-and-tetrominoes" title="Link to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">base_pixels</span></code> and <code class="docutils literal notranslate"><span class="pre">tetrominoes</span></code> arguments are used to customize the very basic components of the game. To get an overview of the
 meaning of these components, please refer to the dedicated section about <a class="reference internal" href="../../components/tetromino/"><span class="std std-doc">Tetrominoes</span></a>.</p>
 <p>During the initialization of the environment, the passed tetrominoes will be preprocessed. This involves changing the binary values
@@ -563,7 +563,7 @@ in the matrix to the according pixel ids. The pixel ids are later used to render
     </script>
 
     <script src="../../_static/documentation_options.js?v=a5603611"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=7660844c"></script>
     

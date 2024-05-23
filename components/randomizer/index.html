@@ -11,7 +11,7 @@
 <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Wrappers" href="../../utilities/wrappers/" /><link rel="prev" title="Holder" href="../holder/" />
         <link rel="canonical" href="https://max-we.github.io/Tetris-Gymnasium/components/randomizer.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19.dev1 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2023.08.19.dev1 -->
         <title>Randomizer - Tetris Gymnasium</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=3e7f4c72" />
@@ -257,10 +257,10 @@
           <article role="main">
             
             <section class="tex2jax_ignore mathjax_ignore" id="randomizer">
-<h1>Randomizer<a class="headerlink" href="#randomizer" title="Link to this heading">#</a></h1>
+<h1>Randomizer<a class="headerlink" href="#randomizer" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_randomizer.Randomizer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.components.tetromino_randomizer.</span></span><span class="sig-name descname"><span class="pre">Randomizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#Randomizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.Randomizer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.components.tetromino_randomizer.</span></span><span class="sig-name descname"><span class="pre">Randomizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#Randomizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.Randomizer" title="Link to this definition">¶</a></dt>
 <dd><p>Abstract class for tetromino randomizers.</p>
 <p>A randomizer is an object that can be used to generate the order of tetrominoes in a game of Tetris. When it’s
 called via <a class="reference internal" href="#tetris_gymnasium.components.tetromino_randomizer.Randomizer.get_next_tetromino" title="tetris_gymnasium.components.tetromino_randomizer.Randomizer.get_next_tetromino"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_next_tetromino()</span></code></a>, it returns the <strong>index</strong> of the next tetromino to be used in the game.
@@ -273,17 +273,17 @@ This information can be used by the caller to get the actual tetromino object fr
 </dd></dl>
 
 <section id="methods">
-<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading">#</a></h2>
+<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading">¶</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_randomizer.Randomizer.get_next_tetromino">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Randomizer.</span></span><span class="sig-name descname"><span class="pre">get_next_tetromino</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#Randomizer.get_next_tetromino"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.Randomizer.get_next_tetromino" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Randomizer.</span></span><span class="sig-name descname"><span class="pre">get_next_tetromino</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#Randomizer.get_next_tetromino"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.Randomizer.get_next_tetromino" title="Link to this definition">¶</a></dt>
 <dd><p>Get the index of the next tetromino to be used in the game.</p>
 <p>Returns: The index of the next tetromino to be used in the game.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_randomizer.Randomizer.reset">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Randomizer.</span></span><span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#Randomizer.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.Randomizer.reset" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Randomizer.</span></span><span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#Randomizer.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.Randomizer.reset" title="Link to this definition">¶</a></dt>
 <dd><p>Resets the randomizer.</p>
 <p>This function is implemented after the usage pattern in Gymnasium, where seed is passed to the reset function
 only for the very first call after initialization. In all other cases, seed=None and the RNG is not reset.</p>
@@ -291,14 +291,14 @@ only for the very first call after initialization. In all other cases, seed=None
 
 </section>
 <section id="implementations">
-<h2>Implementations<a class="headerlink" href="#implementations" title="Link to this heading">#</a></h2>
+<h2>Implementations<a class="headerlink" href="#implementations" title="Link to this heading">¶</a></h2>
 <p>In Tetris Gymnasium, there are different randomizers available by default. The default randomizer is the <code class="docutils literal notranslate"><span class="pre">BagRandomizer</span></code>,
 which is the same as the one used in the most Tetris games. The <code class="docutils literal notranslate"><span class="pre">TrueRandomizer</span></code> is a randomizer that generates
 tetrominoes with a uniform distribution.</p>
 <p>If these randomizers do not fit your needs, you can easily implement your own randomizer by subclassing the <code class="docutils literal notranslate"><span class="pre">Randomizer</span></code>.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_randomizer.BagRandomizer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.components.tetromino_randomizer.</span></span><span class="sig-name descname"><span class="pre">BagRandomizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#BagRandomizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.BagRandomizer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.components.tetromino_randomizer.</span></span><span class="sig-name descname"><span class="pre">BagRandomizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#BagRandomizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.BagRandomizer" title="Link to this definition">¶</a></dt>
 <dd><p>Randomly selects tetrominoes from a bag, ensuring that each tetromino is used once before reshuffling.</p>
 <p>The bag randomizer is a common and popular approach in Tetris. It ensures that each tetromino is used once before
 reshuffling the bag, thus avoiding long sequences of the same tetromino.
@@ -312,7 +312,7 @@ The functionality is explained on the tetris wiki page: <a class="reference exte
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_randomizer.BagRandomizer.get_next_tetromino">
-<span class="sig-prename descclassname"><span class="pre">BagRandomizer.</span></span><span class="sig-name descname"><span class="pre">get_next_tetromino</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#BagRandomizer.get_next_tetromino"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.BagRandomizer.get_next_tetromino" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">BagRandomizer.</span></span><span class="sig-name descname"><span class="pre">get_next_tetromino</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#BagRandomizer.get_next_tetromino"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.BagRandomizer.get_next_tetromino" title="Link to this definition">¶</a></dt>
 <dd><p>Samples a new tetromino from the bag.</p>
 <p>Once the bag has been fully exploited, it is reshuffled and the process starts over.</p>
 <p>Returns: The index of the next tetromino to be used in the game.</p>
@@ -320,7 +320,7 @@ The functionality is explained on the tetris wiki page: <a class="reference exte
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_randomizer.TrueRandomizer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.components.tetromino_randomizer.</span></span><span class="sig-name descname"><span class="pre">TrueRandomizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#TrueRandomizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.TrueRandomizer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.components.tetromino_randomizer.</span></span><span class="sig-name descname"><span class="pre">TrueRandomizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#TrueRandomizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.TrueRandomizer" title="Link to this definition">¶</a></dt>
 <dd><p>Randomly selects tetrominoes.</p>
 <p>This is the simplest form of randomizer, where each tetromino is chosen randomly. This approach can lead to
 sequences of the same tetromino, which may or may not be desired.</p>
@@ -333,7 +333,7 @@ sequences of the same tetromino, which may or may not be desired.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tetris_gymnasium.components.tetromino_randomizer.TrueRandomizer.get_next_tetromino">
-<span class="sig-prename descclassname"><span class="pre">TrueRandomizer.</span></span><span class="sig-name descname"><span class="pre">get_next_tetromino</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#TrueRandomizer.get_next_tetromino"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.TrueRandomizer.get_next_tetromino" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">TrueRandomizer.</span></span><span class="sig-name descname"><span class="pre">get_next_tetromino</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/tetris_gymnasium/components/tetromino_randomizer/#TrueRandomizer.get_next_tetromino"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.components.tetromino_randomizer.TrueRandomizer.get_next_tetromino" title="Link to this definition">¶</a></dt>
 <dd><p>Samples a new tetromino randomly.</p>
 </dd></dl>
 
@@ -459,7 +459,7 @@ sequences of the same tetromino, which may or may not be desired.</p>
     </script>
 
     <script src="../../_static/documentation_options.js?v=a5603611"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=7660844c"></script>
     

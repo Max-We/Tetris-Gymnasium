@@ -11,7 +11,7 @@
 <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="prev" title="Mappings" href="../../utilities/mappings/" />
         <link rel="canonical" href="https://max-we.github.io/Tetris-Gymnasium/development/contributing.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19.dev1 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2023.08.19.dev1 -->
         <title>Contributing - Tetris Gymnasium</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=3e7f4c72" />
@@ -159,7 +159,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -247,7 +247,7 @@
                 </svg>
               </button>
             </div>
-            <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <label class="toc-overlay-icon toc-content-icon" for="__toc">
               <div class="visually-hidden">Toggle table of contents sidebar</div>
               <i class="icon"><svg>
                   <use href="#svg-toc"></use>
@@ -257,8 +257,55 @@
           <article role="main">
             
             <section class="tex2jax_ignore mathjax_ignore" id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">#</a></h1>
-<p>Under construction.</p>
+<h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">¶</a></h1>
+<p>Contributions are always welcome, no matter how large or small. Feel free to create an issue or a pull request.
+If you want to contribute, please read the following guidelines.</p>
+<p>The following section is based on the <a class="reference external" href="https://github.com/Farama-Foundation/Gymnasium/blob/main/CONTRIBUTING.md">Gymnasium contributing guidelines</a>.</p>
+<section id="type-checking">
+<h2>Type checking<a class="headerlink" href="#type-checking" title="Link to this heading">¶</a></h2>
+<p>The project uses <code class="docutils literal notranslate"><span class="pre">pyright</span></code> to check types.
+To type check locally, install <code class="docutils literal notranslate"><span class="pre">pyright</span></code> per official <a class="reference external" href="https://github.com/microsoft/pyright#command-line">instructions</a>.
+It’s configuration lives within <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>. It includes list of included and excluded files currently supporting type checks.
+To run <code class="docutils literal notranslate"><span class="pre">pyright</span></code> for the project, run the pre-commit process (<code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">run</span> <span class="pre">--all-files</span></code>) or <code class="docutils literal notranslate"><span class="pre">pyright</span> <span class="pre">--project=pyproject.toml</span></code>
+Alternatively, pyright is a built-in feature of VSCode that will automatically provide type hinting.</p>
+<section id="adding-typing-to-more-modules-and-packages">
+<h3>Adding typing to more modules and packages<a class="headerlink" href="#adding-typing-to-more-modules-and-packages" title="Link to this heading">¶</a></h3>
+<p>If you would like to add typing to a module in the project,
+the list of included, excluded and strict files can be found in pyproject.toml (pyproject.toml -&gt; [tool.pyright]).
+To run <code class="docutils literal notranslate"><span class="pre">pyright</span></code> for the project, run the pre-commit process (<code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">run</span> <span class="pre">--all-files</span></code>) or <code class="docutils literal notranslate"><span class="pre">pyright</span></code></p>
+</section>
+</section>
+<section id="git-hooks">
+<h2>Git hooks<a class="headerlink" href="#git-hooks" title="Link to this heading">¶</a></h2>
+<p>The CI will run several checks on the new code pushed to the Gymnasium repository. These checks can also be run locally without waiting for the CI by following the steps below:</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://pre-commit.com/#install">install <code class="docutils literal notranslate"><span class="pre">pre-commit</span></code></a>,</p></li>
+<li><p>Install the Git hooks by running <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">install</span></code>.</p></li>
+</ol>
+<p>Once those two steps are done, the Git hooks will be run automatically at every new commit.
+The Git hooks can also be run manually with <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">run</span> <span class="pre">--all-files</span></code>, and if needed they can be skipped (not recommended) with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">--no-verify</span></code>.
+<strong>Note:</strong> you may have to run <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">run</span> <span class="pre">--all-files</span></code> manually a couple of times to make it pass when you commit, as each formatting tool will first format the code and fail the first time but should pass the second time.</p>
+<p>Additionally, for pull requests, the project runs a number of tests for the whole project using <a class="reference external" href="https://docs.pytest.org/en/latest/getting-started.html#install-pytest">pytest</a>.
+These tests can be run locally with <code class="docutils literal notranslate"><span class="pre">pytest</span></code> in the root folder. If any doctest is modified, run <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">--doctest-modules</span> <span class="pre">--doctest-continue-on-failure</span> <span class="pre">gymnasium</span></code> to check the changes.</p>
+</section>
+<section id="docstrings">
+<h2>Docstrings<a class="headerlink" href="#docstrings" title="Link to this heading">¶</a></h2>
+<p>Pydocstyle has been added to the pre-commit process such that all new functions follow the <a class="reference external" href="https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html">google docstring style</a>.
+All new functions require either a short docstring, a single line explaining the purpose of a function
+or a multiline docstring that documents each argument and the return type (if there is one) of the function.
+In addition, new file and class require top docstrings that should outline the purpose of the file/class.
+For classes, code block examples can be provided in the top docstring and not the constructor arguments.</p>
+<p>To check your docstrings are correct, run <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">run</span> <span class="pre">--all-files</span></code> or <code class="docutils literal notranslate"><span class="pre">pydocstyle</span> <span class="pre">--source</span> <span class="pre">--explain</span> <span class="pre">--convention=google</span></code>.
+If all docstrings that fail, the source and reason for the failure is provided.</p>
+</section>
+<section id="building-the-docs">
+<h2>Building the docs<a class="headerlink" href="#building-the-docs" title="Link to this heading">¶</a></h2>
+<p>You can use <code class="docutils literal notranslate"><span class="pre">sphinx-autobuild</span></code> to build the documentation locally.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs
+poetry<span class="w"> </span>run<span class="w"> </span>sphinx-autobuild<span class="w"> </span>-b<span class="w"> </span>dirhtml<span class="w"> </span>--watch<span class="w"> </span>../tetris_gymnasium<span class="w"> </span>--re-ignore<span class="w"> </span><span class="s2">&quot;pickle</span>$<span class="s2">&quot;</span><span class="w"> </span>.<span class="w"> </span>_build
+</pre></div>
+</div>
+</section>
 </section>
 
           </article>
@@ -296,8 +343,33 @@
           
         </footer>
       </div>
-      <aside class="toc-drawer no-toc">
+      <aside class="toc-drawer">
         
+        
+        <div class="toc-sticky toc-scroll">
+          <div class="toc-title-container">
+            <span class="toc-title">
+              On this page
+            </span>
+          </div>
+          <div class="toc-tree-container">
+            <div class="toc-tree">
+              <ul>
+<li><a class="reference internal" href="#">Contributing</a><ul>
+<li><a class="reference internal" href="#type-checking">Type checking</a><ul>
+<li><a class="reference internal" href="#adding-typing-to-more-modules-and-packages">Adding typing to more modules and packages</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#git-hooks">Git hooks</a></li>
+<li><a class="reference internal" href="#docstrings">Docstrings</a></li>
+<li><a class="reference internal" href="#building-the-docs">Building the docs</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
         
         
       </aside>
@@ -323,7 +395,7 @@
     </script>
 
     <script src="../../_static/documentation_options.js?v=a5603611"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=7660844c"></script>
     

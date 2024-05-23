@@ -11,7 +11,7 @@
 <link rel="index" title="Index" href="genindex/" /><link rel="search" title="Search" href="search/" /><link rel="next" title="Installation" href="introduction/installation/" />
         <link rel="canonical" href="https://max-we.github.io/Tetris-Gymnasium/index.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19.dev1 -->
+    <!-- Generated with Sphinx 7.3.7 and Furo 2023.08.19.dev1 -->
         <title>Tetris Gymnasium</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=3e7f4c72" />
@@ -265,23 +265,45 @@ A customisable, easy-to-use and performant Tetris environment for Gymnasium
 </h2>
 </div>
 <p>Tetris Gymnasium is tightly integrated with Gymnasium and exposes a simple API for training agents to play Tetris.</p>
-<p>The environment offers state-of-the-art performance and holds a high standard for code quality. With it, researchers and developers can focus on their research and development, rather than the environment itself.</p>
 <p>Getting started is easy. Here is a simple example of an environment with random actions:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
 <span class="kn">from</span> <span class="nn">tetris_gymnasium.envs</span> <span class="kn">import</span> <span class="n">Tetris</span>
 
-<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;tetris_gymnasium/Tetris&quot;</span><span class="p">)</span>
-<span class="n">observation</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
-   <span class="n">action</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>  <span class="c1"># this is where you would insert your policy</span>
-   <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;tetris_gymnasium/Tetris&quot;</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;ansi&quot;</span><span class="p">)</span>
+<span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 
-   <span class="k">if</span> <span class="n">terminated</span> <span class="ow">or</span> <span class="n">truncated</span><span class="p">:</span>
-      <span class="n">observation</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-
-<span class="n">env</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">terminated</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="k">while</span> <span class="ow">not</span> <span class="n">terminated</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">render</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+    <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Game Over!&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<section class="tex2jax_ignore mathjax_ignore" id="information">
+<h1>Information<a class="headerlink" href="#information" title="Link to this heading">¶</a></h1>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading">¶</a></h2>
+<p>Tetris Gymnasium tries to solve problems of other environments by being modular, understandable and adjustable. You can read more about the background in our paper: <em>Piece by Piece: Assembling a Modular Reinforcement Learning Environment for Tetris</em> (SOON).</p>
+<p>Abstract:</p>
+<blockquote>
+<div><p>The game of Tetris is an open challenge in machine learning and especially Reinforcement Learning (RL). Despite its popularity, contemporary environments for the game lack key qualities, such as a clear documentation, an up-to-date codebase or game related features.
+This work introduces Tetris Gymnasium, a modern RL environment built with Gymnasium, that aims to address these problems by being modular, understandable and adjustable.
+To evaluate Tetris Gymnasium on these qualities, a Deep Q Learning agent was trained and compared to a baseline environment, and it was found that it fulfills all requirements of a feature-complete RL environment while being adjustable to many different requirements.
+The source-code and documentation is available at on GitHub and can be used for free under the MIT license.</p>
+</div></blockquote>
+</section>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">¶</a></h2>
+<p>The full documentation of the project can be found on <a class="reference external" href="https://max-we.github.io/Tetris-Gymnasium/">GitHub Pages</a>.</p>
+</section>
+<section id="license">
+<h2>License<a class="headerlink" href="#license" title="Link to this heading">¶</a></h2>
+<p>This project is licensed under the MIT License - see the <a class="reference download internal" download="" href="_downloads/3b423627fe21976c3c06e60f78e14ae1/LICENSE"><span class="xref download myst">LICENSE</span></a> file for details.</p>
+</section>
+<section id="acknowledgements">
+<h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Link to this heading">¶</a></h2>
+<p>We would like to thank the creators and maintainers of <a class="reference external" href="https://github.com/Farama-Foundation/Gymnasium">Gymnasium</a>, <a class="reference external" href="https://github.com/vwxyzjn/cleanrl">CleanRL</a> and <a class="reference external" href="https://github.com/uvipen/Tetris-deep-Q-learning-pytorch">Tetris-deep-Q-learning-pytorch</a> for providing a powerful frameworks and reference implementations.</p>
 <div class="toctree-wrapper compound">
 </div>
 <div class="toctree-wrapper compound">
@@ -292,6 +314,8 @@ A customisable, easy-to-use and performant Tetris environment for Gymnasium
 </div>
 <div class="toctree-wrapper compound">
 </div>
+</section>
+</section>
 
           </article>
         </div>
@@ -355,7 +379,7 @@ A customisable, easy-to-use and performant Tetris environment for Gymnasium
     </script>
 
     <script src="_static/documentation_options.js?v=a5603611"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=7660844c"></script>
     
