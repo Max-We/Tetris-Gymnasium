@@ -43,3 +43,5 @@ poetry run python examples/train_lin.py # uses a linear model
 # or
 poetry run python examples/train_cnn.py # uses convolutions
 ```
+
+You can refer to the [CleanRL documentation](https://docs.cleanrl.dev/rl-algorithms/dqn/) for more information on the training script. Note: If you have tracking enabled, you will be prompted to login to Weights & Biases during the first run. This behavior can be adjusted in the script.
