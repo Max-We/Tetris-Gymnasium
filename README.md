@@ -1,10 +1,6 @@
 ![logo](./docs/_static/logo.png "Tetris Gymnasium")
 
-> Tetris Gymnasium is currently under early development!
-
 Tetris Gymnasium is tightly integrated with Gymnasium and exposes a simple API for training agents to play Tetris.
-
-The environment offers state-of-the-art performance and holds a high standard for code quality. With it, researchers and developers can focus on their research and development, rather than the environment itself.
 
 Getting started is easy. Here is a simple example of an environment with random actions:
 
@@ -12,21 +8,31 @@ Getting started is easy. Here is a simple example of an environment with random 
 import gymnasium as gym
 from tetris_gymnasium.envs import Tetris
 
-env = gym.make("tetris_gymnasium/Tetris")
-observation, info = env.reset(seed=42)
-for _ in range(1000):
-   action = env.action_space.sample()  # this is where you would insert your policy
-   observation, reward, terminated, truncated, info = env.step(action)
+env = gym.make("tetris_gymnasium/Tetris", render_mode="ansi")
+env.reset(seed=42)
 
-   if terminated or truncated:
-      observation, info = env.reset()
-
-env.close()
+terminated = False
+while not terminated:
+    print(env.render() + "\n")
+    action = env.action_space.sample()
+    observation, reward, terminated, truncated, info = env.step(action)
+print("Game Over!")
 ```
 
-##
+## Background
 
-The documentation can be found on [GitHub Pages](https://max-we.github.io/Tetris-Gymnasium/)
+Tetris Gymnasium tries to solve problems of other environments by being modular, understandable and adjustable. You can read more about the background in our paper: _Piece by Piece: Assembling a Modular Reinforcement Learning Environment for Tetris_ (SOON).
+
+Abstract:
+
+>The game of Tetris is an open challenge in machine learning and especially Reinforcement Learning (RL). Despite its popularity, contemporary environments for the game lack key qualities, such as a clear documentation, an up-to-date codebase or game related features.
+This work introduces Tetris Gymnasium, a modern RL environment built with Gymnasium, that aims to address these problems by being modular, understandable and adjustable.
+To evaluate Tetris Gymnasium on these qualities, a Deep Q Learning agent was trained and compared to a baseline environment, and it was found that it fulfills all requirements of a feature-complete RL environment while being adjustable to many different requirements.
+The source-code and documentation is available at on GitHub and can be used for free under the MIT license.
+
+## Documentation
+
+The full documentation of the project can be found on [GitHub Pages](https://max-we.github.io/Tetris-Gymnasium/).
 
 ## License
 
@@ -34,8 +40,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgements
 
-We would like to thank the creators and maintainers of Gymnasium, CleanRL and Tetris-deep-Q-learning-pytorch for providing a powerful frameworks and reference implementations
-
----
-
-Enjoy using the Gymnasium Tetris Environment for your reinforcement learning experiments! If you have any questions or need further assistance, don't hesitate to reach out to us. Happy coding! 🎮🕹️
+We would like to thank the creators and maintainers of [Gymnasium](https://github.com/Farama-Foundation/Gymnasium), [CleanRL](https://github.com/vwxyzjn/cleanrl) and [Tetris-deep-Q-learning-pytorch](https://github.com/uvipen/Tetris-deep-Q-learning-pytorch) for providing a powerful frameworks and reference implementations.
