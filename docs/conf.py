@@ -40,7 +40,7 @@ html_copy_source = False
 html_theme_options = {
     # "light_logo": "img/gymnasium_black.svg",
     # "dark_logo": "img/gymnasium_white.svg",
-    "description": "A high performance, high customization Tetris environments for Gymnasium.",
+    "description": "A modular, understandable and adjustable Tetris environments for Gymnasium.",
     #     "image": "_static/logo.png",
     "versioning": True,
     "source_repository": "https://github.com/Max-We/Tetris-Gymnasium",
