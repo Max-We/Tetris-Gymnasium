@@ -64,11 +64,11 @@ class Tetris(gym.Env):
         width=10,
         height=20,
         gravity=True,
-        randomizer: Randomizer = BagRandomizer,
-        holder: TetrominoHolder = TetrominoHolder,
-        queue: TetrominoQueue = TetrominoQueue,
         actions_mapping=ActionsMapping(),
         rewards_mapping=RewardsMapping(),
+        queue: TetrominoQueue = None,
+        holder: TetrominoHolder = None,
+        randomizer: Randomizer = None,
         base_pixels=None,
         tetrominoes=None,
     ):
@@ -78,12 +78,12 @@ class Tetris(gym.Env):
             render_mode: The mode to use for rendering. If None, no rendering will be done.
             width: The width of the board.
             height: The height of the board.
-            gravity: Whether gravity is enabled in the game.
-            randomizer: The :class:`Randomizer` to use for selecting tetrominoes.
-            holder: The :class:`TetrominoHolder` to use for storing tetrominoes.
-            queue: The :class:`TetrominoQueue` to use for holding tetrominoes temporarily.
+            gravity: Whether gravity is enabled in the game..
             actions_mapping: The mapping for the actions that the agent can take.
             rewards_mapping: The mapping for the rewards that the agent can receive.
+            queue: The :class:`TetrominoQueue` to use for holding tetrominoes temporarily.
+            holder: The :class:`TetrominoHolder` to use for storing tetrominoes.
+            randomizer: The :class:`Randomizer` to use for selecting tetrominoes
             base_pixels: A list of base (non-Tetromino) :class:`Pixel` to use for the environment (e.g. empty, bedrock).
             tetrominoes: A list of :class:`Tetromino` to use in the environment.
         """
@@ -114,9 +114,14 @@ class Tetris(gym.Env):
         # Board
         self.board = self.create_board()
 
-        # Utilities
-        self.queue = queue(randomizer(len(tetrominoes)), 5)
-        self.holder = holder()
+        # Game engine
+        # Reason for this kind of initialization: https://stackoverflow.com/q/41686829
+        if randomizer is None:
+            self.randomizer = BagRandomizer(len(self.tetrominoes))
+        if queue is None:
+            self.queue = TetrominoQueue(self.randomizer)
+        if holder is None:
+            self.holder = TetrominoHolder()
         self.has_swapped = False
         self.gravity_enabled = gravity
 
