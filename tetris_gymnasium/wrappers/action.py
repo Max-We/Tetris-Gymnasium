@@ -1,7 +1,7 @@
 """WIP Action wrapper."""
 import gymnasium as gym
 import numpy as np
-from gymnasium.spaces import Discrete, Box
+from gymnasium.spaces import Box, Discrete
 
 from tetris_gymnasium.envs import Tetris
 
@@ -18,7 +18,7 @@ class GroupedActions(gym.ObservationWrapper):
                 env.unwrapped.height_padded,
                 env.unwrapped.width_padded
                 + max(env.unwrapped.holder.size, env.unwrapped.queue.size)
-                * env.unwrapped.padding
+                * env.unwrapped.padding,
             ),
             dtype=np.uint8,
         )
@@ -47,7 +47,9 @@ class GroupedActions(gym.ObservationWrapper):
 
                 # append to results
                 if not self.env.unwrapped.collision(t, x, y):
-                    grouped_board_obs.append(self.env.unwrapped.project_tetromino(t, x, y))
+                    grouped_board_obs.append(
+                        self.env.unwrapped.project_tetromino(t, x, y)
+                    )
                 else:
                     grouped_board_obs.append(np.ones_like(board_obs))
 
@@ -70,6 +72,8 @@ class GroupedActions(gym.ObservationWrapper):
         for _ in range(r):
             self.env.unwrapped.rotate(self.env.unwrapped.active_tetromino)
         # Drop tetromino
-        observation, reward, game_over, truncated, info = self.env.step(self.env.unwrapped.actions.hard_drop)
+        observation, reward, game_over, truncated, info = self.env.step(
+            self.env.unwrapped.actions.hard_drop
+        )
 
         return self.observation(observation), reward, game_over, truncated, info

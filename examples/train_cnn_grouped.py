@@ -23,7 +23,10 @@ from torch.utils.tensorboard import SummaryWriter
 
 from tetris_gymnasium.envs import Tetris
 from tetris_gymnasium.wrappers.action import GroupedActions
-from tetris_gymnasium.wrappers.observation import RgbObservation, GroupedActionRgbObservation
+from tetris_gymnasium.wrappers.observation import (
+    GroupedActionRgbObservation,
+    RgbObservation,
+)
 
 
 # Evaluation
@@ -128,7 +131,7 @@ class Args:
 def make_env(env_id, seed, idx, capture_video, run_name):
     def thunk():
         if capture_video and idx == 0:
-            env = gym.make(env_id, render_mode="rgb_array")
+            env = gym.make(env_id, render_mode="rgb_array", gravity=False)
             env = GroupedActions(env)
             env = GroupedActionRgbObservation(env)
             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")

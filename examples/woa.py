@@ -33,13 +33,12 @@ print(boards.shape)
 c = 4
 n, w, h = boards.shape[0], boards.shape[1], boards.shape[2]
 
-rotations = np.split(boards, n//c)
+rotations = np.split(boards, n // c)
 cols = []
 for r in rotations:
     cols.append(np.vstack(r))
 result = np.hstack(cols)
 print(result)
-
 
 
 c = 4

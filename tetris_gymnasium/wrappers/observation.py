@@ -61,7 +61,9 @@ class RgbObservation(gym.ObservationWrapper):
 
         # Convert to RGB
         rgb = np.zeros((stack.shape[0], stack.shape[1], 3))
-        colors = np.array(list(p.color_rgb for p in self.env.unwrapped.pixels), dtype=np.uint8)
+        colors = np.array(
+            list(p.color_rgb for p in self.env.unwrapped.pixels), dtype=np.uint8
+        )
         rgb[...] = colors[stack]
 
         return rgb.astype(np.uint8)
@@ -84,14 +86,18 @@ class RgbObservation(gym.ObservationWrapper):
                     cv2.namedWindow(
                         self.env.unwrapped.window_name, cv2.WINDOW_GUI_NORMAL
                     )
-                    h,w = self.observation_space.shape[0], self.observation_space.shape[1]
-                    cv2.resizeWindow(self.env.unwrapped.window_name, w*10, h*10)
+                    h, w = (
+                        self.observation_space.shape[0],
+                        self.observation_space.shape[1],
+                    )
+                    cv2.resizeWindow(self.env.unwrapped.window_name, w * 10, h * 10)
                 cv2.imshow(
                     self.env.unwrapped.window_name,
                     cv2.cvtColor(matrix, cv2.COLOR_RGB2BGR),
                 )
 
         return None
+
 
 class GroupedActionRgbObservation(gym.ObservationWrapper):
     """Observation wrapper that displays all observations (board, holder, queue) as one single RGB Image.
@@ -106,9 +112,13 @@ class GroupedActionRgbObservation(gym.ObservationWrapper):
             low=0,
             high=len(env.unwrapped.tetrominoes),
             shape=(
-                env.unwrapped.height_padded*4,
-                (env.unwrapped.width_padded
-                + max(env.unwrapped.holder.size, env.unwrapped.queue.size) * env.unwrapped.padding) * env.unwrapped.width,
+                env.unwrapped.height_padded * 4,
+                (
+                    env.unwrapped.width_padded
+                    + max(env.unwrapped.holder.size, env.unwrapped.queue.size)
+                    * env.unwrapped.padding
+                )
+                * env.unwrapped.width,
                 3,
             ),
             dtype=np.uint8,
@@ -155,7 +165,9 @@ class GroupedActionRgbObservation(gym.ObservationWrapper):
 
         # Convert to rgb
         matrix_rgb = np.zeros((matrix.shape[0], matrix.shape[1], 3))
-        colors = np.array(list(p.color_rgb for p in self.env.unwrapped.pixels), dtype=np.uint8)
+        colors = np.array(
+            list(p.color_rgb for p in self.env.unwrapped.pixels), dtype=np.uint8
+        )
         matrix_rgb[...] = colors[matrix]
 
         obs = matrix_rgb.astype(np.uint8)
@@ -182,8 +194,11 @@ class GroupedActionRgbObservation(gym.ObservationWrapper):
                     cv2.namedWindow(
                         self.env.unwrapped.window_name, cv2.WINDOW_GUI_NORMAL
                     )
-                    h,w = self.observation_space.shape[0], self.observation_space.shape[1]
-                    cv2.resizeWindow(self.env.unwrapped.window_name, w*2, h*2)
+                    h, w = (
+                        self.observation_space.shape[0],
+                        self.observation_space.shape[1],
+                    )
+                    cv2.resizeWindow(self.env.unwrapped.window_name, w * 2, h * 2)
                 cv2.imshow(
                     self.env.unwrapped.window_name,
                     cv2.cvtColor(matrix, cv2.COLOR_RGB2BGR),

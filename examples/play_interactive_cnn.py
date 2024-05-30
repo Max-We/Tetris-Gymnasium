@@ -5,7 +5,10 @@ import gymnasium as gym
 
 from tetris_gymnasium.envs import Tetris
 from tetris_gymnasium.wrappers.action import GroupedActions
-from tetris_gymnasium.wrappers.observation import RgbObservation, GroupedActionRgbObservation
+from tetris_gymnasium.wrappers.observation import (
+    GroupedActionRgbObservation,
+    RgbObservation,
+)
 
 if __name__ == "__main__":
     # Create an instance of Tetris
