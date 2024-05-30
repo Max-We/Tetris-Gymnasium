@@ -4,13 +4,18 @@ import cv2
 import gymnasium as gym
 
 from tetris_gymnasium.envs import Tetris
-from tetris_gymnasium.wrappers.observation import RgbObservation
+from tetris_gymnasium.wrappers.action import GroupedActions
+from tetris_gymnasium.wrappers.observation import RgbObservation, GroupedActionRgbObservation
 
 if __name__ == "__main__":
     # Create an instance of Tetris
-    env = gym.make("tetris_gymnasium/Tetris", render_mode="human")
-    env = RgbObservation(env)
+    env = gym.make("tetris_gymnasium/Tetris", render_mode="human", gravity=False)
+    env = GroupedActions(env)
+    env = GroupedActionRgbObservation(env)
+    # env = RgbObservation(env)
     env.reset(seed=42)
+
+    print(env.action_space)
 
     # Main game loop
     terminated = False

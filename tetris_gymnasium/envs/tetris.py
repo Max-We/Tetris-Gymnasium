@@ -59,18 +59,18 @@ class Tetris(gym.Env):
     ]
 
     def __init__(
-        self,
-        render_mode=None,
-        width=10,
-        height=20,
-        gravity=True,
-        actions_mapping=ActionsMapping(),
-        rewards_mapping=RewardsMapping(),
-        queue: TetrominoQueue = None,
-        holder: TetrominoHolder = None,
-        randomizer: Randomizer = None,
-        base_pixels=None,
-        tetrominoes=None,
+            self,
+            render_mode=None,
+            width=10,
+            height=20,
+            gravity=True,
+            actions_mapping=ActionsMapping(),
+            rewards_mapping=RewardsMapping(),
+            queue: TetrominoQueue = None,
+            holder: TetrominoHolder = None,
+            randomizer: Randomizer = None,
+            base_pixels=None,
+            tetrominoes=None,
     ):
         """Creates a new Tetris environment.
 
@@ -204,12 +204,12 @@ class Tetris(gym.Env):
                 self.y += 1
         elif action == self.actions.rotate_clockwise:
             if not self.collision(
-                self.rotate(self.active_tetromino, True), self.x, self.y
+                    self.rotate(self.active_tetromino, True), self.x, self.y
             ):
                 self.active_tetromino = self.rotate(self.active_tetromino, True)
         elif action == self.actions.rotate_counterclockwise:
             if not self.collision(
-                self.rotate(self.active_tetromino, False), self.x, self.y
+                    self.rotate(self.active_tetromino, False), self.x, self.y
             ):
                 self.active_tetromino = self.rotate(self.active_tetromino, False)
         elif action == self.actions.swap:
@@ -237,7 +237,7 @@ class Tetris(gym.Env):
         return self._get_obs(), reward, game_over, truncated, self._get_info()
 
     def reset(
-        self, *, seed: "int | None" = None, options: "dict[str, Any] | None" = None
+            self, *, seed: "int | None" = None, options: "dict[str, Any] | None" = None
     ) -> "tuple[dict[str, Any], dict[str, Any]]":
         """Resets the state of the environment.
 
@@ -274,7 +274,7 @@ class Tetris(gym.Env):
         """Renders the environment in various formats."""
         if self.render_mode == "ansi":
             # Render active tetromino (because it's not on self.board)
-            projection = self.project_active_tetromino()
+            projection = self.project_tetromino()
 
             # Crop padding away as we don't want to render it
             projection = self.crop_padding(projection)
@@ -333,7 +333,7 @@ class Tetris(gym.Env):
 
     def place_active_tetromino(self):
         """Locks the active tetromino in place on the board."""
-        self.board = self.project_active_tetromino()
+        self.board = self.project_tetromino()
         self.active_tetromino = None
 
     def collision(self, tetromino: Tetromino, x: int, y: int) -> bool:
@@ -389,6 +389,8 @@ class Tetris(gym.Env):
         """
         # 1. Drop the tetromino and lock it in place
         self.drop_active_tetromino()
+        if self.collision(self.active_tetromino, self.x, self.y):
+            return 0, False
         self.place_active_tetromino()
         reward = self.score(self.clear_filled_rows())
 
@@ -447,10 +449,10 @@ class Tetris(gym.Env):
         Returns
             The matrix with the padding cropped.
         """
-        return matrix[0 : -self.padding, self.padding : -self.padding]
+        return matrix[0: -self.padding, self.padding: -self.padding]
 
     def get_tetromino_slices(
-        self, tetromino: Tetromino, x: int, y: int
+            self, tetromino: Tetromino, x: int, y: int
     ) -> "tuple(slice, slice)":
         """Get the slices of the active tetromino on the board.
 
@@ -467,24 +469,31 @@ class Tetris(gym.Env):
             0,
         )
 
-    def project_active_tetromino(self):
+    def project_tetromino(self, tetromino: Tetromino = None, x: int = None, y: int = None) -> np.ndarray:
         """Project the active tetromino on the board.
 
         By default, the active (moving) tetromino is not part of the board. This function projects the active tetromino
         on the board to render it.
         """
+        if tetromino is None:
+            tetromino = self.active_tetromino
+        if x is None:
+            x = self.x
+        if y is None:
+            y = self.y
+
         projection = self.board.copy()
-        if self.collision(self.active_tetromino, self.x, self.y):
+        if self.collision(tetromino, x, y):
             return projection
 
-        slices = self.get_tetromino_slices(self.active_tetromino, self.x, self.y)
-        projection[slices] += self.active_tetromino.matrix
+        slices = self.get_tetromino_slices(tetromino, x, y)
+        projection[slices] += tetromino.matrix
         return projection
 
     def _get_obs(self) -> "dict[str, Any]":
         """Return the current board as an observation."""
         # Include the active tetromino on the board for the observation.
-        board_obs = self.project_active_tetromino()
+        board_obs = self.project_tetromino()
 
         max_size = self.padding
 
@@ -567,7 +576,7 @@ class Tetris(gym.Env):
         ]
 
     def offset_tetromino_id(
-        self, tetrominoes: "List[Tetromino]", offset: int
+            self, tetrominoes: "List[Tetromino]", offset: int
     ) -> "List[Tetromino]":
         """In order to make the tetrominos distinguishable, each tetromino should have a unique value.
 
