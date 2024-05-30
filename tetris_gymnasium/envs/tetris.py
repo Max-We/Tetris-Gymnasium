@@ -389,8 +389,8 @@ class Tetris(gym.Env):
         """
         # 1. Drop the tetromino and lock it in place
         self.drop_active_tetromino()
-        if self.collision(self.active_tetromino, self.x, self.y):
-            return -self.rewards.alife, False
+        # if self.collision(self.active_tetromino, self.x, self.y):
+        #     return -self.rewards.alife, False
         self.place_active_tetromino()
         reward = self.score(self.clear_filled_rows())
 
