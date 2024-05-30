@@ -131,20 +131,17 @@ class Args:
 def make_env(env_id, seed, idx, capture_video, run_name):
     def thunk():
         if capture_video and idx == 0:
-            env = gym.make(env_id, render_mode="rgb_array", gravity=False)
-            env = GroupedActions(env)
-            env = GroupedActionRgbObservation(env)
+            env = gym.make(env_id, render_mode="rgb_array")
+            env = RgbObservation(env)
             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         else:
-            env = gym.make(env_id, gravity=False)
-            env = GroupedActions(env)
-            env = GroupedActionRgbObservation(env)
+            env = gym.make(env_id)
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env.action_space.seed(seed)
 
         env = ClipRewardEnv(env)
 
-        # env = gym.wrappers.ResizeObservation(env, (84, 84))
+        env = gym.wrappers.ResizeObservation(env, (84, 84))
         env = gym.wrappers.GrayScaleObservation(env)
 
         env = gym.wrappers.FrameStack(env, 4)
@@ -166,7 +163,7 @@ class QNetwork(nn.Module):
             nn.Conv2d(64, 64, 3, stride=1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(19968, 512),
+            nn.Linear(3136, 512),
             nn.ReLU(),
             nn.Linear(512, env.single_action_space.n),
         )
