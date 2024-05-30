@@ -10,17 +10,37 @@ class GroupedActions(gym.ObservationWrapper):
     def __init__(self, env: Tetris):
         super().__init__(env)
         self.action_space = Discrete(env.unwrapped.width * 4)
-        self.observation_space = Box(
-            low=0,
-            high=len(env.unwrapped.tetrominoes),
-            shape=(
-                env.unwrapped.width * 4,
-                env.unwrapped.height_padded,
-                env.unwrapped.width_padded
-                + max(env.unwrapped.holder.size, env.unwrapped.queue.size)
-                * env.unwrapped.padding,
-            ),
-            dtype=np.uint8,
+        self.observation_space = gym.spaces.Dict(
+            {
+                "board": Box(
+                    low=0,
+                    high=len(env.unwrapped.tetrominoes),
+                    shape=(
+                        env.unwrapped.width * 4,
+                        env.unwrapped.height_padded,
+                        env.unwrapped.width_padded,
+                    ),
+                    dtype=np.uint8,
+                ),
+                "holder": Box(
+                    low=0,
+                    high=len(self.env.unwrapped.pixels),
+                    shape=(
+                        self.unwrapped.padding,
+                        self.unwrapped.padding * self.env.unwrapped.holder.size,
+                    ),
+                    dtype=np.uint8,
+                ),
+                "queue": gym.spaces.Box(
+                    low=0,
+                    high=len(self.env.unwrapped.pixels),
+                    shape=(
+                        self.env.unwrapped.padding,
+                        self.env.unwrapped.padding * self.env.unwrapped.queue.size,
+                    ),
+                    dtype=np.uint8,
+                ),
+            }
         )
 
     def observation(self, observation):
@@ -77,3 +97,9 @@ class GroupedActions(gym.ObservationWrapper):
         )
 
         return self.observation(observation), reward, game_over, truncated, info
+
+    def reset(
+        self, *, seed: "int | None" = None, options: "dict[str, Any] | None" = None
+    ) -> "tuple[dict[str, Any], dict[str, Any]]":
+        observation, info = self.env.reset(seed=seed, options=options)
+        return self.observation(observation), info

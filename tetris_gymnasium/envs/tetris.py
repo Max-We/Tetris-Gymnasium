@@ -1,5 +1,5 @@
 """Tetris environment for Gymnasium."""
-from copy import copy
+import copy
 from dataclasses import fields
 from typing import Any, List
 
@@ -93,13 +93,13 @@ class Tetris(gym.Env):
 
         # Base Pixels
         if base_pixels is None:
-            self.base_pixels = self.BASE_PIXELS
+            self.base_pixels = copy.deepcopy(self.BASE_PIXELS)
 
         # Tetrominoes
         if tetrominoes is None:
-            tetrominoes = self.TETROMINOES
+            self.tetrominoes = copy.deepcopy(self.TETROMINOES)
         self.tetrominoes: List[Tetromino] = self.offset_tetromino_id(
-            tetrominoes, len(self.base_pixels)
+            self.tetrominoes, len(self.base_pixels)
         )
         self.active_tetromino: Tetromino = None
 
@@ -520,7 +520,7 @@ class Tetris(gym.Env):
         queue_tetrominoes = self.queue.get_queue()
         for index, t_id in enumerate(queue_tetrominoes):
             # Pad all tetrominoes to be the same size
-            t = copy(self.tetrominoes[t_id])
+            t = copy.copy(self.tetrominoes[t_id])
             t.matrix = np.pad(
                 t.matrix,
                 ((0, max_size - t.matrix.shape[0]), (0, max_size - t.matrix.shape[1])),

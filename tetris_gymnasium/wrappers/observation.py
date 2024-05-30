@@ -1,8 +1,9 @@
 """Observation wrapper module for the Tetris Gymnasium environment."""
+from typing import Any
+
 import cv2
 import gymnasium as gym
 import numpy as np
-from gymnasium.core import RenderFrame
 from gymnasium.spaces import Box
 
 from tetris_gymnasium.envs import Tetris
