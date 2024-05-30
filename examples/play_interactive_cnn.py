@@ -57,6 +57,7 @@ if __name__ == "__main__":
 
         # Perform the action
         observation, reward, terminated, truncated, info = env.step(action)
+        print(reward)
 
     # Game over
     print("Game Over!")
