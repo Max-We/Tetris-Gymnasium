@@ -15,7 +15,6 @@ if __name__ == "__main__":
     env = gym.make("tetris_gymnasium/Tetris", render_mode="human", gravity=False)
     env = GroupedActions(env)
     env = GroupedActionRgbObservation(env)
-    # env = RgbObservation(env)
     env.reset(seed=42)
 
     print(env.action_space)

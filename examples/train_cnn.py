@@ -96,7 +96,7 @@ class Args:
     # env_id: str = "BreakoutNoFrameskip-v4"
     env_id: str = "tetris_gymnasium/Tetris"
     """the id of the environment"""
-    total_timesteps: int = 20000000
+    total_timesteps: int = 50000
     """total timesteps of the experiments"""
     learning_rate: float = 1e-4
     """the learning rate of the optimizer"""
@@ -185,7 +185,13 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         )
     args = tyro.cli(Args)
     assert args.num_envs == 1, "vectorized envs are not supported at the moment"
-    run_name = f"{args.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
+    # Env name
+    greek_letters = [
+        "alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta",
+        "iota", "kappa", "lambda", "mu", "nu", "xi", "omicron", "pi", "rho",
+        "sigma", "tau", "upsilon", "phi", "chi", "psi", "omega"
+    ]
+    run_name = f"{args.exp_name}/{random.choice(greek_letters)}_{random.choice(greek_letters)}__{args.seed}__{int(time.time())}"
     if args.track:
         import wandb
 
