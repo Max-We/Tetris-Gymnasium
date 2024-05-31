@@ -97,7 +97,8 @@ class Tetris(gym.Env):
 
         # Tetrominoes
         if tetrominoes is None:
-            self.tetrominoes = copy.deepcopy(self.TETROMINOES)
+            tetrominoes = copy.deepcopy(self.TETROMINOES)
+        self.tetrominoes = tetrominoes
         self.tetrominoes: List[Tetromino] = self.offset_tetromino_id(
             self.tetrominoes, len(self.base_pixels)
         )
@@ -520,7 +521,7 @@ class Tetris(gym.Env):
         queue_tetrominoes = self.queue.get_queue()
         for index, t_id in enumerate(queue_tetrominoes):
             # Pad all tetrominoes to be the same size
-            t = copy.copy(self.tetrominoes[t_id])
+            t = copy.deepcopy(self.tetrominoes[t_id])
             t.matrix = np.pad(
                 t.matrix,
                 ((0, max_size - t.matrix.shape[0]), (0, max_size - t.matrix.shape[1])),
