@@ -1,4 +1,6 @@
 """WIP Action wrapper."""
+import copy
+
 import gymnasium as gym
 import numpy as np
 from gymnasium.spaces import Box, Discrete
@@ -85,17 +87,24 @@ class GroupedActions(gym.ObservationWrapper):
     def step(self, action):
         x = action // 4
         r = action % 4
+        new_tetromino = copy.deepcopy(self.env.unwrapped.active_tetromino)
 
-        # Set x position
-        self.env.unwrapped.x = x + self.env.unwrapped.padding
-        # Set rotation
+        # Set new x position
+        x += self.env.unwrapped.padding
+        # Set new rotation
         for _ in range(r):
-            self.env.unwrapped.rotate(self.env.unwrapped.active_tetromino)
-        # Drop tetromino
-        observation, reward, game_over, truncated, info = self.env.step(
-            self.env.unwrapped.actions.hard_drop
-        )
+            new_tetromino = self.env.unwrapped.rotate(new_tetromino)
 
+        # Check if position is legal
+        if self.env.unwrapped.collision(new_tetromino, x, self.env.unwrapped.y):
+            # Do nothing action
+            observation, reward, game_over, truncated, info = self.env.step(self.env.unwrapped.actions.no_op)
+            return self.observation(observation), reward, game_over, truncated, info
+
+        # Apply rotation and movement (x,y)
+        self.env.unwrapped.x = x
+        self.env.unwrapped.active_tetromino = new_tetromino
+        observation, reward, game_over, truncated, info = self.env.step(self.env.unwrapped.actions.hard_drop)
         return self.observation(observation), reward, game_over, truncated, info
 
     def reset(

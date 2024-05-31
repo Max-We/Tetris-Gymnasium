@@ -96,7 +96,7 @@ class Args:
     # env_id: str = "BreakoutNoFrameskip-v4"
     env_id: str = "tetris_gymnasium/Tetris"
     """the id of the environment"""
-    total_timesteps: int = 50000
+    total_timesteps: int = 20000000
     """total timesteps of the experiments"""
     learning_rate: float = 1e-4
     """the learning rate of the optimizer"""
@@ -195,7 +195,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
     if args.track:
         import wandb
 
-        wandb.init(
+        run = wandb.init(
             project=args.wandb_project_name,
             entity=args.wandb_entity,
             sync_tensorboard=True,
@@ -204,6 +204,8 @@ poetry run pip install "stable_baselines3==2.0.0a1"
             monitor_gym=True,
             save_code=True,
         )
+        # Log environment code
+        run.log_code(os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tetris_gymnasium")))
     writer = SummaryWriter(f"runs/{run_name}")
     writer.add_text(
         "hyperparameters",

@@ -226,6 +226,8 @@ class Tetris(gym.Env):
                     self.reset_tetromino_position()
         elif action == self.actions.hard_drop:
             reward, game_over = self.commit_active_tetromino()
+        elif action == self.actions.no_op:
+            pass
 
         # Gravity
         if self.gravity_enabled and action != self.actions.hard_drop:
@@ -390,8 +392,6 @@ class Tetris(gym.Env):
         """
         # 1. Drop the tetromino and lock it in place
         self.drop_active_tetromino()
-        # if self.collision(self.active_tetromino, self.x, self.y):
-        #     return -self.rewards.alife, False
         self.place_active_tetromino()
         reward = self.score(self.clear_filled_rows())
 

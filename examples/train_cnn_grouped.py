@@ -106,7 +106,7 @@ class Args:
     """the learning rate of the optimizer"""
     num_envs: int = 1
     """the number of parallel game environments"""
-    buffer_size: int = 1000000
+    buffer_size: int = 1000000 // 40
     """the replay memory buffer size"""
     gamma: float = 0.99
     """the discount factor gamma"""
@@ -132,7 +132,8 @@ def make_env(env_id, seed, idx, capture_video, run_name):
     def thunk():
         if capture_video and idx == 0:
             env = gym.make(env_id, render_mode="rgb_array")
-            env = RgbObservation(env)
+            env = GroupedActions(env)
+            env = GroupedActionRgbObservation(env)
             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         else:
             env = gym.make(env_id)
@@ -141,7 +142,7 @@ def make_env(env_id, seed, idx, capture_video, run_name):
 
         env = ClipRewardEnv(env)
 
-        env = gym.wrappers.ResizeObservation(env, (84, 84))
+        env = gym.wrappers.ResizeObservation(env, (84*4, 84*10))
         env = gym.wrappers.GrayScaleObservation(env)
 
         env = gym.wrappers.FrameStack(env, 4)
@@ -163,7 +164,7 @@ class QNetwork(nn.Module):
             nn.Conv2d(64, 64, 3, stride=1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(3136, 512),
+            nn.Linear(245632, 512),
             nn.ReLU(),
             nn.Linear(512, env.single_action_space.n),
         )
@@ -188,12 +189,18 @@ poetry run pip install "stable_baselines3==2.0.0a1"
 """
         )
     args = tyro.cli(Args)
-    # assert args.num_envs == 1, "vectorized envs are not supported at the moment"
-    run_name = f"{args.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
+    assert args.num_envs == 1, "vectorized envs are not supported at the moment"
+    # Env name
+    greek_letters = [
+        "alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta",
+        "iota", "kappa", "lambda", "mu", "nu", "xi", "omicron", "pi", "rho",
+        "sigma", "tau", "upsilon", "phi", "chi", "psi", "omega"
+    ]
+    run_name = f"{args.exp_name}/{random.choice(greek_letters)}_{random.choice(greek_letters)}__{args.seed}__{int(time.time())}"
     if args.track:
         import wandb
 
-        wandb.init(
+        run = wandb.init(
             project=args.wandb_project_name,
             entity=args.wandb_entity,
             sync_tensorboard=True,
@@ -202,6 +209,8 @@ poetry run pip install "stable_baselines3==2.0.0a1"
             monitor_gym=True,
             save_code=True,
         )
+        # Log environment code
+        run.log_code(os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tetris_gymnasium")))
     writer = SummaryWriter(f"runs/{run_name}")
     writer.add_text(
         "hyperparameters",
@@ -218,7 +227,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
 
     # env setup
-    envs = gym.vector.AsyncVectorEnv(
+    envs = gym.vector.SyncVectorEnv(
         [
             make_env(args.env_id, args.seed + i, i, args.capture_video, run_name)
             for i in range(args.num_envs)
