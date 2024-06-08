@@ -75,7 +75,7 @@ class Args:
     """seed of the experiment"""
     torch_deterministic: bool = True
     """if toggled, `torch.backends.cudnn.deterministic=False`"""
-    cuda: bool = False
+    cuda: bool = True
     """if toggled, cuda will be enabled by default"""
     track: bool = True
     """if toggled, this experiment will be tracked with Weights and Biases"""
@@ -132,7 +132,6 @@ def make_env(env_id, seed, idx, capture_video, run_name):
             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         else:
             env = gym.make(env_id)
-            env = RgbObservation(env)
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env.action_space.seed(seed)
 
@@ -269,7 +268,6 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         envs.single_observation_space,
         envs.single_action_space,
         device,
-        n_envs=args.num_envs,
         handle_timeout_termination=False,
     )
     start_time = time.time()
