@@ -45,6 +45,9 @@ class GroupedActions(gym.ObservationWrapper):
             }
         )
 
+        self.legal_actions_mask = np.ones(self.action_space.n)
+
+
     def observation(self, observation):
         board_obs = observation["board"]
         holder_obs = observation["holder"]
@@ -57,7 +60,7 @@ class GroupedActions(gym.ObservationWrapper):
             # reset position
             x = self.env.unwrapped.padding + x
 
-            for _ in range(4):
+            for r in range(4):
                 y = 0
 
                 # do rotation
@@ -73,7 +76,9 @@ class GroupedActions(gym.ObservationWrapper):
                         self.env.unwrapped.project_tetromino(t, x, y)
                     )
                 else:
+                    # this happens when rotation was illegal and the tetromino wasn't dropped at all
                     grouped_board_obs.append(np.ones_like(board_obs))
+                    self.legal_actions_mask[(x - self.env.unwrapped.padding) * 4 + r] = 0
 
         # concat the results
         grouped_board_obs = np.array(grouped_board_obs)
@@ -87,6 +92,12 @@ class GroupedActions(gym.ObservationWrapper):
     def step(self, action):
         x = action // 4
         r = action % 4
+
+        if self.legal_actions_mask[x * 4 + r] == 0:
+            # Do nothing action
+            observation, reward, game_over, truncated, info = self.env.step(self.env.unwrapped.actions.no_op)
+            return self.observation(observation), reward, game_over, truncated, info
+
         new_tetromino = copy.deepcopy(self.env.unwrapped.active_tetromino)
 
         # Set new x position
@@ -94,12 +105,6 @@ class GroupedActions(gym.ObservationWrapper):
         # Set new rotation
         for _ in range(r):
             new_tetromino = self.env.unwrapped.rotate(new_tetromino)
-
-        # Check if position is legal
-        if self.env.unwrapped.collision(new_tetromino, x, self.env.unwrapped.y):
-            # Do nothing action
-            observation, reward, game_over, truncated, info = self.env.step(self.env.unwrapped.actions.no_op)
-            return self.observation(observation), reward, game_over, truncated, info
 
         # Apply rotation and movement (x,y)
         self.env.unwrapped.x = x
@@ -110,5 +115,6 @@ class GroupedActions(gym.ObservationWrapper):
     def reset(
         self, *, seed: "int | None" = None, options: "dict[str, Any] | None" = None
     ) -> "tuple[dict[str, Any], dict[str, Any]]":
+        self.legal_actions_mask = np.ones(self.action_space.n)
         observation, info = self.env.reset(seed=seed, options=options)
         return self.observation(observation), info

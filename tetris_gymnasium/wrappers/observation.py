@@ -148,15 +148,11 @@ class GroupedActionRgbObservation(gym.ObservationWrapper):
             (queue_obs, np.ones((max_size, max_len - queue_obs.shape[1])))
         )
 
-        # add vertical padding between the board and the holder/queue
-        boards = []
-        for o in board_obs:
-            v_padding = np.ones((o.shape[0] - 2 * max_size, max_len))
-            cnn_extra = np.vstack((queue_obs, v_padding, holder_obs))
+        v_padding = np.ones((board_obs.shape[1] - 2 * max_size, max_len))
+        cnn_extra = np.vstack((queue_obs, v_padding, holder_obs))
 
-            board = np.hstack((o, cnn_extra)).astype(np.integer)
-            boards.append(board)
-        boards = np.array(boards)
+        # add vertical padding between the board and the holder/queue
+        boards = np.array([np.hstack((o, cnn_extra)).astype(np.integer) for o in board_obs])
 
         # Create 2D representation of all boards
         n_rotations = 4
@@ -165,15 +161,13 @@ class GroupedActionRgbObservation(gym.ObservationWrapper):
         matrix = np.hstack([np.vstack(r) for r in rotated_groups])
 
         # Convert to rgb
-        matrix_rgb = np.zeros((matrix.shape[0], matrix.shape[1], 3))
         colors = np.array(
             list(p.color_rgb for p in self.env.unwrapped.pixels), dtype=np.uint8
         )
-        matrix_rgb[...] = colors[matrix]
+        matrix_rgb = colors[matrix]
+        self.obs = matrix_rgb.astype(np.uint8)
 
-        obs = matrix_rgb.astype(np.uint8)
-        self.obs = obs
-        return obs
+        return self.obs
 
     def render(self) -> "RenderFrame | list[RenderFrame] | None":
         """Renders the environment in various formats.
