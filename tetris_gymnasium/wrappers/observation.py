@@ -1,9 +1,9 @@
 """Observation wrapper module for the Tetris Gymnasium environment."""
-from typing import Any
 
 import cv2
 import gymnasium as gym
 import numpy as np
+from gymnasium.core import RenderFrame
 from gymnasium.spaces import Box
 
 from tetris_gymnasium.envs import Tetris
@@ -87,6 +87,7 @@ class RgbObservation(gym.ObservationWrapper):
                     cv2.namedWindow(
                         self.env.unwrapped.window_name, cv2.WINDOW_GUI_NORMAL
                     )
+                    assert self.observation_space.shape is not None
                     h, w = (
                         self.observation_space.shape[0],
                         self.observation_space.shape[1],
@@ -152,12 +153,13 @@ class GroupedActionRgbObservation(gym.ObservationWrapper):
         cnn_extra = np.vstack((queue_obs, v_padding, holder_obs))
 
         # add vertical padding between the board and the holder/queue
-        boards = np.array([np.hstack((o, cnn_extra)).astype(np.integer) for o in board_obs])
+        boards = np.array(
+            [np.hstack((o, cnn_extra)).astype(np.integer) for o in board_obs]
+        )
 
         # Create 2D representation of all boards
         n_rotations = 4
-        n, w, h = boards.shape[0], boards.shape[1], boards.shape[2]
-        rotated_groups = np.split(boards, n // n_rotations)
+        rotated_groups = np.split(boards, boards.shape[0] // n_rotations)
         matrix = np.hstack([np.vstack(r) for r in rotated_groups])
 
         # Convert to rgb
@@ -189,6 +191,7 @@ class GroupedActionRgbObservation(gym.ObservationWrapper):
                     cv2.namedWindow(
                         self.env.unwrapped.window_name, cv2.WINDOW_GUI_NORMAL
                     )
+                    assert self.observation_space.shape is not None
                     h, w = (
                         self.observation_space.shape[0],
                         self.observation_space.shape[1],

@@ -142,7 +142,7 @@ def make_env(env_id, seed, idx, capture_video, run_name):
 
         env = ClipRewardEnv(env)
 
-        env = gym.wrappers.ResizeObservation(env, (84*4, 84*10))
+        env = gym.wrappers.ResizeObservation(env, (84 * 4, 84 * 10))
         env = gym.wrappers.GrayScaleObservation(env)
 
         env = gym.wrappers.FrameStack(env, 4)
@@ -192,9 +192,30 @@ poetry run pip install "stable_baselines3==2.0.0a1"
     assert args.num_envs == 1, "vectorized envs are not supported at the moment"
     # Env name
     greek_letters = [
-        "alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta",
-        "iota", "kappa", "lambda", "mu", "nu", "xi", "omicron", "pi", "rho",
-        "sigma", "tau", "upsilon", "phi", "chi", "psi", "omega"
+        "alpha",
+        "beta",
+        "gamma",
+        "delta",
+        "epsilon",
+        "zeta",
+        "eta",
+        "theta",
+        "iota",
+        "kappa",
+        "lambda",
+        "mu",
+        "nu",
+        "xi",
+        "omicron",
+        "pi",
+        "rho",
+        "sigma",
+        "tau",
+        "upsilon",
+        "phi",
+        "chi",
+        "psi",
+        "omega",
     ]
     run_name = f"{args.exp_name}/{random.choice(greek_letters)}_{random.choice(greek_letters)}__{args.seed}__{int(time.time())}"
     if args.track:
@@ -210,7 +231,13 @@ poetry run pip install "stable_baselines3==2.0.0a1"
             save_code=True,
         )
         # Log environment code
-        run.log_code(os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tetris_gymnasium")))
+        run.log_code(
+            os.path.normpath(
+                os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)), "../tetris_gymnasium"
+                )
+            )
+        )
     writer = SummaryWriter(f"runs/{run_name}")
     writer.add_text(
         "hyperparameters",

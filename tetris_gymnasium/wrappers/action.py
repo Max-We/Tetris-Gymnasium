@@ -1,5 +1,9 @@
-"""WIP Action wrapper."""
+"""Observation wrapper that groups the actions into placements.
+
+The action space is the width of the board times 4 (4 rotations).
+"""
 import copy
+from typing import Any
 
 import gymnasium as gym
 import numpy as np
@@ -9,7 +13,17 @@ from tetris_gymnasium.envs import Tetris
 
 
 class GroupedActions(gym.ObservationWrapper):
+    """Observation wrapper that groups the actions into placements.
+
+    The action space is the width of the board times 4 (4 rotations).
+    """
+
     def __init__(self, env: Tetris):
+        """Initializes the wrapper.
+
+        Args:
+            env: The environment to wrap.
+        """
         super().__init__(env)
         self.action_space = Discrete(env.unwrapped.width * 4)
         self.observation_space = gym.spaces.Dict(
@@ -47,8 +61,15 @@ class GroupedActions(gym.ObservationWrapper):
 
         self.legal_actions_mask = np.ones(self.action_space.n)
 
-
     def observation(self, observation):
+        """Observation wrapper that groups the actions into placements.
+
+        Args:
+            observation: The observation to wrap. This is the board without the active tetromino.
+
+        Returns:
+            A dictionary containing the grouped board, holder and queue observations.
+        """
         board_obs = observation["board"]
         holder_obs = observation["holder"]
         queue_obs = observation["queue"]
@@ -78,7 +99,9 @@ class GroupedActions(gym.ObservationWrapper):
                 else:
                     # this happens when rotation was illegal and the tetromino wasn't dropped at all
                     grouped_board_obs.append(np.ones_like(board_obs))
-                    self.legal_actions_mask[(x - self.env.unwrapped.padding) * 4 + r] = 0
+                    self.legal_actions_mask[
+                        (x - self.env.unwrapped.padding) * 4 + r
+                    ] = 0
 
         # concat the results
         grouped_board_obs = np.array(grouped_board_obs)
@@ -90,12 +113,22 @@ class GroupedActions(gym.ObservationWrapper):
         }
 
     def step(self, action):
+        """Performs the action.
+
+        Args:
+            action: The action to perform.
+
+        Returns:
+            The observation, reward, game over, truncated, and info.
+        """
         x = action // 4
         r = action % 4
 
         if self.legal_actions_mask[x * 4 + r] == 0:
             # Do nothing action
-            observation, reward, game_over, truncated, info = self.env.step(self.env.unwrapped.actions.no_op)
+            observation, reward, game_over, truncated, info = self.env.step(
+                self.env.unwrapped.actions.no_op
+            )
             return self.observation(observation), reward, game_over, truncated, info
 
         new_tetromino = copy.deepcopy(self.env.unwrapped.active_tetromino)
@@ -109,12 +142,23 @@ class GroupedActions(gym.ObservationWrapper):
         # Apply rotation and movement (x,y)
         self.env.unwrapped.x = x
         self.env.unwrapped.active_tetromino = new_tetromino
-        observation, reward, game_over, truncated, info = self.env.step(self.env.unwrapped.actions.hard_drop)
+        observation, reward, game_over, truncated, info = self.env.step(
+            self.env.unwrapped.actions.hard_drop
+        )
         return self.observation(observation), reward, game_over, truncated, info
 
     def reset(
         self, *, seed: "int | None" = None, options: "dict[str, Any] | None" = None
     ) -> "tuple[dict[str, Any], dict[str, Any]]":
+        """Resets the environment.
+
+        Args:
+            seed: The seed to use for the random number generator.
+            options: The options to use for the environment.
+
+        Returns:
+            The observation and info.
+        """
         self.legal_actions_mask = np.ones(self.action_space.n)
         observation, info = self.env.reset(seed=seed, options=options)
         return self.observation(observation), info
