@@ -126,6 +126,9 @@ class GroupedActionRgbObservation(gym.ObservationWrapper):
             dtype=np.uint8,
         )
 
+        self.obs = None
+
+
     def observation(self, observation):
         """Observation wrapper that displays all observations (board, holder, queue) as one single RGB Image.
 
@@ -170,6 +173,23 @@ class GroupedActionRgbObservation(gym.ObservationWrapper):
         self.obs = matrix_rgb.astype(np.uint8)
 
         return self.obs
+
+    def reset(
+        self, *, seed: "int | None" = None, options: "dict[str, Any] | None" = None
+    ) -> "tuple[dict[str, Any], dict[str, Any]]":
+        """Resets the environment.
+
+        Args:
+            seed: The seed to use for the random number generator.
+            options: The options to use for the environment.
+
+        Returns:
+            The observation and info.
+        """
+        self.obs = None
+        observation, info = self.env.reset(seed=seed, options=options)
+        self.obs = self.observation(observation)
+        return self.observation(observation), info
 
     def render(self) -> "RenderFrame | list[RenderFrame] | None":
         """Renders the environment in various formats.

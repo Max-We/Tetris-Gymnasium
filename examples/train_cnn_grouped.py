@@ -41,7 +41,7 @@ def evaluate(
     epsilon: float = 0.05,
     capture_video: bool = True,
 ):
-    envs = gym.vector.SyncVectorEnv([make_env(env_id, 0, 0, capture_video, run_name)])
+    envs = gym.vector.AsyncVectorEnv([make_env(env_id, 0, 0, capture_video, run_name)])
     model = Model(envs).to(device)
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
@@ -79,7 +79,7 @@ class Args:
     """seed of the experiment"""
     torch_deterministic: bool = True
     """if toggled, `torch.backends.cudnn.deterministic=False`"""
-    cuda: bool = True
+    cuda: bool = False
     """if toggled, cuda will be enabled by default"""
     track: bool = True
     """if toggled, this experiment will be tracked with Weights and Biases"""
@@ -104,9 +104,9 @@ class Args:
     """total timesteps of the experiments"""
     learning_rate: float = 1e-4
     """the learning rate of the optimizer"""
-    num_envs: int = 1
+    num_envs: int = 100
     """the number of parallel game environments"""
-    buffer_size: int = 1000000 // 40
+    buffer_size: int = 1000000 // 120
     """the replay memory buffer size"""
     gamma: float = 0.99
     """the discount factor gamma"""
@@ -137,12 +137,14 @@ def make_env(env_id, seed, idx, capture_video, run_name):
             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         else:
             env = gym.make(env_id)
+            env = GroupedActions(env)
+            env = GroupedActionRgbObservation(env)
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env.action_space.seed(seed)
 
         env = ClipRewardEnv(env)
 
-        env = gym.wrappers.ResizeObservation(env, (84 * 4, 84 * 10))
+        # env = gym.wrappers.ResizeObservation(env, (84 * 4, 84 * 10))
         env = gym.wrappers.GrayScaleObservation(env)
 
         env = gym.wrappers.FrameStack(env, 4)
@@ -164,7 +166,7 @@ class QNetwork(nn.Module):
             nn.Conv2d(64, 64, 3, stride=1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(245632, 512),
+            nn.Linear(19968, 512),
             nn.ReLU(),
             nn.Linear(512, env.single_action_space.n),
         )
@@ -189,7 +191,6 @@ poetry run pip install "stable_baselines3==2.0.0a1"
 """
         )
     args = tyro.cli(Args)
-    assert args.num_envs == 1, "vectorized envs are not supported at the moment"
     # Env name
     greek_letters = [
         "alpha",
@@ -254,7 +255,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
 
     # env setup
-    envs = gym.vector.SyncVectorEnv(
+    envs = gym.vector.AsyncVectorEnv(
         [
             make_env(args.env_id, args.seed + i, i, args.capture_video, run_name)
             for i in range(args.num_envs)
