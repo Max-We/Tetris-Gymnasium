@@ -1,5 +1,5 @@
 """Tetris environment for Gymnasium."""
-from copy import copy
+import copy
 from dataclasses import fields
 from typing import Any, List
 
@@ -93,13 +93,14 @@ class Tetris(gym.Env):
 
         # Base Pixels
         if base_pixels is None:
-            self.base_pixels = self.BASE_PIXELS
+            self.base_pixels = copy.deepcopy(self.BASE_PIXELS)
 
         # Tetrominoes
         if tetrominoes is None:
-            tetrominoes = self.TETROMINOES
+            tetrominoes = copy.deepcopy(self.TETROMINOES)
+        self.tetrominoes = tetrominoes
         self.tetrominoes: List[Tetromino] = self.offset_tetromino_id(
-            tetrominoes, len(self.base_pixels)
+            self.tetrominoes, len(self.base_pixels)
         )
         self.active_tetromino: Tetromino = None
 
@@ -225,6 +226,8 @@ class Tetris(gym.Env):
                     self.reset_tetromino_position()
         elif action == self.actions.hard_drop:
             reward, game_over = self.commit_active_tetromino()
+        elif action == self.actions.no_op:
+            pass
 
         # Gravity
         if self.gravity_enabled and action != self.actions.hard_drop:
@@ -274,7 +277,7 @@ class Tetris(gym.Env):
         """Renders the environment in various formats."""
         if self.render_mode == "ansi":
             # Render active tetromino (because it's not on self.board)
-            projection = self.project_active_tetromino()
+            projection = self.project_tetromino()
 
             # Crop padding away as we don't want to render it
             projection = self.crop_padding(projection)
@@ -333,7 +336,7 @@ class Tetris(gym.Env):
 
     def place_active_tetromino(self):
         """Locks the active tetromino in place on the board."""
-        self.board = self.project_active_tetromino()
+        self.board = self.project_tetromino()
         self.active_tetromino = None
 
     def collision(self, tetromino: Tetromino, x: int, y: int) -> bool:
@@ -467,24 +470,33 @@ class Tetris(gym.Env):
             0,
         )
 
-    def project_active_tetromino(self):
+    def project_tetromino(
+        self, tetromino: Tetromino = None, x: int = None, y: int = None
+    ) -> np.ndarray:
         """Project the active tetromino on the board.
 
         By default, the active (moving) tetromino is not part of the board. This function projects the active tetromino
         on the board to render it.
         """
+        if tetromino is None:
+            tetromino = self.active_tetromino
+        if x is None:
+            x = self.x
+        if y is None:
+            y = self.y
+
         projection = self.board.copy()
-        if self.collision(self.active_tetromino, self.x, self.y):
+        if self.collision(tetromino, x, y):
             return projection
 
-        slices = self.get_tetromino_slices(self.active_tetromino, self.x, self.y)
-        projection[slices] += self.active_tetromino.matrix
+        slices = self.get_tetromino_slices(tetromino, x, y)
+        projection[slices] += tetromino.matrix
         return projection
 
     def _get_obs(self) -> "dict[str, Any]":
         """Return the current board as an observation."""
         # Include the active tetromino on the board for the observation.
-        board_obs = self.project_active_tetromino()
+        board_obs = self.project_tetromino()
 
         max_size = self.padding
 
@@ -509,7 +521,7 @@ class Tetris(gym.Env):
         queue_tetrominoes = self.queue.get_queue()
         for index, t_id in enumerate(queue_tetrominoes):
             # Pad all tetrominoes to be the same size
-            t = copy(self.tetrominoes[t_id])
+            t = copy.deepcopy(self.tetrominoes[t_id])
             t.matrix = np.pad(
                 t.matrix,
                 ((0, max_size - t.matrix.shape[0]), (0, max_size - t.matrix.shape[1])),

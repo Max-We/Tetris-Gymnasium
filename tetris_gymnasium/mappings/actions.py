@@ -16,3 +16,4 @@ class ActionsMapping:
     rotate_counterclockwise: int = 4
     hard_drop: int = 5
     swap: int = 6
+    no_op: int = 7

@@ -22,7 +22,11 @@ from stable_baselines3.common.buffers import ReplayBuffer
 from torch.utils.tensorboard import SummaryWriter
 
 from tetris_gymnasium.envs import Tetris
-from tetris_gymnasium.wrappers.observation import RgbObservation
+from tetris_gymnasium.wrappers.action import GroupedActions
+from tetris_gymnasium.wrappers.observation import (
+    GroupedActionRgbObservation,
+    RgbObservation,
+)
 
 
 # Evaluation
@@ -37,7 +41,7 @@ def evaluate(
     epsilon: float = 0.05,
     capture_video: bool = True,
 ):
-    envs = gym.vector.SyncVectorEnv([make_env(env_id, 0, 0, capture_video, run_name)])
+    envs = gym.vector.AsyncVectorEnv([make_env(env_id, 0, 0, capture_video, run_name)])
     model = Model(envs).to(device)
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
@@ -75,7 +79,7 @@ class Args:
     """seed of the experiment"""
     torch_deterministic: bool = True
     """if toggled, `torch.backends.cudnn.deterministic=False`"""
-    cuda: bool = True
+    cuda: bool = False
     """if toggled, cuda will be enabled by default"""
     track: bool = True
     """if toggled, this experiment will be tracked with Weights and Biases"""
@@ -85,7 +89,7 @@ class Args:
     """the entity (team) of wandb's project"""
     capture_video: bool = True
     """whether to capture videos of the agent performances (check out `videos` folder)"""
-    save_model: bool = True
+    save_model: bool = False
     """whether to save model into the `runs/{run_name}` folder"""
     upload_model: bool = False
     """whether to upload the saved model to huggingface"""
@@ -96,13 +100,13 @@ class Args:
     # env_id: str = "BreakoutNoFrameskip-v4"
     env_id: str = "tetris_gymnasium/Tetris"
     """the id of the environment"""
-    total_timesteps: int = 20_000_000
+    total_timesteps: int = 20000000
     """total timesteps of the experiments"""
     learning_rate: float = 1e-4
     """the learning rate of the optimizer"""
-    num_envs: int = 1
+    num_envs: int = 100
     """the number of parallel game environments"""
-    buffer_size: int = 1000000
+    buffer_size: int = 1000000 // 120
     """the replay memory buffer size"""
     gamma: float = 0.99
     """the discount factor gamma"""
@@ -128,16 +132,19 @@ def make_env(env_id, seed, idx, capture_video, run_name):
     def thunk():
         if capture_video and idx == 0:
             env = gym.make(env_id, render_mode="rgb_array")
-            env = RgbObservation(env)
+            env = GroupedActions(env)
+            env = GroupedActionRgbObservation(env)
             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         else:
             env = gym.make(env_id)
+            env = GroupedActions(env)
+            env = GroupedActionRgbObservation(env)
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env.action_space.seed(seed)
 
         env = ClipRewardEnv(env)
 
-        env = gym.wrappers.ResizeObservation(env, (84, 84))
+        # env = gym.wrappers.ResizeObservation(env, (84 * 4, 84 * 10))
         env = gym.wrappers.GrayScaleObservation(env)
 
         env = gym.wrappers.FrameStack(env, 4)
@@ -159,7 +166,7 @@ class QNetwork(nn.Module):
             nn.Conv2d(64, 64, 3, stride=1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(3136, 512),
+            nn.Linear(19968, 512),
             nn.ReLU(),
             nn.Linear(512, env.single_action_space.n),
         )
@@ -248,7 +255,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
 
     # env setup
-    envs = gym.vector.SyncVectorEnv(
+    envs = gym.vector.AsyncVectorEnv(
         [
             make_env(args.env_id, args.seed + i, i, args.capture_video, run_name)
             for i in range(args.num_envs)
@@ -268,6 +275,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         envs.single_observation_space,
         envs.single_action_space,
         device,
+        n_envs=args.num_envs,
         handle_timeout_termination=False,
     )
     start_time = time.time()
