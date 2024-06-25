@@ -1,7 +1,7 @@
 """Tetris environment for Gymnasium."""
 import copy
 from dataclasses import fields
-from typing import List
+from typing import Any, List
 
 import cv2
 import gymnasium as gym

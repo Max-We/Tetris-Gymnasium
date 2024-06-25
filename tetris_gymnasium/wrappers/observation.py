@@ -1,4 +1,5 @@
 """Observation wrapper module for the Tetris Gymnasium environment."""
+from typing import Any
 
 import cv2
 import gymnasium as gym
@@ -127,7 +128,6 @@ class GroupedActionRgbObservation(gym.ObservationWrapper):
         )
 
         self.obs = None
-
 
     def observation(self, observation):
         """Observation wrapper that displays all observations (board, holder, queue) as one single RGB Image.
