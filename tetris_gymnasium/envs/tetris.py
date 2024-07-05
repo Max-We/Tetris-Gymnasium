@@ -391,18 +391,22 @@ class Tetris(gym.Env):
             The reward for the current step and whether the game is over.
         """
         # 1. Drop the tetromino and lock it in place
-        self.drop_active_tetromino()
-        self.place_active_tetromino()
-        reward = self.score(self.clear_filled_rows())
-
-        # 2. Spawn the next tetromino and check if the game continues
-        game_over = not self.spawn_tetromino()
-        reward += self.rewards.alife
-        if game_over:
+        if self.collision(self.active_tetromino, self.x, self.y):
             reward = self.rewards.game_over
+            game_over = True
+        else:
+            self.drop_active_tetromino()
+            self.place_active_tetromino()
+            reward = self.score(self.clear_filled_rows())
 
-        # 3. Reset the swap flag (agent can swap once per tetromino)
-        self.has_swapped = False
+            # 2. Spawn the next tetromino and check if the game continues
+            game_over = not self.spawn_tetromino()
+            reward += self.rewards.alife
+            if game_over:
+                reward = self.rewards.game_over
+
+            # 3. Reset the swap flag (agent can swap once per tetromino)
+            self.has_swapped = False
 
         return reward, game_over
 

@@ -117,9 +117,9 @@ class GroupedActionRgbObservation(gym.ObservationWrapper):
             shape=(
                 env.unwrapped.height_padded * 4,
                 (
-                    env.unwrapped.width_padded
-                    + max(env.unwrapped.holder.size, env.unwrapped.queue.size)
-                    * env.unwrapped.padding
+                        env.unwrapped.width_padded
+                        + max(env.unwrapped.holder.size, env.unwrapped.queue.size)
+                        * env.unwrapped.padding
                 )
                 * env.unwrapped.width,
                 3,
@@ -175,7 +175,7 @@ class GroupedActionRgbObservation(gym.ObservationWrapper):
         return self.obs
 
     def reset(
-        self, *, seed: "int | None" = None, options: "dict[str, Any] | None" = None
+            self, *, seed: "int | None" = None, options: "dict[str, Any] | None" = None
     ) -> "tuple[dict[str, Any], dict[str, Any]]":
         """Resets the environment.
 
