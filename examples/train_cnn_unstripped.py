@@ -111,11 +111,11 @@ class Args:
     """the target network update rate"""
     target_network_frequency: int = 1000
     """the timesteps it takes to update the target network"""
-    batch_size: int = 32
+    batch_size: int = 512
     """the batch size of sample from the reply memory"""
     start_e: float = 1
     """the starting epsilon for exploration"""
-    end_e: float = 0.01
+    end_e: float = 1e-3
     """the ending epsilon for exploration"""
     exploration_fraction: float = 0.10
     """the fraction of `total-timesteps` it takes from start-e to go end-e"""
@@ -158,11 +158,11 @@ class QNetwork(nn.Module):
     def __init__(self, env):
         super().__init__()
         self.network = nn.Sequential(
-            nn.Linear(np.array(env.single_observation_space.shape).prod(), 120),
+            nn.Linear(np.array(env.single_observation_space.shape).prod(), 64),
             nn.ReLU(),
-            nn.Linear(120, 84),
+            nn.Linear(64, 64),
             nn.ReLU(),
-            nn.Linear(84, env.single_action_space.n),
+            nn.Linear(64, env.single_action_space.n),
         )
 
     def forward(self, x):
@@ -286,20 +286,20 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         )
         if random.random() < epsilon:
             # sample action using legal action mask
-            # actions = np.array(
-            #     [envs.single_action_space.sample() for _ in range(envs.num_envs)]
-            # )
             actions = np.array(
-                [
-                    np.random.choice(np.where(info['action_mask'][env_idx] == 1)[0])
-                    for env_idx in range(envs.num_envs)
-                ]
+                [envs.single_action_space.sample() for _ in range(envs.num_envs)]
             )
+            # actions = np.array(
+            #     [
+            #         np.random.choice(np.where(info['action_mask'][env_idx] == 1)[0])
+            #         for env_idx in range(envs.num_envs)
+            #     ]
+            # )
         else:
             # Normalization by dividing with piece count
             # Todo: Create api to get how many pieces are in env / do normalize
             q_values = q_network(torch.Tensor(obs).to(device))
-            q_values[0,info["action_mask"] == 0] = -np.inf
+            # q_values[0,info["action_mask"] == 0] = -np.inf
             actions = torch.argmax(q_values, dim=1).cpu().numpy()
 
         # TRY NOT TO MODIFY: execute the game and log data.
