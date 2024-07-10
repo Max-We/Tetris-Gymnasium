@@ -37,6 +37,7 @@ black = "^24.3.0"
 pyright = "^1.1.355"
 pydocstyle = "^6.3.0"
 pre-commit = "^3.6.2"
+pytest = "^8.2.2"
 
 [tool.pyright]
 include = ["tetris_gymnasium/**"]
