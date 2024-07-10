@@ -22,8 +22,8 @@ from stable_baselines3.common.buffers import ReplayBuffer
 from torch.utils.tensorboard import SummaryWriter
 
 from tetris_gymnasium.envs import Tetris
-from tetris_gymnasium.wrappers.action import GroupedActionsVector
-from tetris_gymnasium.wrappers.observation import RgbObservation
+from tetris_gymnasium.wrappers.action import GroupedActions
+from tetris_gymnasium.wrappers.observation import RgbObservation, FeatureVectorObservation
 
 
 # Evaluation
@@ -129,11 +129,11 @@ def make_env(env_id, seed, idx, capture_video, run_name):
     def thunk():
         if capture_video and idx == 0:
             env = gym.make(env_id, render_mode="rgb_array", gravity=False)
-            env = GroupedActionsVector(env)
+            env = GroupedActions(env, observation_wrappers=[FeatureVectorObservation(env)])
             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         else:
             env = gym.make(env_id)
-            env = GroupedActionsVector(env)
+            env = GroupedActions(env, observation_wrappers=[FeatureVectorObservation(env)])
 
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env.action_space.seed(seed)
@@ -158,11 +158,11 @@ class QNetwork(nn.Module):
     def __init__(self, env):
         super().__init__()
         self.network = nn.Sequential(
-            nn.Linear(np.array(env.single_observation_space.shape).prod(), 64),
+            nn.Linear(np.array(env.single_observation_space.shape[-1]), 64),
             nn.ReLU(),
             nn.Linear(64, 64),
             nn.ReLU(),
-            nn.Linear(64, env.single_action_space.n),
+            nn.Linear(64, 1),
         )
 
     def forward(self, x):
@@ -297,10 +297,9 @@ poetry run pip install "stable_baselines3==2.0.0a1"
             # )
         else:
             # Normalization by dividing with piece count
-            # Todo: Create api to get how many pieces are in env / do normalize
             q_values = q_network(torch.Tensor(obs).to(device))
             # q_values[0,info["action_mask"] == 0] = -np.inf
-            actions = torch.argmax(q_values, dim=1).cpu().numpy()
+            actions = torch.argmax(q_values, dim=1)[0].cpu().numpy()
 
         # TRY NOT TO MODIFY: execute the game and log data.
         next_obs, rewards, terminations, truncations, infos = envs.step(actions)
@@ -339,7 +338,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                     td_target = data.rewards.flatten() + args.gamma * target_max * (
                         1 - data.dones.flatten()
                     )
-                old_val = q_network(data.observations).gather(1, data.actions).squeeze()
+                old_val = q_network(data.observations).squeeze(-1).gather(1, data.actions).squeeze()
                 loss = F.mse_loss(td_target, old_val)
 
                 if global_step % 100 == 0:

@@ -273,8 +273,50 @@ class Tetris(gym.Env):
 
         return self._get_obs(), self._get_info()
 
+    def get_rgb(self, observation):
+        """Observation wrapper that displays all observations (board, holder, queue) as one single RGB Image.
+
+        The observation contains the board on the left, the queue on the top right and the holder on the bottom right.
+        """
+        # Board
+        board_obs = observation["board"]
+        # Holder
+        holder_obs = observation["holder"]
+        # Queue
+        queue_obs = observation["queue"]
+
+        max_size = holder_obs.shape[0]
+        max_len = max(holder_obs.shape[1], queue_obs.shape[1])
+
+        # make holder and queue same length by adding optional padding
+        holder_obs = np.hstack(
+            (holder_obs, np.ones((max_size, max_len - holder_obs.shape[1])))
+        )
+        queue_obs = np.hstack(
+            (queue_obs, np.ones((max_size, max_len - queue_obs.shape[1])))
+        )
+
+        # add vertical padding between the board and the holder/queue
+        v_padding = np.ones((board_obs.shape[0] - 2 * max_size, max_len))
+        cnn_extra = np.vstack((queue_obs, v_padding, holder_obs))
+
+        stack = np.hstack((board_obs, cnn_extra)).astype(np.integer)
+
+        # Convert to RGB
+        rgb = np.zeros((stack.shape[0], stack.shape[1], 3))
+        colors = np.array(
+            list(p.color_rgb for p in self.pixels), dtype=np.uint8
+        )
+        rgb[...] = colors[stack]
+
+        return rgb.astype(np.uint8)
+
     def render(self) -> "RenderFrame | list[RenderFrame] | None":
-        """Renders the environment in various formats."""
+        """Renders the environment in various formats.
+
+        This render function is different from the default as it uses the values from :func:`observation`  to render
+        the environment.
+        """
         if self.render_mode == "ansi":
             # Render active tetromino (because it's not on self.board)
             projection = self.project_tetromino()
@@ -286,41 +328,29 @@ class Tetris(gym.Env):
             char_field = np.where(projection == 0, ".", projection.astype(str))
             field_str = "\n".join("".join(row) for row in char_field)
             return field_str
-        elif self.render_mode == "human" or self.render_mode == "rgb_array":
-            # Initialize rgb array
-            rgb = np.zeros(
-                (self.board.shape[0], self.board.shape[1], 3), dtype=np.uint8
-            )
-            # Render the board
-            colors = np.array(list(p.color_rgb for p in self.pixels), dtype=np.uint8)
-            rgb[...] = colors[self.board]
 
-            # Render active tetromino (because it's not on self.board)
-            if self.active_tetromino is not None:
-                # Expand to 3 Dimensions for RGB
-                active_tetromino_rgb = np.repeat(
-                    self.active_tetromino.matrix[:, :, np.newaxis], 3, axis=2
-                )
-                active_tetromino_rgb[...] = colors[self.active_tetromino.matrix]
+        matrix = self.get_rgb(self._get_obs())
 
-                # Apply by masking
-                slices = self.get_tetromino_slices(
-                    self.active_tetromino, self.x, self.y
-                )
-                rgb[slices] += active_tetromino_rgb
-
-            # Crop padding away as we don't want to render it
-            rgb = self.crop_padding(rgb)
-
+        if self.render_mode == "human" or self.render_mode == "rgb_array":
             if self.render_mode == "rgb_array":
-                return rgb
+                return matrix
 
             if self.render_mode == "human":
                 if self.window_name is None:
                     self.window_name = "Tetris Gymnasium"
-                    cv2.namedWindow(self.window_name, cv2.WINDOW_GUI_NORMAL)
-                    cv2.resizeWindow(self.window_name, 200, 400)
-                cv2.imshow(self.window_name, cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR))
+                    cv2.namedWindow(
+                        self.window_name, cv2.WINDOW_GUI_NORMAL
+                    )
+                    assert self.observation_space.shape is not None
+                    h, w = (
+                        self.observation_space.shape[0],
+                        self.observation_space.shape[1],
+                    )
+                    cv2.resizeWindow(self.window_name, w * 10, h * 10)
+                cv2.imshow(
+                    self.window_name,
+                    cv2.cvtColor(matrix, cv2.COLOR_RGB2BGR),
+                )
 
         return None
 
