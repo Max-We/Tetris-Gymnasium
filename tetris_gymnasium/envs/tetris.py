@@ -139,6 +139,12 @@ class Tetris(gym.Env):
                     shape=(self.height_padded, self.width_padded),
                     dtype=np.uint8,
                 ),
+                "active_tetromino_mask": Box(
+                    low=0,
+                    high=1,
+                    shape=(self.height_padded, self.width_padded),
+                    dtype=np.uint8,
+                ),
                 "holder": Box(
                     low=0,
                     high=len(self.pixels),
@@ -304,9 +310,7 @@ class Tetris(gym.Env):
 
         # Convert to RGB
         rgb = np.zeros((stack.shape[0], stack.shape[1], 3))
-        colors = np.array(
-            list(p.color_rgb for p in self.pixels), dtype=np.uint8
-        )
+        colors = np.array(list(p.color_rgb for p in self.pixels), dtype=np.uint8)
         rgb[...] = colors[stack]
 
         return rgb.astype(np.uint8)
@@ -338,9 +342,7 @@ class Tetris(gym.Env):
             if self.render_mode == "human":
                 if self.window_name is None:
                     self.window_name = "Tetris Gymnasium"
-                    cv2.namedWindow(
-                        self.window_name, cv2.WINDOW_GUI_NORMAL
-                    )
+                    cv2.namedWindow(self.window_name, cv2.WINDOW_GUI_NORMAL)
                     assert self.observation_space.shape is not None
                     h, w = (
                         self.observation_space.shape[0],
@@ -532,9 +534,15 @@ class Tetris(gym.Env):
         # Include the active tetromino on the board for the observation.
         board_obs = self.project_tetromino()
 
-        max_size = self.padding
+        # Create a mask where the active tetromino is
+        active_tetromino_slices = self.get_tetromino_slices(
+            self.active_tetromino, self.x, self.y
+        )
+        active_tetromino_mask = np.zeros_like(board_obs)
+        active_tetromino_mask[active_tetromino_slices] = 1
 
         # Holder
+        max_size = self.padding
         holder_tetrominoes = self.holder.get_tetrominoes()
         if len(holder_tetrominoes) > 0:
             # Pad all tetrominoes to be the same size
@@ -567,6 +575,7 @@ class Tetris(gym.Env):
 
         return {
             "board": board_obs.astype(np.uint8),
+            "active_tetromino_mask": active_tetromino_mask.astype(np.uint8),
             "holder": holder_obs.astype(np.uint8),
             "queue": queue_obs.astype(np.uint8),
         }
