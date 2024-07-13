@@ -12,6 +12,16 @@ from tetris_gymnasium.wrappers.observation import (
 
 
 @pytest.fixture
+def tetris_env_all_features():
+    """Fixture to create and return a Tetris environment."""
+    env = gym.make("tetris_gymnasium/Tetris", render_mode="ansi", gravity=False)
+    env = FeatureVectorObservation(env)
+    env.reset(seed=42)
+    yield env
+    env.close()
+
+
+@pytest.fixture
 def tetris_env_height():
     """Fixture to create and return a Tetris environment."""
     env = gym.make("tetris_gymnasium/Tetris", render_mode="ansi", gravity=False)
@@ -108,12 +118,21 @@ def test_bumpiness_observation_shape(tetris_env_bumpiness):
     assert observation.shape == (1,)
 
 
+def test_all_features_observation_shape(tetris_env_all_features):
+    """Test if the bumpiness observation shape is correct."""
+    assert tetris_env_all_features.observation_space.shape == (13,)
+    observation, _ = tetris_env_all_features.reset(seed=42)
+    assert observation.shape == (13,)
+
+
 # Tests for observation values
 
 
 def test_height_observation_values(tetris_env_height):
     """Test if the height observation values are correct."""
-    example_board, correct_height, _, _, _ = generate_example_board_with_features(tetris_env_height)
+    example_board, correct_height, _, _, _ = generate_example_board_with_features(
+        tetris_env_height
+    )
     tetris_env_height.unwrapped.board = example_board
     observation, _, _, _, _ = tetris_env_height.step(ActionsMapping.no_op)
     assert np.all(observation == correct_height)
@@ -131,7 +150,9 @@ def test_max_height_observation_values(tetris_env_max_height):
 
 def test_holes_observation_values(tetris_env_holes):
     """Test if the holes observation values are correct."""
-    example_board, _, _, correct_holes, _ = generate_example_board_with_features(tetris_env_holes)
+    example_board, _, _, correct_holes, _ = generate_example_board_with_features(
+        tetris_env_holes
+    )
     tetris_env_holes.unwrapped.board = example_board
     observation, _, _, _, _ = tetris_env_holes.step(ActionsMapping.no_op)
     assert np.all(observation == correct_holes)

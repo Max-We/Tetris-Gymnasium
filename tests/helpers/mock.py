@@ -46,7 +46,9 @@ def generate_example_board_with_features(env):
         np.array([bumpiness], dtype=np.uint8),
     )
 
+
 def convert_to_base_observation(board):
+    """Convert a board to a base observation like in the base-Tetris environment."""
     return {
         "board": board,
         "holder": None,

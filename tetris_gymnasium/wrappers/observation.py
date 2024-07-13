@@ -124,15 +124,10 @@ class FeatureVectorObservation(gym.ObservationWrapper):
             high=len(env.unwrapped.tetrominoes),
             shape=(
                 (
-                    env.unwrapped.width
-                    if report_height
-                    else 0 + 1
-                    if report_max_height
-                    else 0 + 1
-                    if report_holes
-                    else 0 + 1
-                    if report_bumpiness
-                    else 0,
+                    (env.unwrapped.width if report_height else 0)
+                    + (1 if report_max_height else 0)
+                    + (1 if report_holes else 0)
+                    + (1 if report_bumpiness else 0),
                 )
             ),
             dtype=np.uint8,
@@ -142,65 +137,6 @@ class FeatureVectorObservation(gym.ObservationWrapper):
         self.report_max_height = report_max_height
         self.report_holes = report_holes
         self.report_bumpiness = report_bumpiness
-
-    # def calculate_height(self, board):
-    #     """Calculate the height of each column in the board."""
-    #     # Slicing the board to remove padding
-    #     board = board[
-    #             0: -self.env.unwrapped.padding,
-    #             self.env.unwrapped.padding: -self.env.unwrapped.padding,
-    #             ]
-    #
-    #     # Create a mask where board is not equal to 0
-    #     mask = board != 0
-    #
-    #     # Get the indices of the first non-zero element in each column
-    #     height = np.argmax(mask, axis=0)
-    #
-    #     # Columns with no blocks should have height 0
-    #     height[np.all(mask == 0, axis=0)] = 0
-    #
-    #     # For columns with blocks, calculate the height from the bottom of the board
-    #     valid_heights = np.any(mask, axis=0)
-    #     height[valid_heights] = board.shape[0] - height[valid_heights]
-    #
-    #     return height
-    #
-    # def calculate_max_height(self, height):
-    #     """Calculate the maximum height among all columns."""
-    #     return np.max(height)
-    #
-    # def calculate_holes(self, board):
-    #     """Calculate the number of holes in the board."""
-    #     board = copy.deepcopy(board)
-    #     board = board[
-    #             0: -self.env.unwrapped.padding,
-    #             self.env.unwrapped.padding: -self.env.unwrapped.padding,
-    #             ]
-    #
-    #     if np.all(board == np.ones_like(board)):
-    #         return board.shape[0] * board.shape[1]
-    #
-    #     num_holes = 0
-    #     for col in zip(*board):
-    #         row = 0
-    #         while row < len(board) and col[row] == 0:
-    #             row += 1
-    #         num_holes += len([x for x in col[row + 1:] if x == 0])
-    #     return num_holes
-    #
-    # def calculate_bumpiness(self, board):
-    #     board = np.array(board)
-    #     mask = board != 0
-    #     invert_heights = np.where(
-    #         mask.any(axis=0), np.argmax(mask, axis=0), self.env.unwrapped.height
-    #     )
-    #     heights = self.env.unwrapped.height - invert_heights
-    #     currs = heights[:-1]
-    #     nexts = heights[1:]
-    #     diffs = np.abs(currs - nexts)
-    #     total_bumpiness = np.sum(diffs)
-    #     return total_bumpiness
 
     def calc_height(self, board):
         # Find the lowest non-zero element in each column
