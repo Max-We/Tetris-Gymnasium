@@ -20,13 +20,17 @@ class GroupedActions(gym.ObservationWrapper):
     """
 
     def __init__(
-        self, env: Tetris, observation_wrappers: "list[gym.ObservationWrapper]" = None
+        self,
+        env: Tetris,
+        observation_wrappers: "list[gym.ObservationWrapper]" = None,
+        terminate_on_illegal_action: bool = True,
     ):
         """Initializes the wrapper.
 
         Args:
             env: The environment to wrap.
             observation_wrappers: The observation wrappers to apply to the observation.
+            terminate_on_illegal_action: Whether to terminate the episode if an illegal action is taken.
         """
         super().__init__(env)
         self.action_space = Discrete((env.unwrapped.width) * 4)
@@ -47,6 +51,7 @@ class GroupedActions(gym.ObservationWrapper):
 
         self.legal_actions_mask = np.ones(self.action_space.n)
         self.observation_wrappers = observation_wrappers
+        self.terminate_on_illegal_action = terminate_on_illegal_action
 
     def actions_to_action_id(self, x, r):
         """Convert x and r to action id.
@@ -181,20 +186,25 @@ class GroupedActions(gym.ObservationWrapper):
         x, r = self.action_id_to_actions(action)
 
         if self.legal_actions_mask[action] == 0:
-            observations = (
-                np.ones(self.observation_space.shape) * self.observation_space.high
-            )
+            if self.terminate_on_illegal_action:
+                observation = (
+                    np.ones(self.observation_space.shape) * self.observation_space.high
+                )
+                game_over, truncated = True, False
+                info = {"action_mask": self.legal_actions_mask}
+            else:
+                (
+                    observation,
+                    reward,
+                    game_over,
+                    truncated,
+                    info,
+                ) = self.env.unwrapped.step(self.env.unwrapped.actions.no_op)
+                observation = self.observation(observation)
+                info["action_mask"] = self.legal_actions_mask
+
             reward = self.env.unwrapped.rewards.invalid_action
-            game_over = True
-            truncated = False
-            info = {"action_mask": self.legal_actions_mask}
-            return observations, reward, game_over, truncated, info
-            # obs, reward, game_over, truncated, info = self.env.unwrapped.step(
-            #     self.env.unwrapped.actions.no_op
-            # )
-            # reward = self.env.unwrapped.rewards.invalid_action
-            # info["action_mask"] = self.legal_actions_mask
-            # return self.observation(obs), reward, game_over, truncated, info
+            return observation, reward, game_over, truncated, info
 
         new_tetromino = copy.deepcopy(self.env.unwrapped.active_tetromino)
 
