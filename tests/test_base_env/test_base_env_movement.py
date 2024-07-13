@@ -1,17 +1,4 @@
-import gymnasium as gym
-from tetris_gymnasium.envs.tetris import Tetris
 from tetris_gymnasium.mappings.actions import ActionsMapping
-
-import pytest
-
-
-@pytest.fixture
-def tetris_env():
-    """Fixture to create and return a Tetris environment."""
-    env = gym.make("tetris_gymnasium/Tetris", render_mode="ansi")
-    env.reset(seed=42)
-    yield env
-    env.close()
 
 
 # Free movement tests: left, right, down

@@ -96,7 +96,8 @@ class GroupedActions(gym.ObservationWrapper):
                 y = 0
 
                 # do rotation
-                t = self.env.unwrapped.rotate(t)
+                if r > 0:
+                    t = self.env.unwrapped.rotate(t)
 
                 # hard drop
                 while not self.env.unwrapped.collision(t, x, y + 1):
@@ -104,9 +105,7 @@ class GroupedActions(gym.ObservationWrapper):
 
                 # append to results
                 if self.collision_with_frame(t, x, y):
-                    self.legal_actions_mask[
-                        self.xr_to_action(x - self.env.unwrapped.padding, (r + 1) % 4)
-                    ] = 0
+                    self.legal_actions_mask[self.xr_to_action(x - self.env.unwrapped.padding,r)] = 0
                     grouped_board_obs.append(np.ones_like(board_obs))
                 elif not self.env.unwrapped.collision(t, x, y):
                     grouped_board_obs.append(
@@ -116,12 +115,15 @@ class GroupedActions(gym.ObservationWrapper):
                     # regular game over
                     grouped_board_obs.append(np.ones_like(board_obs))
 
+            t = self.env.unwrapped.rotate(t) # reset rotation (thus far has been rotated 3 times)
+
         # Apply wrappers
         if self.observation_wrappers is not None:
             for i, observation in enumerate(grouped_board_obs):
                 # Recreate the original environment observation
                 grouped_board_obs[i] = {
                     "board": observation,
+                    "active_tetromino_mask": np.zeros_like(observation),  # Not used in this wrapper
                     "holder": holder_obs,
                     "queue": queue_obs,
                 }

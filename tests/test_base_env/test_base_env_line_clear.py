@@ -1,25 +1,8 @@
-import gymnasium as gym
 import numpy as np
-import pytest
 
-from tetris_gymnasium.envs.tetris import Tetris
 from tetris_gymnasium.mappings.actions import ActionsMapping
 from tetris_gymnasium.mappings.rewards import RewardsMapping
 
-@pytest.fixture
-def tetris_env():
-    """Fixture to create and return a Tetris environment."""
-    env = gym.make("tetris_gymnasium/Tetris", render_mode="ansi")
-    env.reset(seed=42)
-    yield env
-    env.close()
-
-@pytest.fixture
-def vertical_i_tetromino():
-    """Fixture to create and return a vertical I-tetromino."""
-    tetromino = Tetris.TETROMINOES[0]
-    tetromino.matrix = np.rot90(tetromino.matrix)
-    return tetromino
 
 def test_line_clear_normal(tetris_env, vertical_i_tetromino):
     """Test normal line clear with vertical I-tetromino."""

@@ -1,19 +1,8 @@
 import copy
-import gymnasium as gym
+
 import numpy as np
-import pytest
 
-from tetris_gymnasium.envs.tetris import Tetris
 from tetris_gymnasium.mappings.actions import ActionsMapping
-
-
-@pytest.fixture
-def tetris_env():
-    """Fixture to create and return a Tetris environment."""
-    env = gym.make("tetris_gymnasium/Tetris", render_mode="ansi")
-    env.reset(seed=42)
-    yield env
-    env.close()
 
 
 # Free rotation tests: clockwise, counter-clockwise

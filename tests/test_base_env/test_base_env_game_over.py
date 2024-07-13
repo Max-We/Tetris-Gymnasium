@@ -1,23 +1,5 @@
-import gymnasium as gym
-import numpy as np
-import pytest
-
-from tetris_gymnasium.envs.tetris import Tetris
 from tetris_gymnasium.mappings.actions import ActionsMapping
 from tetris_gymnasium.mappings.rewards import RewardsMapping
-
-@pytest.fixture
-def tetris_env():
-    """Fixture to create and return a Tetris environment."""
-    env = gym.make("tetris_gymnasium/Tetris", render_mode="ansi")
-    env.reset(seed=42)
-    yield env
-    env.close()
-
-@pytest.fixture
-def o_tetromino():
-    """Fixture to create and return an O-tetromino."""
-    return Tetris.TETROMINOES[1]
 
 def test_game_over_stack_too_high(tetris_env, o_tetromino):
     """Test game over condition when stack is too high after hard drop."""
