@@ -1,9 +1,9 @@
+"""Helper functions for mocking Tetris environments."""
 import numpy as np
 
 
 def generate_example_board_with_features(env):
-    """
-    Generate an example Tetris board with specific characteristics for testing.
+    """Generate an example Tetris board with specific characteristics for testing.
 
     Args:
         env: The Tetris environment.

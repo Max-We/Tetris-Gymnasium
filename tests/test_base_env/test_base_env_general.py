@@ -1,6 +1,3 @@
-import gymnasium as gym
-import pytest
-
 def test_observation_space_is_correct_after_reset(tetris_env):
     """Test that the observation space keys are correct after resetting the environment."""
     observation, info = tetris_env.reset(seed=42)

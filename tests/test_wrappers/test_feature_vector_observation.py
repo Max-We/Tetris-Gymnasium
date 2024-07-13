@@ -3,12 +3,8 @@ import numpy as np
 import pytest
 
 from tests.helpers.mock import generate_example_board_with_features
-from tetris_gymnasium.envs.tetris import Tetris
 from tetris_gymnasium.mappings.actions import ActionsMapping
-from tetris_gymnasium.wrappers.observation import (
-    FeatureVectorObservation,
-    RgbObservation,
-)
+from tetris_gymnasium.wrappers.observation import FeatureVectorObservation
 
 
 @pytest.fixture

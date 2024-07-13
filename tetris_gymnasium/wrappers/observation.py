@@ -1,7 +1,4 @@
 """Observation wrapper module for the Tetris Gymnasium environment."""
-import copy
-from typing import Any
-
 import cv2
 import gymnasium as gym
 import numpy as np
@@ -139,6 +136,14 @@ class FeatureVectorObservation(gym.ObservationWrapper):
         self.report_bumpiness = report_bumpiness
 
     def calc_height(self, board):
+        """Calculate the height of the board.
+
+        Args:
+            board (np.ndarray): The board.
+
+        Returns:
+            np.ndarray: The height of the stack in each column.
+        """
         # Find the lowest non-zero element in each column
         heights = board.shape[0] - np.argmax(
             board != 0, axis=0
@@ -149,15 +154,41 @@ class FeatureVectorObservation(gym.ObservationWrapper):
         return heights
 
     def calc_max_height(self, board):
+        """Calculate the maximum height of the board.
+
+        Args:
+            board (np.ndarray): The board.
+
+        Returns:
+            int: The maximum height of the board.
+        """
         # Find the maximum height across all columns
         return np.max(self.calc_height(board))
 
     def calc_bumpiness(self, board):
+        """Calculate the bumpiness of the board.
+
+        Bumpiness is the sum of the absolute differences between adjacent column heights.
+
+        Args:
+            board (np.ndarray): The board.
+
+        Returns:
+            int: The bumpiness of the board.
+        """
         heights = self.calc_height(board)
         # Calculate differences between adjacent heights and sum their absolute values
         return np.sum(np.abs(np.diff(heights)))
 
     def calc_holes(self, board):
+        """Calculate the number of holes in the stack.
+
+        Args:
+            board (np.ndarray): The board.
+
+        Returns:
+            int: The number of holes in the stack.
+        """
         # Create a mask of non-zero elements
         filled = board != 0
         # Calculate cumulative sum of filled cells from top to bottom

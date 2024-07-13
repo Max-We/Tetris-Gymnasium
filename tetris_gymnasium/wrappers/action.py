@@ -5,7 +5,6 @@ The action space is the width of the board times 4 (4 rotations).
 import copy
 from typing import Any
 
-import cv2
 import gymnasium as gym
 import numpy as np
 from gymnasium.spaces import Box, Discrete
@@ -20,17 +19,24 @@ class GroupedActions(gym.ObservationWrapper):
     The action space is the width of the board times 4 (4 rotations).
     """
 
-    def __init__(self, env: Tetris, observation_wrappers: "list[gym.ObservationWrapper]" = None):
+    def __init__(
+        self, env: Tetris, observation_wrappers: "list[gym.ObservationWrapper]" = None
+    ):
         """Initializes the wrapper.
 
         Args:
             env: The environment to wrap.
+            observation_wrappers: The observation wrappers to apply to the observation.
         """
         super().__init__(env)
         self.action_space = Discrete((env.unwrapped.width) * 4)
 
         grouped_env_shape = (env.unwrapped.width * 4,)
-        single_env_shape = observation_wrappers[-1].observation_space.shape if observation_wrappers else env.observation_space["board"].shape
+        single_env_shape = (
+            observation_wrappers[-1].observation_space.shape
+            if observation_wrappers
+            else env.observation_space["board"].shape
+        )
 
         self.observation_space = Box(
             low=0,
@@ -42,11 +48,27 @@ class GroupedActions(gym.ObservationWrapper):
         self.legal_actions_mask = np.ones(self.action_space.n)
         self.observation_wrappers = observation_wrappers
 
+    def actions_to_action_id(self, x, r):
+        """Convert x and r to action id.
 
-    def xr_to_action(self, x, r):
+        Args:
+            x: The x position.
+            r: The rotation.
+
+        Returns:
+            The action id.
+        """
         return x * 4 + r
 
-    def action_to_xr(self, action):
+    def action_id_to_actions(self, action):
+        """Converts the action id to the x-position and rotation.
+
+        Args:
+            action: The action id to convert.
+
+        Returns:
+            The x-position and rotation.
+        """
         return action // 4, action % 4
 
     def collision_with_frame(self, tetromino: Tetromino, x: int, y: int) -> bool:
@@ -105,7 +127,9 @@ class GroupedActions(gym.ObservationWrapper):
 
                 # append to results
                 if self.collision_with_frame(t, x, y):
-                    self.legal_actions_mask[self.xr_to_action(x - self.env.unwrapped.padding,r)] = 0
+                    self.legal_actions_mask[
+                        self.actions_to_action_id(x - self.env.unwrapped.padding, r)
+                    ] = 0
                     grouped_board_obs.append(np.ones_like(board_obs))
                 elif not self.env.unwrapped.collision(t, x, y):
                     grouped_board_obs.append(
@@ -115,7 +139,9 @@ class GroupedActions(gym.ObservationWrapper):
                     # regular game over
                     grouped_board_obs.append(np.ones_like(board_obs))
 
-            t = self.env.unwrapped.rotate(t) # reset rotation (thus far has been rotated 3 times)
+            t = self.env.unwrapped.rotate(
+                t
+            )  # reset rotation (thus far has been rotated 3 times)
 
         # Apply wrappers
         if self.observation_wrappers is not None:
@@ -123,13 +149,18 @@ class GroupedActions(gym.ObservationWrapper):
                 # Recreate the original environment observation
                 grouped_board_obs[i] = {
                     "board": observation,
-                    "active_tetromino_mask": np.zeros_like(observation),  # Not used in this wrapper
+                    "active_tetromino_mask": np.zeros_like(
+                        observation
+                    ),  # Not used in this wrapper
                     "holder": holder_obs,
                     "queue": queue_obs,
                 }
 
                 # Validate that observations are equal
-                assert grouped_board_obs[i].keys() == self.env.unwrapped.observation_space.keys()
+                assert (
+                    grouped_board_obs[i].keys()
+                    == self.env.unwrapped.observation_space.keys()
+                )
 
                 # Apply wrappers to all the original observations
                 for wrapper in self.observation_wrappers:
@@ -147,10 +178,12 @@ class GroupedActions(gym.ObservationWrapper):
         Returns:
             The observation, reward, game over, truncated, and info.
         """
-        x, r = self.action_to_xr(action)
+        x, r = self.action_id_to_actions(action)
 
         if self.legal_actions_mask[action] == 0:
-            observations = np.ones(self.observation_space.shape) * self.observation_space.high
+            observations = (
+                np.ones(self.observation_space.shape) * self.observation_space.high
+            )
             reward = self.env.unwrapped.rewards.invalid_action
             game_over = True
             truncated = False

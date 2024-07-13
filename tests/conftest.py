@@ -1,10 +1,13 @@
+"""Fixtures for the Tetris environment and tetrominoes."""
+
 import copy
+
 import gymnasium as gym
 import numpy as np
-
 import pytest
 
 from tetris_gymnasium.envs import Tetris
+
 
 @pytest.fixture
 def tetris_env():
@@ -14,11 +17,13 @@ def tetris_env():
     yield env
     env.close()
 
+
 # Tetrominoes
 @pytest.fixture
 def o_tetromino():
     """Fixture to create and return an O-tetromino."""
     return copy.deepcopy(Tetris.TETROMINOES[1])
+
 
 @pytest.fixture
 def vertical_i_tetromino():

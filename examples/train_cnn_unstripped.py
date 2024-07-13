@@ -23,7 +23,10 @@ from torch.utils.tensorboard import SummaryWriter
 
 from tetris_gymnasium.envs import Tetris
 from tetris_gymnasium.wrappers.action import GroupedActions
-from tetris_gymnasium.wrappers.observation import RgbObservation, FeatureVectorObservation
+from tetris_gymnasium.wrappers.observation import (
+    FeatureVectorObservation,
+    RgbObservation,
+)
 
 
 # Evaluation
@@ -129,17 +132,20 @@ def make_env(env_id, seed, idx, capture_video, run_name):
     def thunk():
         if capture_video and idx == 0:
             env = gym.make(env_id, render_mode="rgb_array", gravity=False)
-            env = GroupedActions(env, observation_wrappers=[FeatureVectorObservation(env)])
+            env = GroupedActions(
+                env, observation_wrappers=[FeatureVectorObservation(env)]
+            )
             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         else:
             env = gym.make(env_id)
-            env = GroupedActions(env, observation_wrappers=[FeatureVectorObservation(env)])
+            env = GroupedActions(
+                env, observation_wrappers=[FeatureVectorObservation(env)]
+            )
 
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env.action_space.seed(seed)
 
         env = ClipRewardEnv(env)
-
 
         # Remove resize: output is already information perfect
         # env = gym.wrappers.ResizeObservation(env, (84, 84))
@@ -338,7 +344,12 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                     td_target = data.rewards.flatten() + args.gamma * target_max * (
                         1 - data.dones.flatten()
                     )
-                old_val = q_network(data.observations).squeeze(-1).gather(1, data.actions).squeeze()
+                old_val = (
+                    q_network(data.observations)
+                    .squeeze(-1)
+                    .gather(1, data.actions)
+                    .squeeze()
+                )
                 loss = F.mse_loss(td_target, old_val)
 
                 if global_step % 100 == 0:

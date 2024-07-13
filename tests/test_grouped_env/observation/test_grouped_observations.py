@@ -1,10 +1,5 @@
 import numpy as np
 
-from tests.helpers.mock import (
-    convert_to_base_observation,
-    generate_example_board_with_features,
-)
-
 
 def test_observation_space_is_correct_after_reset(tetris_env_grouped):
     """Test that the observation space is correct after resetting the environment."""

@@ -1,3 +1,4 @@
+"""Fixtures for the grouped-action-observation environment."""
 import os
 
 import gymnasium as gym
@@ -52,6 +53,7 @@ def tetris_env_grouped_wrappers(vertical_i_tetromino):
 
 @pytest.fixture
 def expected_result_i_placement():
+    """Fixture to load and return the expected result of placing the I-tetromino in the mocked game-state."""
     # Get the directory where the script is located
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -62,5 +64,6 @@ def expected_result_i_placement():
 
 @pytest.fixture
 def base_observation(tetris_env_grouped):
+    """Fixture to create and return a base observation as returned from the unwrapped environment."""
     example_board, _, _, _, _ = generate_example_board_with_features(tetris_env_grouped)
     return convert_to_base_observation(example_board)

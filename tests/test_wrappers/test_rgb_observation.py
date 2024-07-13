@@ -1,7 +1,6 @@
 import gymnasium as gym
 import pytest
 
-from tetris_gymnasium.envs.tetris import Tetris
 from tetris_gymnasium.mappings.actions import ActionsMapping
 from tetris_gymnasium.wrappers.observation import RgbObservation
 
