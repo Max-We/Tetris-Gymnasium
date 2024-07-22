@@ -18,30 +18,27 @@ class GroupedActionsObservations(gym.ObservationWrapper):
     """Wrapper that changes the observation and actions space into grouped actions.
 
     This wrapper introduces action-grouping as commonly used in current Tetris RL approaches. An example of this idea
-    can be found in "Playing Tetris with Deep Reinforcement Learning (Stevens & Pradhan)."
+    can be found in "*Playing Tetris with Deep Reinforcement Learning* (Stevens & Pradhan)."
 
-    ### Action space
+    **Action space**
+        For each column on the board, the agent can choose between four different rotations. This results in a total of
+        `width * 4` possible actions. Therefore, the action space is a `Discrete` space with `width * 4` possible actions.
+        The value is interpreted as column index and number of rotations in ascending order. So the actions [0, 1, 2, 3]
+        correspond to the first column and the tetromino rotated 0, 1, 2, 3 times respectively. The actions [4, 5, 6, 7]
+        correspond to the second column and the tetromino rotated 0, 1, 2, 3 times respectively, and so on.
 
-    For each column on the board, the agent can choose between four different rotations. This results in a total of
-    `width * 4` possible actions. Therefore, the action space is a `Discrete` space with `width * 4` possible actions.
-    The value is interpreted as column index and number of rotations in ascending order. So the actions [0, 1, 2, 3]
-    correspond to the first column and the tetromino rotated 0, 1, 2, 3 times respectively. The actions [4, 5, 6, 7]
-    correspond to the second column and the tetromino rotated 0, 1, 2, 3 times respectively, and so on.
+    **Observation space**
+        For each possible action, the wrapper generates a new observation. This means, that an additional dimension of size
+        `width * 4` is added to the observation space. Observation wrappers have to be passed to the constructor to apply
+        them to the generated observations instead of wrapping them around the `GroupedActions` wrapper.
 
-    ### Observation space
-
-    For each possible action, the wrapper generates a new observation. This means, that an additional dimension of size
-    `width * 4` is added to the observation space. Observation wrappers have to be passed to the constructor to apply
-    them to the generated observations instead of wrapping them around the `GroupedActions` wrapper.
-
-    ### Legal actions
-
-    Because the action space is static but the game state is dynamic, some actions might be illegal. For this reason,
-    the wrapper generates a mask that indicates which actions are legal. This mask is stored in the `legal_actions_mask`
-    attribute. If an illegal action is taken, the wrapper can either terminate the episode or return a penalty reward.
-    The action mask is returned in the info dictionary under the key `action_mask`. Note that only actions which would
-    result in a collision with the frame are considered illegal. Actions which would result in a game over (stack too
-    high) are not considered illegal.
+    **Legal actions**
+        Because the action space is static but the game state is dynamic, some actions might be illegal. For this reason,
+        the wrapper generates a mask that indicates which actions are legal. This mask is stored in the `legal_actions_mask`
+        attribute. If an illegal action is taken, the wrapper can either terminate the episode or return a penalty reward.
+        The action mask is returned in the info dictionary under the key `action_mask`. Note that only actions which would
+        result in a collision with the frame are considered illegal. Actions which would result in a game over (stack too
+        high) are not considered illegal.
     """
 
     def __init__(
@@ -97,7 +94,7 @@ class GroupedActionsObservations(gym.ObservationWrapper):
             action: The action id to convert.
 
         Returns:
-            The x-position and number of rotation.s
+            The x-position and number of rotations.
         """
         return action // 4, action % 4
 
@@ -117,7 +114,6 @@ class GroupedActionsObservations(gym.ObservationWrapper):
         Returns:
             True if the tetromino collides with the frame, False otherwise.
         """
-
         # Extract the part of the board that the tetromino would occupy.
         slices = self.env.unwrapped.get_tetromino_slices(tetromino, x, y)
         board_subsection = self.env.unwrapped.board[slices]

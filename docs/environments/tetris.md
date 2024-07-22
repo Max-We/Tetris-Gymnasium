@@ -3,14 +3,15 @@
 ![Tetris](../_static/components/holder.png)
 
 
-| Description       | Details                                     |
-|-------------------|---------------------------------------------|
-| Action Space      | `Discrete(7)`                               |
-| Observation Space | `Dict` containing three fields:             |
-|                   | 1. `board`: `Box (0, 9, (24, 18), uint8)`   |
-|                   | 2. `holder`: `Box (0, 9, (4, 4), uint8)`    |
-|                   | 3. `queue`: `Box (0, 9, (4, 20), uint8)`    |
-| import            | `gymnasium.make("tetris_gymnasium/Tetris")` |
+| Description       | Details                                                   |
+|-------------------|-----------------------------------------------------------|
+| Action Space      | `Discrete(8)`                                             |
+| Observation Space | `Dict` containing three fields:                           |
+|                   | 1. `board`: `Box (0, 9, (24, 18), uint8)`                 |
+|                   | 2. `active_tetromino_mask`: `Box (0, 1, (24, 18), uint8)` |
+|                   | 3. `holder`: `Box (0, 9, (4, 4), uint8)`                  |
+|                   | 4. `queue`: `Box (0, 9, (4, 20), uint8)`                  |
+| import            | `gymnasium.make("tetris_gymnasium/Tetris")`               |
 
 
 ## Description
@@ -26,36 +27,30 @@ The base environment consists of the following components, which can all be adju
 - Queue: A component that holds the tetrominoes that will be spawned next.
 - Tetrominoes: The pieces that the player can move and rotate.
 
-## Actions Space
-
-The environment supports the following actions:
-
-- 0: Move left
-- 1: Move right
-- 2: Move down
-- 3: Rotate clockwise
-- 4: Rotate counterclockwise
-- 5: Hard drop
-- 6: Swap (= hold piece)
-
 ## Observation Space
 
 The observation space is a dictionary containing the following elements:
 
 - The board: 2D-array of shape `height` x `width` (padded)
   - The padding is equal to the largest tetromino in the game, which is usually the I-Tetromino, therefore 4
+- The active tetromino mask: 2D-array of shape `height` x `width` (padded) indicating where the active tetromino is placed (1) and where it is not (0)
+  - This information may be used during training to help the agent distinguish between the active tetromino and the board
 - The holder: 1D-array of tetrominoes (padded to the same size)
 - The queue: 1D-array of tetrominoes (padded to the same size)
 
 The observation space can be altered to your needs by using [Observation wrappers](../utilities/wrappers.md).
 
+## Actions Space
+
+The environment supports actions as defined in the [Actions mapping](../utilities/mappings.md).
+
 ## Rewards
 
-TODO
+The environment assigns rewards based on the [Rewards mapping](../utilities/mappings.md).
 
 ## Starting state
 
-The environment starts with an empty board and a random tetromino placed at the top center of the board.
+The environment starts with an empty board and a random tetromino rendered at the top center of the board.
 
 ## Episode Termination
 
@@ -66,11 +61,6 @@ The episode ends, a tetromino cannot be spawned at the top of the board.
 ```{eval-rst}
 .. autoclass:: tetris_gymnasium.envs.tetris.Tetris
 ```
-
-### Mappings
-
-The `mappings` passed to the environment are useful for keeping the code readable, avoiding magic numbers. More information
-on how to use them can be found in the dedicated section to [Mappings](../utilities/mappings.md).
 
 ### Pixels and Tetrominoes
 

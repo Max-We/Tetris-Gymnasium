@@ -12,10 +12,15 @@ class RgbObservation(gym.ObservationWrapper):
     """Observation wrapper that displays all observations (board, holder, queue) as one single RGB Image.
 
     The observation contains the board on the left, the queue on the top right and the holder on the bottom right.
+    The size of the matrix depends on how many tetrominoes can be stored in the queue / holder.
     """
 
     def __init__(self, env: Tetris):
-        """The size of the matrix depends on how many tetrominoes can be stored in the queue / holder."""
+        """Initialize the RgbObservation wrapper.
+
+        Args:
+            env (Tetris): The environment
+        """
         super().__init__(env)
         self.observation_space = Box(
             low=0,
@@ -101,9 +106,25 @@ class RgbObservation(gym.ObservationWrapper):
 
 
 class FeatureVectorObservation(gym.ObservationWrapper):
-    """Observation wrapper that returns the feature vector as the observation.
+    """Observation wrapper that returns a feature vector as observation.
 
-    The feature vector contains the board, the queue and the holder.
+    **State representation**
+        A feature vector can contain different features of the board, such as the height of the stack or the number of holes.
+        In the literature, this is often referred to as a state representation and many different features can be used. A
+        discussion about the state representation can be found in "Reinforcement learning (RL) is a paradigm within machine
+        learning that has been applied to Tetris, demonstrating the effect of state representation on performance
+        (Hendriks)."
+
+    **Features**
+        For this wrapper, the features from https://github.com/uvipen/Tetris-deep-Q-learning-pytorch have been
+        adapted. These features are:
+
+        - The height of the stack in each column (list: int for each column)
+        - The maximum height of the stack (int)
+        - The number of holes in the stack (int)
+        - The bumpiness of the stack (int)
+
+        More features can be added in the future or by introducing new wrappers.
     """
 
     def __init__(
@@ -114,7 +135,15 @@ class FeatureVectorObservation(gym.ObservationWrapper):
         report_holes=True,
         report_bumpiness=True,
     ):
-        """The size of the matrix depends on how many tetrominoes can be stored in the queue / holder."""
+        """Initialize the FeatureVectorObservation wrapper.
+
+        Args:
+            env (Tetris): The environment.
+            report_height (bool, optional): Report the height of the stack in each column. Defaults to True.
+            report_max_height (bool, optional): Report the maximum height of the stack. Defaults to True.
+            report_holes (bool, optional): Report the number of holes in the stack. Defaults to True.
+            report_bumpiness (bool, optional): Report the bumpiness of the stack. Defaults to True.
+        """
         super().__init__(env)
         self.observation_space = Box(
             low=0,
@@ -199,7 +228,11 @@ class FeatureVectorObservation(gym.ObservationWrapper):
     def observation(self, observation):
         """Observation wrapper that returns the feature vector as the observation.
 
-        The feature vector contains the board, the queue, and the holder.
+        Args:
+            observation (dict): The observation from the base environment.
+
+        Returns:
+            np.ndarray: The feature vector.
         """
         # Board
         board_obs = observation["board"]
@@ -213,23 +246,23 @@ class FeatureVectorObservation(gym.ObservationWrapper):
             self.env.unwrapped.padding : -self.env.unwrapped.padding,
         ]
 
-        result = []
+        features = []
 
         if self.report_height or self.report_max_height:
             height_vector = self.calc_height(board_obs)
             if self.report_height:
-                result += list(height_vector)
+                features += list(height_vector)
             if self.report_max_height:
                 max_height = np.max(height_vector)
-                result.append(max_height)
+                features.append(max_height)
 
         if self.report_holes:
             holes = self.calc_holes(board_obs)
-            result.append(holes)
+            features.append(holes)
 
         if self.report_bumpiness:
             bumpiness = self.calc_bumpiness(board_obs)
-            result.append(bumpiness)
+            features.append(bumpiness)
 
-        result = np.array(result, dtype=np.uint8)
-        return result
+        features = np.array(features, dtype=np.uint8)
+        return features
