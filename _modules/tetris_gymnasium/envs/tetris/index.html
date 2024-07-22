@@ -591,14 +591,19 @@
                 <span class="k">return</span> <span class="n">matrix</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">==</span> <span class="s2">&quot;human&quot;</span><span class="p">:</span>
+                <span class="c1"># Upscale the matrix for better visibility</span>
+                <span class="n">scale_factor</span> <span class="o">=</span> <span class="mi">10</span>
+                <span class="n">kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">scale_factor</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+                <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">window_name</span> <span class="o">=</span> <span class="s2">&quot;Tetris Gymnasium&quot;</span>
                     <span class="n">cv2</span><span class="o">.</span><span class="n">namedWindow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_name</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">WINDOW_GUI_NORMAL</span><span class="p">)</span>
+
                     <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                         <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                     <span class="p">)</span>
-                    <span class="n">cv2</span><span class="o">.</span><span class="n">resizeWindow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_name</span><span class="p">,</span> <span class="n">w</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span> <span class="n">h</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span>
+                    <span class="n">cv2</span><span class="o">.</span><span class="n">resizeWindow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_name</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
                 <span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">window_name</span><span class="p">,</span>
                     <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2BGR</span><span class="p">),</span>
