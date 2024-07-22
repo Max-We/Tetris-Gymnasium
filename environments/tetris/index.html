@@ -268,7 +268,7 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Action Space</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">Discrete(7)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Discrete(8)</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>Observation Space</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Dict</span></code> containing three fields:</p></td>
@@ -277,12 +277,15 @@
 <td><p>1. <code class="docutils literal notranslate"><span class="pre">board</span></code>: <code class="docutils literal notranslate"><span class="pre">Box</span> <span class="pre">(0,</span> <span class="pre">9,</span> <span class="pre">(24,</span> <span class="pre">18),</span> <span class="pre">uint8)</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p></p></td>
-<td><p>2. <code class="docutils literal notranslate"><span class="pre">holder</span></code>: <code class="docutils literal notranslate"><span class="pre">Box</span> <span class="pre">(0,</span> <span class="pre">9,</span> <span class="pre">(4,</span> <span class="pre">4),</span> <span class="pre">uint8)</span></code></p></td>
+<td><p>2. <code class="docutils literal notranslate"><span class="pre">active_tetromino_mask</span></code>: <code class="docutils literal notranslate"><span class="pre">Box</span> <span class="pre">(0,</span> <span class="pre">1,</span> <span class="pre">(24,</span> <span class="pre">18),</span> <span class="pre">uint8)</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p></p></td>
-<td><p>3. <code class="docutils literal notranslate"><span class="pre">queue</span></code>: <code class="docutils literal notranslate"><span class="pre">Box</span> <span class="pre">(0,</span> <span class="pre">9,</span> <span class="pre">(4,</span> <span class="pre">20),</span> <span class="pre">uint8)</span></code></p></td>
+<td><p>3. <code class="docutils literal notranslate"><span class="pre">holder</span></code>: <code class="docutils literal notranslate"><span class="pre">Box</span> <span class="pre">(0,</span> <span class="pre">9,</span> <span class="pre">(4,</span> <span class="pre">4),</span> <span class="pre">uint8)</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>import</p></td>
+<tr class="row-odd"><td><p></p></td>
+<td><p>4. <code class="docutils literal notranslate"><span class="pre">queue</span></code>: <code class="docutils literal notranslate"><span class="pre">Box</span> <span class="pre">(0,</span> <span class="pre">9,</span> <span class="pre">(4,</span> <span class="pre">20),</span> <span class="pre">uint8)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>import</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">gymnasium.make(&quot;tetris_gymnasium/Tetris&quot;)</span></code></p></td>
 </tr>
 </tbody>
@@ -301,19 +304,6 @@
 <li><p>Tetrominoes: The pieces that the player can move and rotate.</p></li>
 </ul>
 </section>
-<section id="actions-space">
-<h2>Actions Space<a class="headerlink" href="#actions-space" title="Link to this heading">¶</a></h2>
-<p>The environment supports the following actions:</p>
-<ul class="simple">
-<li><p>0: Move left</p></li>
-<li><p>1: Move right</p></li>
-<li><p>2: Move down</p></li>
-<li><p>3: Rotate clockwise</p></li>
-<li><p>4: Rotate counterclockwise</p></li>
-<li><p>5: Hard drop</p></li>
-<li><p>6: Swap (= hold piece)</p></li>
-</ul>
-</section>
 <section id="observation-space">
 <h2>Observation Space<a class="headerlink" href="#observation-space" title="Link to this heading">¶</a></h2>
 <p>The observation space is a dictionary containing the following elements:</p>
@@ -323,18 +313,27 @@
 <li><p>The padding is equal to the largest tetromino in the game, which is usually the I-Tetromino, therefore 4</p></li>
 </ul>
 </li>
+<li><p>The active tetromino mask: 2D-array of shape <code class="docutils literal notranslate"><span class="pre">height</span></code> x <code class="docutils literal notranslate"><span class="pre">width</span></code> (padded) indicating where the active tetromino is placed (1) and where it is not (0)</p>
+<ul>
+<li><p>This information may be used during training to help the agent distinguish between the active tetromino and the board</p></li>
+</ul>
+</li>
 <li><p>The holder: 1D-array of tetrominoes (padded to the same size)</p></li>
 <li><p>The queue: 1D-array of tetrominoes (padded to the same size)</p></li>
 </ul>
 <p>The observation space can be altered to your needs by using <a class="reference internal" href="../../utilities/wrappers/"><span class="std std-doc">Observation wrappers</span></a>.</p>
 </section>
+<section id="actions-space">
+<h2>Actions Space<a class="headerlink" href="#actions-space" title="Link to this heading">¶</a></h2>
+<p>The environment supports actions as defined in the <a class="reference internal" href="../../utilities/mappings/"><span class="std std-doc">Actions mapping</span></a>.</p>
+</section>
 <section id="rewards">
 <h2>Rewards<a class="headerlink" href="#rewards" title="Link to this heading">¶</a></h2>
-<p>TODO</p>
+<p>The environment assigns rewards based on the <a class="reference internal" href="../../utilities/mappings/"><span class="std std-doc">Rewards mapping</span></a>.</p>
 </section>
 <section id="starting-state">
 <h2>Starting state<a class="headerlink" href="#starting-state" title="Link to this heading">¶</a></h2>
-<p>The environment starts with an empty board and a random tetromino placed at the top center of the board.</p>
+<p>The environment starts with an empty board and a random tetromino rendered at the top center of the board.</p>
 </section>
 <section id="episode-termination">
 <h2>Episode Termination<a class="headerlink" href="#episode-termination" title="Link to this heading">¶</a></h2>
@@ -342,11 +341,6 @@
 </section>
 <section id="arguments">
 <h2>Arguments<a class="headerlink" href="#arguments" title="Link to this heading">¶</a></h2>
-<section id="mappings">
-<h3>Mappings<a class="headerlink" href="#mappings" title="Link to this heading">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">mappings</span></code> passed to the environment are useful for keeping the code readable, avoiding magic numbers. More information
-on how to use them can be found in the dedicated section to <a class="reference internal" href="../../utilities/mappings/"><span class="std std-doc">Mappings</span></a>.</p>
-</section>
 <section id="pixels-and-tetrominoes">
 <h3>Pixels and Tetrominoes<a class="headerlink" href="#pixels-and-tetrominoes" title="Link to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">base_pixels</span></code> and <code class="docutils literal notranslate"><span class="pre">tetrominoes</span></code> arguments are used to customize the very basic components of the game. To get an overview of the
@@ -521,13 +515,12 @@ in the matrix to the according pixel ids. The pixel ids are later used to render
               <ul>
 <li><a class="reference internal" href="#">Tetris</a><ul>
 <li><a class="reference internal" href="#description">Description</a></li>
-<li><a class="reference internal" href="#actions-space">Actions Space</a></li>
 <li><a class="reference internal" href="#observation-space">Observation Space</a></li>
+<li><a class="reference internal" href="#actions-space">Actions Space</a></li>
 <li><a class="reference internal" href="#rewards">Rewards</a></li>
 <li><a class="reference internal" href="#starting-state">Starting state</a></li>
 <li><a class="reference internal" href="#episode-termination">Episode Termination</a></li>
 <li><a class="reference internal" href="#arguments">Arguments</a><ul>
-<li><a class="reference internal" href="#mappings">Mappings</a></li>
 <li><a class="reference internal" href="#pixels-and-tetrominoes">Pixels and Tetrominoes</a></li>
 </ul>
 </li>
