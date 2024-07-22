@@ -34,7 +34,7 @@ print("Game Over!")
 
 ## Background
 
-Tetris Gymnasium tries to solve problems of other environments by being modular, understandable and adjustable. You can read more about the background in our paper: _Piece by Piece: Assembling a Modular Reinforcement Learning Environment for Tetris_ (SOON).
+Tetris Gymnasium tries to solve problems of other environments by being modular, understandable and adjustable. You can read more about the background in our paper: _Piece by Piece: Assembling a Modular Reinforcement Learning Environment for Tetris_ ([Preprint on EasyChair](https://easychair.org/publications/preprint/154Q)).
 
 Abstract:
 
