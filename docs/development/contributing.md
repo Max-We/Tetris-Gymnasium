@@ -52,3 +52,13 @@ You can use `sphinx-autobuild` to build the documentation locally.
 cd docs
 poetry run sphinx-autobuild -b dirhtml --watch ../tetris_gymnasium --re-ignore "pickle$" . _build
 ```
+
+## Tests
+
+This project uses `pytest` for testing. To run the tests, use the following command:
+
+```shell
+poetry run pytest
+```
+
+The tests are work in progress and will be expanded in the future. However, at this point they are helpful for development.

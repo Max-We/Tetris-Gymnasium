@@ -9,6 +9,7 @@ class RewardsMapping:
     The mapping can be extended to include additional rewards.
     """
 
-    alife: float = 0.01
+    alife: float = 0
     clear_line: float = 1
     game_over: float = 0
+    invalid_action: float = -0.1

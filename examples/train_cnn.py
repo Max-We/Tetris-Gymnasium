@@ -184,12 +184,38 @@ poetry run pip install "stable_baselines3==2.0.0a1"
 """
         )
     args = tyro.cli(Args)
-    assert args.num_envs == 1, "vectorized envs are not supported at the moment"
-    run_name = f"{args.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
+    # Env name
+    greek_letters = [
+        "alpha",
+        "beta",
+        "gamma",
+        "delta",
+        "epsilon",
+        "zeta",
+        "eta",
+        "theta",
+        "iota",
+        "kappa",
+        "lambda",
+        "mu",
+        "nu",
+        "xi",
+        "omicron",
+        "pi",
+        "rho",
+        "sigma",
+        "tau",
+        "upsilon",
+        "phi",
+        "chi",
+        "psi",
+        "omega",
+    ]
+    run_name = f"{args.exp_name}/{random.choice(greek_letters)}_{random.choice(greek_letters)}__{args.seed}__{int(time.time())}"
     if args.track:
         import wandb
 
-        wandb.init(
+        run = wandb.init(
             project=args.wandb_project_name,
             entity=args.wandb_entity,
             sync_tensorboard=True,
@@ -197,6 +223,14 @@ poetry run pip install "stable_baselines3==2.0.0a1"
             name=run_name,
             monitor_gym=True,
             save_code=True,
+        )
+        # Log environment code
+        run.log_code(
+            os.path.normpath(
+                os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)), "../tetris_gymnasium"
+                )
+            )
         )
     writer = SummaryWriter(f"runs/{run_name}")
     writer.add_text(

@@ -1,4 +1,4 @@
-""" Script to train a DQN agent on Tetris environment using linear architecture.
+""" Script to train a DQN agent on Tetris environment using CNN architecture.
 
 The script is a modified version of the [CleanRL's](https://github.com/vwxyzjn/cleanrl) DQN implementation.
 
@@ -17,11 +17,16 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import tyro
-from gymnasium.wrappers import FlattenObservation
+from stable_baselines3.common.atari_wrappers import ClipRewardEnv
 from stable_baselines3.common.buffers import ReplayBuffer
 from torch.utils.tensorboard import SummaryWriter
 
 from tetris_gymnasium.envs import Tetris
+from tetris_gymnasium.wrappers.grouped import GroupedActionsObservations
+from tetris_gymnasium.wrappers.observation import (
+    FeatureVectorObservation,
+    RgbObservation,
+)
 
 
 # Evaluation
@@ -76,13 +81,13 @@ class Args:
     """if toggled, `torch.backends.cudnn.deterministic=False`"""
     cuda: bool = True
     """if toggled, cuda will be enabled by default"""
-    track: bool = True
+    track: bool = False
     """if toggled, this experiment will be tracked with Weights and Biases"""
     wandb_project_name: str = "tetris_gymnasium"
     """the wandb's project name"""
     wandb_entity: str = None
     """the entity (team) of wandb's project"""
-    capture_video: bool = False
+    capture_video: bool = True
     """whether to capture videos of the agent performances (check out `videos` folder)"""
     save_model: bool = False
     """whether to save model into the `runs/{run_name}` folder"""
@@ -92,48 +97,62 @@ class Args:
     """the user or org name of the model repository from the Hugging Face Hub"""
 
     # Algorithm specific arguments
-    # env_id: str = "CartPole-v1"
+    # env_id: str = "BreakoutNoFrameskip-v4"
     env_id: str = "tetris_gymnasium/Tetris"
     """the id of the environment"""
-    total_timesteps: int = 500000
+    total_timesteps: int = 180000
     """total timesteps of the experiments"""
-    learning_rate: float = 2.5e-4
+    learning_rate: float = 1e-3
     """the learning rate of the optimizer"""
     num_envs: int = 1
     """the number of parallel game environments"""
-    buffer_size: int = 10000
+    buffer_size: int = 30000
     """the replay memory buffer size"""
     gamma: float = 0.99
     """the discount factor gamma"""
     tau: float = 1.0
     """the target network update rate"""
-    target_network_frequency: int = 500
+    target_network_frequency: int = 1000
     """the timesteps it takes to update the target network"""
-    batch_size: int = 128
+    batch_size: int = 512
     """the batch size of sample from the reply memory"""
     start_e: float = 1
     """the starting epsilon for exploration"""
-    end_e: float = 0.05
+    end_e: float = 1e-3
     """the ending epsilon for exploration"""
-    exploration_fraction: float = 0.5
+    exploration_fraction: float = 0.10
     """the fraction of `total-timesteps` it takes from start-e to go end-e"""
-    learning_starts: int = 10000
+    learning_starts: int = 3000
     """timestep to start learning"""
-    train_frequency: int = 10
+    train_frequency: int = 1
     """the frequency of training"""
 
 
 def make_env(env_id, seed, idx, capture_video, run_name):
     def thunk():
         if capture_video and idx == 0:
-            env = gym.make(env_id, render_mode="rgb_array")
+            env = gym.make(env_id, render_mode="rgb_array", gravity=False)
+            env = GroupedActionsObservations(
+                env, observation_wrappers=[FeatureVectorObservation(env)]
+            )
             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         else:
             env = gym.make(env_id)
+            env = GroupedActionsObservations(
+                env, observation_wrappers=[FeatureVectorObservation(env)]
+            )
 
-        env = FlattenObservation(env)
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env.action_space.seed(seed)
+
+        env = ClipRewardEnv(env)
+
+        # Remove resize: output is already information perfect
+        # env = gym.wrappers.ResizeObservation(env, (84, 84))
+        # env = gym.wrappers.GrayScaleObservation(env)
+
+        # Remove framestack: env is already 1 update per frame
+        # env = gym.wrappers.FrameStack(env, 1)
 
         return env
 
@@ -145,11 +164,11 @@ class QNetwork(nn.Module):
     def __init__(self, env):
         super().__init__()
         self.network = nn.Sequential(
-            nn.Linear(np.array(env.single_observation_space.shape).prod(), 120),
+            nn.Linear(np.array(env.single_observation_space.shape[-1]), 64),
             nn.ReLU(),
-            nn.Linear(120, 84),
+            nn.Linear(64, 64),
             nn.ReLU(),
-            nn.Linear(84, env.single_action_space.n),
+            nn.Linear(64, 1),
         )
 
     def forward(self, x):
@@ -172,12 +191,38 @@ poetry run pip install "stable_baselines3==2.0.0a1"
 """
         )
     args = tyro.cli(Args)
-    assert args.num_envs == 1, "vectorized envs are not supported at the moment"
-    run_name = f"{args.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
+    # Env name
+    greek_letters = [
+        "alpha",
+        "beta",
+        "gamma",
+        "delta",
+        "epsilon",
+        "zeta",
+        "eta",
+        "theta",
+        "iota",
+        "kappa",
+        "lambda",
+        "mu",
+        "nu",
+        "xi",
+        "omicron",
+        "pi",
+        "rho",
+        "sigma",
+        "tau",
+        "upsilon",
+        "phi",
+        "chi",
+        "psi",
+        "omega",
+    ]
+    run_name = f"{args.exp_name}/{random.choice(greek_letters)}_{random.choice(greek_letters)}__{args.seed}__{int(time.time())}"
     if args.track:
         import wandb
 
-        wandb.init(
+        run = wandb.init(
             project=args.wandb_project_name,
             entity=args.wandb_entity,
             sync_tensorboard=True,
@@ -185,6 +230,14 @@ poetry run pip install "stable_baselines3==2.0.0a1"
             name=run_name,
             monitor_gym=True,
             save_code=True,
+        )
+        # Log environment code
+        run.log_code(
+            os.path.normpath(
+                os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)), "../tetris_gymnasium"
+                )
+            )
         )
     writer = SummaryWriter(f"runs/{run_name}")
     writer.add_text(
@@ -227,7 +280,8 @@ poetry run pip install "stable_baselines3==2.0.0a1"
     start_time = time.time()
 
     # TRY NOT TO MODIFY: start the game
-    obs, _ = envs.reset(seed=args.seed)
+    obs, info = envs.reset(seed=args.seed)
+    epoch = 0
     for global_step in range(args.total_timesteps):
         # ALGO LOGIC: put action logic here
         epsilon = linear_schedule(
@@ -237,12 +291,21 @@ poetry run pip install "stable_baselines3==2.0.0a1"
             global_step,
         )
         if random.random() < epsilon:
+            # sample action using legal action mask
             actions = np.array(
                 [envs.single_action_space.sample() for _ in range(envs.num_envs)]
             )
+            # actions = np.array(
+            #     [
+            #         np.random.choice(np.where(info['action_mask'][env_idx] == 1)[0])
+            #         for env_idx in range(envs.num_envs)
+            #     ]
+            # )
         else:
+            # Normalization by dividing with piece count
             q_values = q_network(torch.Tensor(obs).to(device))
-            actions = torch.argmax(q_values, dim=1).cpu().numpy()
+            # q_values[0,info["action_mask"] == 0] = -np.inf
+            actions = torch.argmax(q_values, dim=1)[0].cpu().numpy()
 
         # TRY NOT TO MODIFY: execute the game and log data.
         next_obs, rewards, terminations, truncations, infos = envs.step(actions)
@@ -251,8 +314,9 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         if "final_info" in infos:
             for info in infos["final_info"]:
                 if info and "episode" in info:
+                    epoch += 1
                     print(
-                        f"global_step={global_step}, episodic_return={info['episode']['r']}"
+                        f"epoch={epoch}, global_step={global_step}, episodic_return={info['episode']['r']}, episodic_len={info['episode']['l']}"
                     )
                     writer.add_scalar(
                         "charts/episodic_return", info["episode"]["r"], global_step
@@ -280,7 +344,12 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                     td_target = data.rewards.flatten() + args.gamma * target_max * (
                         1 - data.dones.flatten()
                     )
-                old_val = q_network(data.observations).gather(1, data.actions).squeeze()
+                old_val = (
+                    q_network(data.observations)
+                    .squeeze(-1)
+                    .gather(1, data.actions)
+                    .squeeze()
+                )
                 loss = F.mse_loss(td_target, old_val)
 
                 if global_step % 100 == 0:
