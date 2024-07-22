@@ -340,14 +340,19 @@ class Tetris(gym.Env):
                 return matrix
 
             if self.render_mode == "human":
+                # Upscale the matrix for better visibility
+                scale_factor = 10
+                kernel = np.ones((scale_factor, scale_factor, 1), dtype=np.uint8)
+                matrix = np.kron(matrix, kernel)
                 if self.window_name is None:
                     self.window_name = "Tetris Gymnasium"
                     cv2.namedWindow(self.window_name, cv2.WINDOW_GUI_NORMAL)
+
                     h, w = (
                         matrix.shape[0],
                         matrix.shape[1],
                     )
-                    cv2.resizeWindow(self.window_name, w * 10, h * 10)
+                    cv2.resizeWindow(self.window_name, w, h)
                 cv2.imshow(
                     self.window_name,
                     cv2.cvtColor(matrix, cv2.COLOR_RGB2BGR),
