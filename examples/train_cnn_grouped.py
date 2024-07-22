@@ -22,9 +22,9 @@ from stable_baselines3.common.buffers import ReplayBuffer
 from torch.utils.tensorboard import SummaryWriter
 
 from tetris_gymnasium.envs import Tetris
-from tetris_gymnasium.wrappers.action import GroupedActions
+from tetris_gymnasium.wrappers.grouped import GroupedActionsObservations
 from tetris_gymnasium.wrappers.observation import (
-    GroupedActionRgbObservation,
+    FeatureVectorObservation,
     RgbObservation,
 )
 
@@ -41,7 +41,7 @@ def evaluate(
     epsilon: float = 0.05,
     capture_video: bool = True,
 ):
-    envs = gym.vector.AsyncVectorEnv([make_env(env_id, 0, 0, capture_video, run_name)])
+    envs = gym.vector.SyncVectorEnv([make_env(env_id, 0, 0, capture_video, run_name)])
     model = Model(envs).to(device)
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
@@ -79,9 +79,9 @@ class Args:
     """seed of the experiment"""
     torch_deterministic: bool = True
     """if toggled, `torch.backends.cudnn.deterministic=False`"""
-    cuda: bool = False
+    cuda: bool = True
     """if toggled, cuda will be enabled by default"""
-    track: bool = True
+    track: bool = False
     """if toggled, this experiment will be tracked with Weights and Biases"""
     wandb_project_name: str = "tetris_gymnasium"
     """the wandb's project name"""
@@ -100,13 +100,13 @@ class Args:
     # env_id: str = "BreakoutNoFrameskip-v4"
     env_id: str = "tetris_gymnasium/Tetris"
     """the id of the environment"""
-    total_timesteps: int = 20000000
+    total_timesteps: int = 180000
     """total timesteps of the experiments"""
-    learning_rate: float = 1e-4
+    learning_rate: float = 1e-3
     """the learning rate of the optimizer"""
-    num_envs: int = 100
+    num_envs: int = 1
     """the number of parallel game environments"""
-    buffer_size: int = 1000000 // 120
+    buffer_size: int = 30000
     """the replay memory buffer size"""
     gamma: float = 0.99
     """the discount factor gamma"""
@@ -114,40 +114,45 @@ class Args:
     """the target network update rate"""
     target_network_frequency: int = 1000
     """the timesteps it takes to update the target network"""
-    batch_size: int = 32
+    batch_size: int = 512
     """the batch size of sample from the reply memory"""
     start_e: float = 1
     """the starting epsilon for exploration"""
-    end_e: float = 0.01
+    end_e: float = 1e-3
     """the ending epsilon for exploration"""
     exploration_fraction: float = 0.10
     """the fraction of `total-timesteps` it takes from start-e to go end-e"""
-    learning_starts: int = 80000
+    learning_starts: int = 3000
     """timestep to start learning"""
-    train_frequency: int = 4
+    train_frequency: int = 1
     """the frequency of training"""
 
 
 def make_env(env_id, seed, idx, capture_video, run_name):
     def thunk():
         if capture_video and idx == 0:
-            env = gym.make(env_id, render_mode="rgb_array")
-            env = GroupedActions(env)
-            env = GroupedActionRgbObservation(env)
+            env = gym.make(env_id, render_mode="rgb_array", gravity=False)
+            env = GroupedActionsObservations(
+                env, observation_wrappers=[FeatureVectorObservation(env)]
+            )
             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         else:
             env = gym.make(env_id)
-            env = GroupedActions(env)
-            env = GroupedActionRgbObservation(env)
+            env = GroupedActionsObservations(
+                env, observation_wrappers=[FeatureVectorObservation(env)]
+            )
+
         env = gym.wrappers.RecordEpisodeStatistics(env)
         env.action_space.seed(seed)
 
         env = ClipRewardEnv(env)
 
-        # env = gym.wrappers.ResizeObservation(env, (84 * 4, 84 * 10))
-        env = gym.wrappers.GrayScaleObservation(env)
+        # Remove resize: output is already information perfect
+        # env = gym.wrappers.ResizeObservation(env, (84, 84))
+        # env = gym.wrappers.GrayScaleObservation(env)
 
-        env = gym.wrappers.FrameStack(env, 4)
+        # Remove framestack: env is already 1 update per frame
+        # env = gym.wrappers.FrameStack(env, 1)
 
         return env
 
@@ -159,20 +164,15 @@ class QNetwork(nn.Module):
     def __init__(self, env):
         super().__init__()
         self.network = nn.Sequential(
-            nn.Conv2d(4, 32, 8, stride=4),
+            nn.Linear(np.array(env.single_observation_space.shape[-1]), 64),
             nn.ReLU(),
-            nn.Conv2d(32, 64, 4, stride=2),
+            nn.Linear(64, 64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, stride=1),
-            nn.ReLU(),
-            nn.Flatten(),
-            nn.Linear(19968, 512),
-            nn.ReLU(),
-            nn.Linear(512, env.single_action_space.n),
+            nn.Linear(64, 1),
         )
 
     def forward(self, x):
-        return self.network(x / 255.0)
+        return self.network(x)
 
 
 def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
@@ -255,7 +255,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
 
     # env setup
-    envs = gym.vector.AsyncVectorEnv(
+    envs = gym.vector.SyncVectorEnv(
         [
             make_env(args.env_id, args.seed + i, i, args.capture_video, run_name)
             for i in range(args.num_envs)
@@ -275,13 +275,13 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         envs.single_observation_space,
         envs.single_action_space,
         device,
-        n_envs=args.num_envs,
         handle_timeout_termination=False,
     )
     start_time = time.time()
 
     # TRY NOT TO MODIFY: start the game
-    obs, _ = envs.reset(seed=args.seed)
+    obs, info = envs.reset(seed=args.seed)
+    epoch = 0
     for global_step in range(args.total_timesteps):
         # ALGO LOGIC: put action logic here
         epsilon = linear_schedule(
@@ -291,14 +291,21 @@ poetry run pip install "stable_baselines3==2.0.0a1"
             global_step,
         )
         if random.random() < epsilon:
+            # sample action using legal action mask
             actions = np.array(
                 [envs.single_action_space.sample() for _ in range(envs.num_envs)]
             )
+            # actions = np.array(
+            #     [
+            #         np.random.choice(np.where(info['action_mask'][env_idx] == 1)[0])
+            #         for env_idx in range(envs.num_envs)
+            #     ]
+            # )
         else:
             # Normalization by dividing with piece count
-            # Todo: Create api to get how many pieces are in env / do normalize
             q_values = q_network(torch.Tensor(obs).to(device))
-            actions = torch.argmax(q_values, dim=1).cpu().numpy()
+            # q_values[0,info["action_mask"] == 0] = -np.inf
+            actions = torch.argmax(q_values, dim=1)[0].cpu().numpy()
 
         # TRY NOT TO MODIFY: execute the game and log data.
         next_obs, rewards, terminations, truncations, infos = envs.step(actions)
@@ -307,8 +314,9 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         if "final_info" in infos:
             for info in infos["final_info"]:
                 if info and "episode" in info:
+                    epoch += 1
                     print(
-                        f"global_step={global_step}, episodic_return={info['episode']['r']}, episodic_len={info['episode']['l']}"
+                        f"epoch={epoch}, global_step={global_step}, episodic_return={info['episode']['r']}, episodic_len={info['episode']['l']}"
                     )
                     writer.add_scalar(
                         "charts/episodic_return", info["episode"]["r"], global_step
@@ -336,7 +344,12 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                     td_target = data.rewards.flatten() + args.gamma * target_max * (
                         1 - data.dones.flatten()
                     )
-                old_val = q_network(data.observations).gather(1, data.actions).squeeze()
+                old_val = (
+                    q_network(data.observations)
+                    .squeeze(-1)
+                    .gather(1, data.actions)
+                    .squeeze()
+                )
                 loss = F.mse_loss(td_target, old_val)
 
                 if global_step % 100 == 0:

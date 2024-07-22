@@ -9,7 +9,7 @@ from tests.helpers.mock import (
     convert_to_base_observation,
     generate_example_board_with_features,
 )
-from tetris_gymnasium.wrappers.action import GroupedActions
+from tetris_gymnasium.wrappers.grouped import GroupedActionsObservations
 from tetris_gymnasium.wrappers.observation import FeatureVectorObservation
 
 
@@ -17,7 +17,7 @@ from tetris_gymnasium.wrappers.observation import FeatureVectorObservation
 def tetris_env_grouped(vertical_i_tetromino):
     """Fixture to create and return a Tetris environment."""
     env = gym.make("tetris_gymnasium/Tetris", render_mode="ansi")
-    env = GroupedActions(env)
+    env = GroupedActionsObservations(env)
     env.reset(seed=42)
 
     example_board, _, _, _, _ = generate_example_board_with_features(env)
@@ -36,7 +36,9 @@ def tetris_env_grouped(vertical_i_tetromino):
 def tetris_env_grouped_wrappers(vertical_i_tetromino):
     """Fixture to create and return a Tetris environment."""
     env = gym.make("tetris_gymnasium/Tetris", render_mode="ansi")
-    env = GroupedActions(env, observation_wrappers=[FeatureVectorObservation(env)])
+    env = GroupedActionsObservations(
+        env, observation_wrappers=[FeatureVectorObservation(env)]
+    )
 
     example_board, _, _, _, _ = generate_example_board_with_features(env)
     env.unwrapped.board = example_board

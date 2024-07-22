@@ -343,10 +343,9 @@ class Tetris(gym.Env):
                 if self.window_name is None:
                     self.window_name = "Tetris Gymnasium"
                     cv2.namedWindow(self.window_name, cv2.WINDOW_GUI_NORMAL)
-                    assert self.observation_space.shape is not None
                     h, w = (
-                        self.observation_space.shape[0],
-                        self.observation_space.shape[1],
+                        matrix.shape[0],
+                        matrix.shape[1],
                     )
                     cv2.resizeWindow(self.window_name, w * 10, h * 10)
                 cv2.imshow(

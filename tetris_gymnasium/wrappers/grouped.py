@@ -1,6 +1,7 @@
-"""Observation wrapper that groups the actions into placements.
+"""Wrapper that changes the observation and actions space into grouped actions.
 
-The action space is the width of the board times 4 (4 rotations).
+This wrapper introduces action-grouping as commonly used in current Tetris RL approaches. An example of this idea
+can be found in "Playing Tetris with Deep Reinforcement Learning (Stevens & Pradhan)."
 """
 import copy
 from typing import Any
@@ -13,10 +14,34 @@ from tetris_gymnasium.components.tetromino import Tetromino
 from tetris_gymnasium.envs import Tetris
 
 
-class GroupedActions(gym.ObservationWrapper):
-    """Observation wrapper that groups the actions into placements.
+class GroupedActionsObservations(gym.ObservationWrapper):
+    """Wrapper that changes the observation and actions space into grouped actions.
 
-    The action space is the width of the board times 4 (4 rotations).
+    This wrapper introduces action-grouping as commonly used in current Tetris RL approaches. An example of this idea
+    can be found in "Playing Tetris with Deep Reinforcement Learning (Stevens & Pradhan)."
+
+    ### Action space
+
+    For each column on the board, the agent can choose between four different rotations. This results in a total of
+    `width * 4` possible actions. Therefore, the action space is a `Discrete` space with `width * 4` possible actions.
+    The value is interpreted as column index and number of rotations in ascending order. So the actions [0, 1, 2, 3]
+    correspond to the first column and the tetromino rotated 0, 1, 2, 3 times respectively. The actions [4, 5, 6, 7]
+    correspond to the second column and the tetromino rotated 0, 1, 2, 3 times respectively, and so on.
+
+    ### Observation space
+
+    For each possible action, the wrapper generates a new observation. This means, that an additional dimension of size
+    `width * 4` is added to the observation space. Observation wrappers have to be passed to the constructor to apply
+    them to the generated observations instead of wrapping them around the `GroupedActions` wrapper.
+
+    ### Legal actions
+
+    Because the action space is static but the game state is dynamic, some actions might be illegal. For this reason,
+    the wrapper generates a mask that indicates which actions are legal. This mask is stored in the `legal_actions_mask`
+    attribute. If an illegal action is taken, the wrapper can either terminate the episode or return a penalty reward.
+    The action mask is returned in the info dictionary under the key `action_mask`. Note that only actions which would
+    result in a collision with the frame are considered illegal. Actions which would result in a game over (stack too
+    high) are not considered illegal.
     """
 
     def __init__(
@@ -25,11 +50,11 @@ class GroupedActions(gym.ObservationWrapper):
         observation_wrappers: "list[gym.ObservationWrapper]" = None,
         terminate_on_illegal_action: bool = True,
     ):
-        """Initializes the wrapper.
+        """Initializes the GroupedActions wrapper.
 
         Args:
             env: The environment to wrap.
-            observation_wrappers: The observation wrappers to apply to the observation.
+            observation_wrappers: The observation wrappers to apply to the individual observation.
             terminate_on_illegal_action: Whether to terminate the episode if an illegal action is taken.
         """
         super().__init__(env)
@@ -53,43 +78,46 @@ class GroupedActions(gym.ObservationWrapper):
         self.observation_wrappers = observation_wrappers
         self.terminate_on_illegal_action = terminate_on_illegal_action
 
-    def actions_to_action_id(self, x, r):
-        """Convert x and r to action id.
+    def encode_action(self, x, r):
+        """Convert x-position and number of rotations `r` to action id.
 
         Args:
             x: The x position.
-            r: The rotation.
+            r: The number of rotations.
 
         Returns:
             The action id.
         """
         return x * 4 + r
 
-    def action_id_to_actions(self, action):
-        """Converts the action id to the x-position and rotation.
+    def decode_action(self, action):
+        """Converts the action id to the x-position and number of rotations `r`.
 
         Args:
             action: The action id to convert.
 
         Returns:
-            The x-position and rotation.
+            The x-position and number of rotation.s
         """
         return action // 4, action % 4
 
     def collision_with_frame(self, tetromino: Tetromino, x: int, y: int) -> bool:
-        """Check if the tetromino collides with the board at the given position.
+        """Check if the tetromino collides with the frame.
 
-        A collision is detected if the tetromino overlaps with any non-zero cell on the board.
-        These non-zero cells represent the padding / bedrock (value 1) or other tetrominoes (values >=2).
+        Only collisions with the frame are checked, not with other tetrominos on the board. This is used to detect
+        illegal actions. By this definition, actions that end the game (e.g. stack tetromino above the frame) are
+        considered legal. If this wasn't the case, the agent could "cheat" by recognizing that the game would be lost
+        before taking an action.
 
         Args:
             tetromino: The tetromino to check for collision.
-            x: The x position of the tetromino to check collision for.
-            y: The y position of the tetromino to check collision for.
+            x: The x position of the tetromino.
+            y: The y position of the tetromino.
 
         Returns:
-            True if the tetromino collides with the board at the given position, False otherwise.
+            True if the tetromino collides with the frame, False otherwise.
         """
+
         # Extract the part of the board that the tetromino would occupy.
         slices = self.env.unwrapped.get_tetromino_slices(tetromino, x, y)
         board_subsection = self.env.unwrapped.board[slices]
@@ -98,13 +126,15 @@ class GroupedActions(gym.ObservationWrapper):
         return np.any(board_subsection[tetromino.matrix > 0] == 1)
 
     def observation(self, observation):
-        """Observation wrapper that groups the actions into placements.
+        """Observation wrapper that groups the actions into placements and applies additional wrappers (optional).
+
+        This function also generates the legal-action mask.
 
         Args:
-            observation: The observation to wrap. This is the board without the active tetromino.
+            observation: The original observation from the base environment.
 
         Returns:
-            A dictionary containing the grouped board, holder and queue observations.
+            The grouped observation.
         """
         board_obs = observation["board"]
         holder_obs = observation["holder"]
@@ -133,7 +163,7 @@ class GroupedActions(gym.ObservationWrapper):
                 # append to results
                 if self.collision_with_frame(t, x, y):
                     self.legal_actions_mask[
-                        self.actions_to_action_id(x - self.env.unwrapped.padding, r)
+                        self.encode_action(x - self.env.unwrapped.padding, r)
                     ] = 0
                     grouped_board_obs.append(np.ones_like(board_obs))
                 elif not self.env.unwrapped.collision(t, x, y):
@@ -183,7 +213,7 @@ class GroupedActions(gym.ObservationWrapper):
         Returns:
             The observation, reward, game over, truncated, and info.
         """
-        x, r = self.action_id_to_actions(action)
+        x, r = self.decode_action(action)
 
         if self.legal_actions_mask[action] == 0:
             if self.terminate_on_illegal_action:
@@ -223,8 +253,10 @@ class GroupedActions(gym.ObservationWrapper):
             self.env.unwrapped.actions.hard_drop
         )
 
+        observation = self.observation(observation)  # generates legal_action_mask
         info["action_mask"] = self.legal_actions_mask
-        return self.observation(observation), reward, game_over, truncated, info
+
+        return observation, reward, game_over, truncated, info
 
     def reset(
         self, *, seed: "int | None" = None, options: "dict[str, Any] | None" = None
@@ -240,5 +272,8 @@ class GroupedActions(gym.ObservationWrapper):
         """
         self.legal_actions_mask = np.ones(self.action_space.n)
         observation, info = self.env.reset(seed=seed, options=options)
+
+        observation = self.observation(observation)  # generates legal_action_mask
         info["action_mask"] = self.legal_actions_mask
-        return self.observation(observation), info
+
+        return observation, info
