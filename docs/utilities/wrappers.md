@@ -7,6 +7,12 @@ Alternatively, you can use predefined wrappers from Tetris Gymnasium or Gymnasiu
 ## Grouped actions
 
 The grouped actions wrapper is a special wrapper that changes both the action space and the observation space of the environment.
+Instead of offering actions such as moving the Tetromino by one position, the grouped actions wrapper offers actions that place the Tetromino in a specific position.
+
+![Grouped actions](../_static/wrappers/grouped.png)
+
+This image is used for demonstration purpose only. The real observation is an array as described in the _Observation Space_ section,
+which can be interpreted as a flattened (1D) version of this image.
 
 ```{eval-rst}
 .. autoclass:: tetris_gymnasium.wrappers.grouped.GroupedActionsObservations
@@ -18,6 +24,8 @@ Observation wrappers are used to alter the observation space of the environment.
 shape of the observation space or for adding additional information to the observation space.
 
 ### RGB
+
+![RGB observation](../_static/wrappers/rgb.png)
 
 ```{eval-rst}
 .. autoclass:: tetris_gymnasium.wrappers.observation.RgbObservation
