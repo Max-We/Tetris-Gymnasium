@@ -11,7 +11,7 @@
 <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Mappings" href="../mappings/" /><link rel="prev" title="Randomizer" href="../../components/randomizer/" />
         <link rel="canonical" href="https://max-we.github.io/Tetris-Gymnasium/utilities/wrappers.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2023.08.19.dev1 -->
+    <!-- Generated with Sphinx 7.4.7 and Furo 2023.08.19.dev1 -->
         <title>Wrappers - Tetris Gymnasium</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=3e7f4c72" />
@@ -268,6 +268,42 @@ Instead of offering actions such as moving the Tetromino by one position, the gr
 <p><img alt="Grouped actions" src="../../_images/grouped.png" /></p>
 <p>This image is used for demonstration purpose only. The real observation is an array as described in the <em>Observation Space</em> section,
 which can be interpreted as a flattened (1D) version of this image.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tetris_gymnasium.wrappers.grouped.GroupedActionsObservations">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.wrappers.grouped.</span></span><span class="sig-name descname"><span class="pre">GroupedActionsObservations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../environments/tetris/#tetris_gymnasium.envs.tetris.Tetris" title="tetris_gymnasium.envs.tetris.Tetris"><span class="pre">Tetris</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">observation_wrappers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ObservationWrapper</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminate_on_illegal_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/wrappers/grouped/#GroupedActionsObservations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.wrappers.grouped.GroupedActionsObservations" title="Link to this definition">¶</a></dt>
+<dd><p>Wrapper that changes the observation and actions space into grouped actions.</p>
+<p>This wrapper introduces action-grouping as commonly used in current Tetris RL approaches. An example of this idea
+can be found in “<em>Playing Tetris with Deep Reinforcement Learning</em> (Stevens &amp; Pradhan).”</p>
+<dl class="simple">
+<dt><strong>Action space</strong></dt><dd><p>For each column on the board, the agent can choose between four different rotations. This results in a total of
+<cite>width * 4</cite> possible actions. Therefore, the action space is a <cite>Discrete</cite> space with <cite>width * 4</cite> possible actions.
+The value is interpreted as column index and number of rotations in ascending order. So the actions [0, 1, 2, 3]
+correspond to the first column and the tetromino rotated 0, 1, 2, 3 times respectively. The actions [4, 5, 6, 7]
+correspond to the second column and the tetromino rotated 0, 1, 2, 3 times respectively, and so on.</p>
+</dd>
+<dt><strong>Observation space</strong></dt><dd><p>For each possible action, the wrapper generates a new observation. This means, that an additional dimension of size
+<cite>width * 4</cite> is added to the observation space. Observation wrappers have to be passed to the constructor to apply
+them to the generated observations instead of wrapping them around the <cite>GroupedActions</cite> wrapper.</p>
+</dd>
+<dt><strong>Legal actions</strong></dt><dd><p>Because the action space is static but the game state is dynamic, some actions might be illegal. For this reason,
+the wrapper generates a mask that indicates which actions are legal. This mask is stored in the <cite>legal_actions_mask</cite>
+attribute. If an illegal action is taken, the wrapper can either terminate the episode or return a penalty reward.
+The action mask is returned in the info dictionary under the key <cite>action_mask</cite>. Note that only actions which would
+result in a collision with the frame are considered illegal. Actions which would result in a game over (stack too
+high) are not considered illegal.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env</strong> – The environment to wrap.</p></li>
+<li><p><strong>observation_wrappers</strong> – The observation wrappers to apply to the individual observation.</p></li>
+<li><p><strong>terminate_on_illegal_action</strong> – Whether to terminate the episode if an illegal action is taken.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="observation-wrappers">
 <h2>Observation wrappers<a class="headerlink" href="#observation-wrappers" title="Link to this heading">¶</a></h2>
@@ -276,9 +312,57 @@ shape of the observation space or for adding additional information to the obser
 <section id="rgb">
 <h3>RGB<a class="headerlink" href="#rgb" title="Link to this heading">¶</a></h3>
 <p><img alt="RGB observation" src="../../_images/rgb.png" /></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tetris_gymnasium.wrappers.observation.RgbObservation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.wrappers.observation.</span></span><span class="sig-name descname"><span class="pre">RgbObservation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../environments/tetris/#tetris_gymnasium.envs.tetris.Tetris" title="tetris_gymnasium.envs.tetris.Tetris"><span class="pre">Tetris</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/wrappers/observation/#RgbObservation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.wrappers.observation.RgbObservation" title="Link to this definition">¶</a></dt>
+<dd><p>Observation wrapper that displays all observations (board, holder, queue) as one single RGB Image.</p>
+<p>The observation contains the board on the left, the queue on the top right and the holder on the bottom right.
+The size of the matrix depends on how many tetrominoes can be stored in the queue / holder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>env</strong> (<a class="reference internal" href="../../environments/tetris/#tetris_gymnasium.envs.tetris.Tetris" title="tetris_gymnasium.envs.tetris.Tetris"><em>Tetris</em></a>) – The environment</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="feature-vectors">
 <h3>Feature vectors<a class="headerlink" href="#feature-vectors" title="Link to this heading">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="tetris_gymnasium.wrappers.observation.FeatureVectorObservation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.wrappers.observation.</span></span><span class="sig-name descname"><span class="pre">FeatureVectorObservation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../environments/tetris/#tetris_gymnasium.envs.tetris.Tetris" title="tetris_gymnasium.envs.tetris.Tetris"><span class="pre">Tetris</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_max_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_holes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_bumpiness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/wrappers/observation/#FeatureVectorObservation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.wrappers.observation.FeatureVectorObservation" title="Link to this definition">¶</a></dt>
+<dd><p>Observation wrapper that returns a feature vector as observation.</p>
+<dl>
+<dt><strong>State representation</strong></dt><dd><p>A feature vector can contain different features of the board, such as the height of the stack or the number of holes.
+In the literature, this is often referred to as a state representation and many different features can be used. A
+discussion about the state representation can be found in “Reinforcement learning (RL) is a paradigm within machine
+learning that has been applied to Tetris, demonstrating the effect of state representation on performance
+(Hendriks).”</p>
+</dd>
+<dt><strong>Features</strong></dt><dd><p>For this wrapper, the features from <a class="reference external" href="https://github.com/uvipen/Tetris-deep-Q-learning-pytorch">https://github.com/uvipen/Tetris-deep-Q-learning-pytorch</a> have been
+adapted. These features are:</p>
+<ul class="simple">
+<li><p>The height of the stack in each column (list: int for each column)</p></li>
+<li><p>The maximum height of the stack (int)</p></li>
+<li><p>The number of holes in the stack (int)</p></li>
+<li><p>The bumpiness of the stack (int)</p></li>
+</ul>
+<p>More features can be added in the future or by introducing new wrappers.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env</strong> (<a class="reference internal" href="../../environments/tetris/#tetris_gymnasium.envs.tetris.Tetris" title="tetris_gymnasium.envs.tetris.Tetris"><em>Tetris</em></a>) – The environment.</p></li>
+<li><p><strong>report_height</strong> (<em>bool</em><em>, </em><em>optional</em>) – Report the height of the stack in each column. Defaults to True.</p></li>
+<li><p><strong>report_max_height</strong> (<em>bool</em><em>, </em><em>optional</em>) – Report the maximum height of the stack. Defaults to True.</p></li>
+<li><p><strong>report_holes</strong> (<em>bool</em><em>, </em><em>optional</em>) – Report the number of holes in the stack. Defaults to True.</p></li>
+<li><p><strong>report_bumpiness</strong> (<em>bool</em><em>, </em><em>optional</em>) – Report the bumpiness of the stack. Defaults to True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 <section id="action-wrappers">
@@ -358,10 +442,19 @@ action wrappers are implemented in Tetris Gymnasium.</p>
             <div class="toc-tree">
               <ul>
 <li><a class="reference internal" href="#">Wrappers</a><ul>
-<li><a class="reference internal" href="#grouped-actions">Grouped actions</a></li>
+<li><a class="reference internal" href="#grouped-actions">Grouped actions</a><ul>
+<li><a class="reference internal" href="#tetris_gymnasium.wrappers.grouped.GroupedActionsObservations"><code class="docutils literal notranslate"><span class="pre">GroupedActionsObservations</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#observation-wrappers">Observation wrappers</a><ul>
-<li><a class="reference internal" href="#rgb">RGB</a></li>
-<li><a class="reference internal" href="#feature-vectors">Feature vectors</a></li>
+<li><a class="reference internal" href="#rgb">RGB</a><ul>
+<li><a class="reference internal" href="#tetris_gymnasium.wrappers.observation.RgbObservation"><code class="docutils literal notranslate"><span class="pre">RgbObservation</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#feature-vectors">Feature vectors</a><ul>
+<li><a class="reference internal" href="#tetris_gymnasium.wrappers.observation.FeatureVectorObservation"><code class="docutils literal notranslate"><span class="pre">FeatureVectorObservation</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#action-wrappers">Action wrappers</a></li>

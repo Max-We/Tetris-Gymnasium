@@ -1,0 +1,621 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark">
+    <meta name="description" content="A modular, understandable and adjustable Tetris environments for Gymnasium.">
+    <meta property="og:title" content="Tetris Gymnasium" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="A modular, understandable and adjustable Tetris environments for Gymnasium." />
+    <meta property="og:url" content="https://max-we.github.io/Tetris-Gymnasium/_modules/tetris_gymnasium/wrappers/grouped.html" /><meta name="twitter:card" content="summary_large_image"><link rel="index" title="Index" href="../../../../genindex/" /><link rel="search" title="Search" href="../../../../search/" />
+        <link rel="canonical" href="https://max-we.github.io/Tetris-Gymnasium/_modules/tetris_gymnasium/wrappers/grouped.html" />
+
+    <!-- Generated with Sphinx 7.4.7 and Furo 2023.08.19.dev1 -->
+        <title>tetris_gymnasium.wrappers.grouped - Tetris Gymnasium</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=3e7f4c72" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=49cbaffd" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    <header class="farama-header" aria-label="Farama header">
+      <div class="farama-header__container">
+        <div class="farama-header__left--mobile">
+          <label class="nav-overlay-icon" for="__navigation">
+            <div class="visually-hidden">Toggle site navigation sidebar</div>
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <defs></defs>
+              <line x1="0.5" y1="4" x2="23.5" y2="4"></line>
+              <line x1="0.232" y1="12" x2="23.5" y2="12"></line>
+              <line x1="0.232" y1="20" x2="23.5" y2="20"></line>
+            </svg>
+          </label>
+        </div>
+        <div class="farama-header__left farama-header__center--mobile">
+          <a href="../../../../">
+            <span class="farama-header__title">Tetris Gymnasium</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<div class="page">
+  <!--<header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../../"><div class="brand">Tetris Gymnasium</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>-->
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="farama-sidebar__title" href="../../../../">
+    <span class="farama-header__title">Tetris Gymnasium</span>
+  </a><form class="sidebar-search-container" method="get" action="../../../../search/" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction/installation/">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction/quickstart/">Quickstart</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Environment</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../environments/tetris/">Tetris</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/tetromino/">Tetromino</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/queue/">Queue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/holder/">Holder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/randomizer/">Randomizer</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Utilities</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../utilities/wrappers/">Wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../utilities/mappings/">Mappings</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../development/contributing/">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main-container">
+
+    
+
+    
+
+    <div class="main">
+      <div class="content">
+        <div class="article-container">
+          <a href="#" class="back-to-top muted-link">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+            </svg>
+            <span>Back to top</span>
+          </a>
+          <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+              <button class="theme-toggle" title="Toggle color theme">
+                <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+                <svg class="theme-icon-when-auto">
+                  <use href="#svg-sun-half"></use>
+                </svg>
+                <svg class="theme-icon-when-dark">
+                  <use href="#svg-moon"></use>
+                </svg>
+                <svg class="theme-icon-when-light">
+                  <use href="#svg-sun"></use>
+                </svg>
+              </button>
+            </div>
+            <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+              <div class="visually-hidden">Toggle table of contents sidebar</div>
+              <i class="icon"><svg>
+                  <use href="#svg-toc"></use>
+                </svg></i>
+            </label>
+          </div>
+          <article role="main">
+            
+            <h1>Source code for tetris_gymnasium.wrappers.grouped</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Wrapper that changes the observation and actions space into grouped actions.</span>
+
+<span class="sd">This wrapper introduces action-grouping as commonly used in current Tetris RL approaches. An example of this idea</span>
+<span class="sd">can be found in &quot;Playing Tetris with Deep Reinforcement Learning (Stevens &amp; Pradhan).&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">gymnasium.spaces</span> <span class="kn">import</span> <span class="n">Box</span><span class="p">,</span> <span class="n">Discrete</span>
+
+<span class="kn">from</span> <span class="nn">tetris_gymnasium.components.tetromino</span> <span class="kn">import</span> <span class="n">Tetromino</span>
+<span class="kn">from</span> <span class="nn">tetris_gymnasium.envs</span> <span class="kn">import</span> <span class="n">Tetris</span>
+
+
+<div class="viewcode-block" id="GroupedActionsObservations">
+<a class="viewcode-back" href="../../../../utilities/wrappers/#tetris_gymnasium.wrappers.grouped.GroupedActionsObservations">[docs]</a>
+<span class="k">class</span> <span class="nc">GroupedActionsObservations</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">ObservationWrapper</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper that changes the observation and actions space into grouped actions.</span>
+
+<span class="sd">    This wrapper introduces action-grouping as commonly used in current Tetris RL approaches. An example of this idea</span>
+<span class="sd">    can be found in &quot;*Playing Tetris with Deep Reinforcement Learning* (Stevens &amp; Pradhan).&quot;</span>
+
+<span class="sd">    **Action space**</span>
+<span class="sd">        For each column on the board, the agent can choose between four different rotations. This results in a total of</span>
+<span class="sd">        `width * 4` possible actions. Therefore, the action space is a `Discrete` space with `width * 4` possible actions.</span>
+<span class="sd">        The value is interpreted as column index and number of rotations in ascending order. So the actions [0, 1, 2, 3]</span>
+<span class="sd">        correspond to the first column and the tetromino rotated 0, 1, 2, 3 times respectively. The actions [4, 5, 6, 7]</span>
+<span class="sd">        correspond to the second column and the tetromino rotated 0, 1, 2, 3 times respectively, and so on.</span>
+
+<span class="sd">    **Observation space**</span>
+<span class="sd">        For each possible action, the wrapper generates a new observation. This means, that an additional dimension of size</span>
+<span class="sd">        `width * 4` is added to the observation space. Observation wrappers have to be passed to the constructor to apply</span>
+<span class="sd">        them to the generated observations instead of wrapping them around the `GroupedActions` wrapper.</span>
+
+<span class="sd">    **Legal actions**</span>
+<span class="sd">        Because the action space is static but the game state is dynamic, some actions might be illegal. For this reason,</span>
+<span class="sd">        the wrapper generates a mask that indicates which actions are legal. This mask is stored in the `legal_actions_mask`</span>
+<span class="sd">        attribute. If an illegal action is taken, the wrapper can either terminate the episode or return a penalty reward.</span>
+<span class="sd">        The action mask is returned in the info dictionary under the key `action_mask`. Note that only actions which would</span>
+<span class="sd">        result in a collision with the frame are considered illegal. Actions which would result in a game over (stack too</span>
+<span class="sd">        high) are not considered illegal.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">env</span><span class="p">:</span> <span class="n">Tetris</span><span class="p">,</span>
+        <span class="n">observation_wrappers</span><span class="p">:</span> <span class="s2">&quot;list[gym.ObservationWrapper]&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">terminate_on_illegal_action</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the GroupedActions wrapper.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            env: The environment to wrap.</span>
+<span class="sd">            observation_wrappers: The observation wrappers to apply to the individual observation.</span>
+<span class="sd">            terminate_on_illegal_action: Whether to terminate the episode if an illegal action is taken.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">Discrete</span><span class="p">((</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">width</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
+
+        <span class="n">grouped_env_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,)</span>
+        <span class="n">single_env_shape</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">observation_wrappers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span>
+            <span class="k">if</span> <span class="n">observation_wrappers</span>
+            <span class="k">else</span> <span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">[</span><span class="s2">&quot;board&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">Box</span><span class="p">(</span>
+            <span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">high</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">height</span> <span class="o">*</span> <span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">grouped_env_shape</span> <span class="o">+</span> <span class="n">single_env_shape</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">legal_actions_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_wrappers</span> <span class="o">=</span> <span class="n">observation_wrappers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terminate_on_illegal_action</span> <span class="o">=</span> <span class="n">terminate_on_illegal_action</span>
+
+    <span class="k">def</span> <span class="nf">encode_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert x-position and number of rotations `r` to action id.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x: The x position.</span>
+<span class="sd">            r: The number of rotations.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The action id.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="n">r</span>
+
+    <span class="k">def</span> <span class="nf">decode_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Converts the action id to the x-position and number of rotations `r`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            action: The action id to convert.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The x-position and number of rotations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">action</span> <span class="o">//</span> <span class="mi">4</span><span class="p">,</span> <span class="n">action</span> <span class="o">%</span> <span class="mi">4</span>
+
+    <span class="k">def</span> <span class="nf">collision_with_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">Tetromino</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the tetromino collides with the frame.</span>
+
+<span class="sd">        Only collisions with the frame are checked, not with other tetrominos on the board. This is used to detect</span>
+<span class="sd">        illegal actions. By this definition, actions that end the game (e.g. stack tetromino above the frame) are</span>
+<span class="sd">        considered legal. If this wasn&#39;t the case, the agent could &quot;cheat&quot; by recognizing that the game would be lost</span>
+<span class="sd">        before taking an action.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tetromino: The tetromino to check for collision.</span>
+<span class="sd">            x: The x position of the tetromino.</span>
+<span class="sd">            y: The y position of the tetromino.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if the tetromino collides with the frame, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Extract the part of the board that the tetromino would occupy.</span>
+        <span class="n">slices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">get_tetromino_slices</span><span class="p">(</span><span class="n">tetromino</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">board_subsection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">slices</span><span class="p">]</span>
+
+        <span class="c1"># Check collision using numpy element-wise operations.</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">board_subsection</span><span class="p">[</span><span class="n">tetromino</span><span class="o">.</span><span class="n">matrix</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">observation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Observation wrapper that groups the actions into placements and applies additional wrappers (optional).</span>
+
+<span class="sd">        This function also generates the legal-action mask.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            observation: The original observation from the base environment.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The grouped observation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">board_obs</span> <span class="o">=</span> <span class="n">observation</span><span class="p">[</span><span class="s2">&quot;board&quot;</span><span class="p">]</span>
+        <span class="n">holder_obs</span> <span class="o">=</span> <span class="n">observation</span><span class="p">[</span><span class="s2">&quot;holder&quot;</span><span class="p">]</span>
+        <span class="n">queue_obs</span> <span class="o">=</span> <span class="n">observation</span><span class="p">[</span><span class="s2">&quot;queue&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">legal_actions_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="n">grouped_board_obs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">active_tetromino</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+            <span class="c1"># reset position</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">padding</span> <span class="o">+</span> <span class="n">x</span>
+
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
+
+                <span class="c1"># do rotation</span>
+                <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+                <span class="c1"># hard drop</span>
+                <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">collision</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">y</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="c1"># append to results</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">collision_with_frame</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">legal_actions_mask</span><span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">encode_action</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">grouped_board_obs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">board_obs</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">collision</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+                    <span class="n">grouped_board_obs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">project_tetromino</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># regular game over</span>
+                    <span class="n">grouped_board_obs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">board_obs</span><span class="p">))</span>
+
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span>
+                <span class="n">t</span>
+            <span class="p">)</span>  <span class="c1"># reset rotation (thus far has been rotated 3 times)</span>
+
+        <span class="c1"># Apply wrappers</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_wrappers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">observation</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">grouped_board_obs</span><span class="p">):</span>
+                <span class="c1"># Recreate the original environment observation</span>
+                <span class="n">grouped_board_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;board&quot;</span><span class="p">:</span> <span class="n">observation</span><span class="p">,</span>
+                    <span class="s2">&quot;active_tetromino_mask&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span>
+                        <span class="n">observation</span>
+                    <span class="p">),</span>  <span class="c1"># Not used in this wrapper</span>
+                    <span class="s2">&quot;holder&quot;</span><span class="p">:</span> <span class="n">holder_obs</span><span class="p">,</span>
+                    <span class="s2">&quot;queue&quot;</span><span class="p">:</span> <span class="n">queue_obs</span><span class="p">,</span>
+                <span class="p">}</span>
+
+                <span class="c1"># Validate that observations are equal</span>
+                <span class="k">assert</span> <span class="p">(</span>
+                    <span class="n">grouped_board_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                    <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Apply wrappers to all the original observations</span>
+                <span class="k">for</span> <span class="n">wrapper</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_wrappers</span><span class="p">:</span>
+                    <span class="n">grouped_board_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">observation</span><span class="p">(</span><span class="n">grouped_board_obs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="n">grouped_board_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">grouped_board_obs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">grouped_board_obs</span>
+
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Performs the action.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            action: The action to perform.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The observation, reward, game over, truncated, and info.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_actions_mask</span><span class="p">[</span><span class="n">action</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminate_on_illegal_action</span><span class="p">:</span>
+                <span class="n">observation</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">high</span>
+                <span class="p">)</span>
+                <span class="n">game_over</span><span class="p">,</span> <span class="n">truncated</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span>
+                <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;action_mask&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_actions_mask</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="p">(</span>
+                    <span class="n">observation</span><span class="p">,</span>
+                    <span class="n">reward</span><span class="p">,</span>
+                    <span class="n">game_over</span><span class="p">,</span>
+                    <span class="n">truncated</span><span class="p">,</span>
+                    <span class="n">info</span><span class="p">,</span>
+                <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">no_op</span><span class="p">)</span>
+                <span class="n">observation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span>
+                <span class="n">info</span><span class="p">[</span><span class="s2">&quot;action_mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_actions_mask</span>
+
+            <span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">rewards</span><span class="o">.</span><span class="n">invalid_action</span>
+            <span class="k">return</span> <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">game_over</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span>
+
+        <span class="n">new_tetromino</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">)</span>
+
+        <span class="c1"># Set new x position</span>
+        <span class="n">x</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">padding</span>
+        <span class="c1"># Set new rotation</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+            <span class="n">new_tetromino</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">new_tetromino</span><span class="p">)</span>
+
+        <span class="c1"># Apply rotation and movement (x,y)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="o">=</span> <span class="n">new_tetromino</span>
+
+        <span class="c1"># Perform the action</span>
+        <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">game_over</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">step</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">hard_drop</span>
+        <span class="p">)</span>
+
+        <span class="n">observation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span>  <span class="c1"># generates legal_action_mask</span>
+        <span class="n">info</span><span class="p">[</span><span class="s2">&quot;action_mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_actions_mask</span>
+
+        <span class="k">return</span> <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">game_over</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="s2">&quot;int | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="s2">&quot;dict[str, Any] | None&quot;</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[dict[str, Any], dict[str, Any]]&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resets the environment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            seed: The seed to use for the random number generator.</span>
+<span class="sd">            options: The options to use for the environment.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The observation and info.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">legal_actions_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">observation</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+
+        <span class="n">observation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span>  <span class="c1"># generates legal_action_mask</span>
+        <span class="n">info</span><span class="p">[</span><span class="s2">&quot;action_mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">legal_actions_mask</span>
+
+        <span class="k">return</span> <span class="n">observation</span><span class="p">,</span> <span class="n">info</span></div>
+
+</pre></div>
+          </article>
+        </div>
+        <footer>
+          
+          <div class="related-pages">
+            
+            
+          </div>
+          <div class="bottom-of-page">
+            <div class="left-details">
+              <div class="copyright">
+                Copyright &#169; 2024, Maxmilian Weichart
+              </div>
+              <!--
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            -->
+            </div>
+            <div class="right-details">
+              <div class="icons">
+                <a class="muted-link" href="https://github.com/Max-We/Tetris-Gymnasium"
+                  aria-label="On GitHub">
+                  <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z">
+                    </path>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+          
+        </footer>
+      </div>
+      <aside class="toc-drawer no-toc">
+        
+        
+        
+      </aside>
+    </div>
+  </div>
+</div>
+    <script>
+      const toggleMenu = () => {
+        const menuBtn = document.querySelector(".farama-header-menu__btn");
+        const menuContainer = document.querySelector(".farama-header-menu-container");
+        if (document.querySelector(".farama-header-menu").classList.contains("active")) {
+          menuBtn.setAttribute("aria-expanded", "false");
+          menuContainer.setAttribute("aria-hidden", "true");
+        } else {
+          menuBtn.setAttribute("aria-expanded", "true");
+          menuContainer.setAttribute("aria-hidden", "false");
+        }
+        document.querySelector(".farama-header-menu").classList.toggle("active");
+      }
+
+      document.querySelector(".farama-header-menu__btn").addEventListener("click", toggleMenu);
+      document.getElementById("farama-close-menu").addEventListener("click", toggleMenu);
+    </script>
+
+    <script src="../../../../_static/documentation_options.js?v=a5603611"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/scripts/furo.js?v=7660844c"></script>
+    
+    <script>
+      const versioningConfig = {
+        githubUser: 'Max-We',
+        githubRepo: 'Tetris-Gymnasium',
+      };
+      fetch('/main/_static/versioning/versioning_menu.html').then(response => {
+        if (response.status === 200) {
+            response.text().then(text => {
+                const container = document.createElement("div");
+                container.innerHTML = text;
+                document.querySelector("body").appendChild(container);
+                // innerHtml doenst evaluate scripts, we need to add them dynamically
+                Array.from(container.querySelectorAll("script")).forEach(oldScript => {
+                    const newScript = document.createElement("script");
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            });
+        } else {
+            console.warn("Unable to load versioning menu", response);
+        }
+      });
+    </script>
+
+    </body>
+</html>

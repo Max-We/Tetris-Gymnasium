@@ -11,7 +11,7 @@
 <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Tetromino" href="../../components/tetromino/" /><link rel="prev" title="Quickstart" href="../../introduction/quickstart/" />
         <link rel="canonical" href="https://max-we.github.io/Tetris-Gymnasium/environments/tetris.html" />
 
-    <!-- Generated with Sphinx 7.3.7 and Furo 2023.08.19.dev1 -->
+    <!-- Generated with Sphinx 7.4.7 and Furo 2023.08.19.dev1 -->
         <title>Tetris - Tetris Gymnasium</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=3e7f4c72" />
@@ -341,6 +341,29 @@
 </section>
 <section id="arguments">
 <h2>Arguments<a class="headerlink" href="#arguments" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tetris_gymnasium.envs.tetris.Tetris">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tetris_gymnasium.envs.tetris.</span></span><span class="sig-name descname"><span class="pre">Tetris</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">render_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gravity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ActionsMapping()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rewards_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">RewardsMapping()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../components/queue/#tetris_gymnasium.components.tetromino_queue.TetrominoQueue" title="tetris_gymnasium.components.tetromino_queue.TetrominoQueue"><span class="pre">TetrominoQueue</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">holder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../components/holder/#tetris_gymnasium.components.tetromino_holder.TetrominoHolder" title="tetris_gymnasium.components.tetromino_holder.TetrominoHolder"><span class="pre">TetrominoHolder</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../components/randomizer/#tetris_gymnasium.components.tetromino_randomizer.Randomizer" title="tetris_gymnasium.components.tetromino_randomizer.Randomizer"><span class="pre">Randomizer</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tetrominoes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/tetris_gymnasium/envs/tetris/#Tetris"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tetris_gymnasium.envs.tetris.Tetris" title="Link to this definition">¶</a></dt>
+<dd><p>Tetris environment for Gymnasium.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>render_mode</strong> – The mode to use for rendering. If None, no rendering will be done.</p></li>
+<li><p><strong>width</strong> – The width of the board.</p></li>
+<li><p><strong>height</strong> – The height of the board.</p></li>
+<li><p><strong>gravity</strong> – Whether gravity is enabled in the game..</p></li>
+<li><p><strong>actions_mapping</strong> – The mapping for the actions that the agent can take.</p></li>
+<li><p><strong>rewards_mapping</strong> – The mapping for the rewards that the agent can receive.</p></li>
+<li><p><strong>queue</strong> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">TetrominoQueue</span></code> to use for holding tetrominoes temporarily.</p></li>
+<li><p><strong>holder</strong> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">TetrominoHolder</span></code> to use for storing tetrominoes.</p></li>
+<li><p><strong>randomizer</strong> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">Randomizer</span></code> to use for selecting tetrominoes</p></li>
+<li><p><strong>base_pixels</strong> – A list of base (non-Tetromino) <code class="xref py py-class docutils literal notranslate"><span class="pre">Pixel</span></code> to use for the environment (e.g. empty, bedrock).</p></li>
+<li><p><strong>tetrominoes</strong> – A list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Tetromino</span></code> to use in the environment.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <section id="pixels-and-tetrominoes">
 <h3>Pixels and Tetrominoes<a class="headerlink" href="#pixels-and-tetrominoes" title="Link to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">base_pixels</span></code> and <code class="docutils literal notranslate"><span class="pre">tetrominoes</span></code> arguments are used to customize the very basic components of the game. To get an overview of the
@@ -521,6 +544,7 @@ in the matrix to the according pixel ids. The pixel ids are later used to render
 <li><a class="reference internal" href="#starting-state">Starting state</a></li>
 <li><a class="reference internal" href="#episode-termination">Episode Termination</a></li>
 <li><a class="reference internal" href="#arguments">Arguments</a><ul>
+<li><a class="reference internal" href="#tetris_gymnasium.envs.tetris.Tetris"><code class="docutils literal notranslate"><span class="pre">Tetris</span></code></a></li>
 <li><a class="reference internal" href="#pixels-and-tetrominoes">Pixels and Tetrominoes</a></li>
 </ul>
 </li>
