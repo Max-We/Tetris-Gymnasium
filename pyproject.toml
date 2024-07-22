@@ -9,6 +9,7 @@ readme = "README.md"
 python = ">=3.9,<4.0"
 gymnasium = ">=0.28.1"
 numpy = "^1.21.6"
+opencv-python = "^4.10.0.84"
 
 [tool.poetry.group.examples]
 optional = true
