@@ -88,6 +88,7 @@ class Tetris(gym.Env):
             tetrominoes: A list of :class:`Tetromino` to use in the environment.
         """
         # Dimensions
+        self.game_over = False
         self.height: int = height
         self.width: int = width
 
@@ -196,9 +197,9 @@ class Tetris(gym.Env):
             action
         ), f"{action!r} ({type(action)}) invalid"
 
-        game_over = False
         truncated = False  # Tetris without levels will never truncate
         reward = 0
+        lines_cleared = 0
 
         if action == self.actions.move_left:
             if not self.collision(self.active_tetromino, self.x - 1, self.y):
@@ -231,7 +232,7 @@ class Tetris(gym.Env):
                 else:
                     self.reset_tetromino_position()
         elif action == self.actions.hard_drop:
-            reward, game_over = self.commit_active_tetromino()
+            reward, self.game_over, lines_cleared = self.commit_active_tetromino()
         elif action == self.actions.no_op:
             pass
 
@@ -241,9 +242,9 @@ class Tetris(gym.Env):
                 self.y += 1
             else:
                 # If there's no more room to move, lock in the tetromino
-                reward, game_over = self.commit_active_tetromino()
+                reward, self.game_over, lines_cleared = self.commit_active_tetromino()
 
-        return self._get_obs(), reward, game_over, truncated, self._get_info()
+        return self._get_obs(), reward, self.game_over, truncated, {"lines_cleared": lines_cleared}
 
     def reset(
         self, *, seed: "int | None" = None, options: "dict[str, Any] | None" = None
@@ -262,6 +263,7 @@ class Tetris(gym.Env):
 
         # Initialize fresh board
         self.board = self.create_board()
+        self.game_over = False
 
         # Reset the randomizer
         self.queue.reset(seed=seed)
@@ -427,24 +429,26 @@ class Tetris(gym.Env):
             The reward for the current step and whether the game is over.
         """
         # 1. Drop the tetromino and lock it in place
+        lines_cleared = 0
         if self.collision(self.active_tetromino, self.x, self.y):
             reward = self.rewards.game_over
-            game_over = True
+            self.game_over = True
         else:
             self.drop_active_tetromino()
             self.place_active_tetromino()
-            reward = self.score(self.clear_filled_rows())
+            lines_cleared = self.clear_filled_rows()
+            reward = self.score(lines_cleared)
 
             # 2. Spawn the next tetromino and check if the game continues
-            game_over = not self.spawn_tetromino()
+            self.game_over = not self.spawn_tetromino()
             reward += self.rewards.alife
-            if game_over:
+            if self.game_over:
                 reward = self.rewards.game_over
 
             # 3. Reset the swap flag (agent can swap once per tetromino)
             self.has_swapped = False
 
-        return reward, game_over
+        return reward, self.game_over, lines_cleared
 
     def clear_filled_rows(self) -> int:
         """Clear any filled rows on the board.
@@ -586,7 +590,7 @@ class Tetris(gym.Env):
 
     def _get_info(self) -> dict:
         """Return the current game state as info."""
-        return {}
+        return {"lines_cleared": 0}
 
     def score(self, rows_cleared) -> int:
         """Calculate the score based on the number of lines cleared.
@@ -597,7 +601,9 @@ class Tetris(gym.Env):
         Returns
             The score for the given number of lines cleared.
         """
-        return rows_cleared * self.rewards.clear_line
+
+        return (rows_cleared ** 2) * self.width
+        # return rows_cleared
 
     def create_board(self) -> np.ndarray:
         """Create a new board with the given dimensions."""

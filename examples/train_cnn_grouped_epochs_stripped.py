@@ -17,6 +17,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import tyro
+from gymnasium.spaces import Box
 from stable_baselines3.common.atari_wrappers import ClipRewardEnv
 from stable_baselines3.common.buffers import ReplayBuffer
 from torch.utils.tensorboard import SummaryWriter
@@ -61,9 +62,9 @@ def evaluate(
             for info in infos["final_info"]:
                 if "episode" not in info:
                     continue
-                print(
-                    f"eval_episode={len(episodic_returns)}, episodic_return={info['episode']['r']}"
-                )
+                # print(
+                #     f"eval_episode={len(episodic_returns)}, episodic_return={info['episode']['r']}"
+                # )
                 episodic_returns += [info["episode"]["r"]]
         obs = next_obs
 
@@ -81,9 +82,9 @@ class Args:
     """if toggled, `torch.backends.cudnn.deterministic=False`"""
     cuda: bool = True
     """if toggled, cuda will be enabled by default"""
-    track: bool = False
+    track: bool = True
     """if toggled, this experiment will be tracked with Weights and Biases"""
-    wandb_project_name: str = "tetris_gymnasium"
+    wandb_project_name: str = "tetris_gymnasium_grouped"
     """the wandb's project name"""
     wandb_entity: str = None
     """the entity (team) of wandb's project"""
@@ -114,7 +115,7 @@ class Args:
     """the target network update rate"""
     target_network_frequency: int = 1
     """the timesteps it takes to update the target network"""
-    batch_size: int = 1
+    batch_size: int = 512
     """the batch size of sample from the reply memory"""
     start_e: float = 1
     """the starting epsilon for exploration"""
@@ -126,6 +127,10 @@ class Args:
     """timestep to start learning"""
     train_frequency: int = 1
     """the frequency of training"""
+    total_epochs: int = 3000
+    """the total epochs to train the model"""
+    num_decay_epochs: int = 2000
+    """the number of epochs to decay the epsilon"""
 
 
 def make_env(env_id, seed, idx, capture_video, run_name):
@@ -162,9 +167,14 @@ class QNetwork(nn.Module):
             nn.Linear(64, 1),
         )
 
+    def _create_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.xavier_uniform_(m.weight)
+                nn.init.constant_(m.bias, 0)
+
     def forward(self, x):
         return self.network(x)
-
 
 def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
     slope = (end_e - start_e) / duration
@@ -230,7 +240,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                 )
             )
         )
-    writer = SummaryWriter(f"runs/{run_name}")
+    writer = SummaryWriter(f"runs_manual/idk")
     writer.add_text(
         "hyperparameters",
         "|param|value|\n|-|-|\n%s"
@@ -258,12 +268,10 @@ poetry run pip install "stable_baselines3==2.0.0a1"
 
     q_network = QNetwork(envs).to(device)
     optimizer = optim.Adam(q_network.parameters(), lr=args.learning_rate)
-    target_network = QNetwork(envs).to(device)
-    target_network.load_state_dict(q_network.state_dict())
 
     rb = ReplayBuffer(
         args.buffer_size,
-        envs.single_observation_space,
+        Box(0.0, 200.0, (1, 13), np.float32),
         envs.single_action_space,
         device,
         handle_timeout_termination=False,
@@ -272,129 +280,103 @@ poetry run pip install "stable_baselines3==2.0.0a1"
 
     # TRY NOT TO MODIFY: start the game
     obs, info = envs.reset(seed=args.seed)
+    board = info["board"][0]
+    action_mask = info["action_mask"][0]
+
     epoch = 0
-    for global_step in range(args.total_timesteps):
+    global_step = 0
+    epoch_lines_cleared = 0
+    while epoch < args.total_epochs:
         # ALGO LOGIC: put action logic here
-        epsilon = linear_schedule(
-            args.start_e,
-            args.end_e,
-            args.exploration_fraction * args.total_timesteps,
-            global_step,
-        )
+        epsilon = args.end_e + (max(args.num_decay_epochs - epoch, 0) * (
+                args.start_e - args.end_e) / args.num_decay_epochs)
+
         if random.random() < epsilon:
-            # sample action using legal action mask
             actions = np.array(
-                [envs.single_action_space.sample() for _ in range(envs.num_envs)]
+                [
+                    np.random.choice(np.where(action_mask == 1)[0])
+                    for env_idx in range(envs.num_envs)
+                ]
             )
-            # actions = np.array(
-            #     [
-            #         np.random.choice(np.where(info['action_mask'][env_idx] == 1)[0])
-            #         for env_idx in range(envs.num_envs)
-            #     ]
-            # )
         else:
             # Normalization by dividing with piece count
-            q_values = q_network(torch.Tensor(obs).to(device))
-            # q_values[0,info["action_mask"] == 0] = -np.inf
+            q_values = torch.ones((1, envs.single_action_space.n, 1), dtype=torch.float) * -np.inf
+            q_values[:,action_mask == 1,:] = q_network(torch.Tensor(obs[:,action_mask == 1,:]).to(device))
             actions = torch.argmax(q_values, dim=1)[0].cpu().numpy()
 
         # TRY NOT TO MODIFY: execute the game and log data.
         next_obs, rewards, terminations, truncations, infos = envs.step(actions)
+        global_step += 1
 
-        # TRY NOT TO MODIFY: record rewards for plotting purposes
-        if "final_info" in infos:
-            for info in infos["final_info"]:
-                if info and "episode" in info:
-                    epoch += 1
-                    print(
-                        f"epoch={epoch}, global_step={global_step}, episodic_return={info['episode']['r']}, episodic_len={info['episode']['l']}"
-                    )
-                    writer.add_scalar(
-                        "charts/episodic_return", info["episode"]["r"], global_step
-                    )
-                    writer.add_scalar(
-                        "charts/episodic_length", info["episode"]["l"], global_step
-                    )
+        next_board = infos["board"][0]
+        action_mask = infos["action_mask"][0]
+        epoch_lines_cleared += infos["lines_cleared"][0]
 
         # TRY NOT TO MODIFY: save data to reply buffer; handle `final_observation`
         real_next_obs = next_obs.copy()
         for idx, trunc in enumerate(truncations):
             if trunc:
                 real_next_obs[idx] = infos["final_observation"][idx]
-        rb.add(obs, real_next_obs, actions, rewards, terminations, infos)
+        rb.add(board, next_board, actions, rewards, terminations, infos)
 
         # TRY NOT TO MODIFY: CRUCIAL step easy to overlook
+        board = next_board.copy()
         obs = next_obs
 
         # ALGO LOGIC: training.
-        if global_step > args.learning_starts:
-            if global_step % args.train_frequency == 0:
-                data = rb.sample(args.batch_size)
-                with torch.no_grad():
-                    target_max, _ = target_network(data.next_observations).max(dim=1)
-                    td_target = data.rewards.flatten() + args.gamma * target_max * (
+        if (rb.size() > args.buffer_size / 10) and "final_info" in infos:
+            epoch += 1
+
+            data = rb.sample(args.batch_size)
+            with torch.no_grad():
+                target_max = q_network(data.next_observations).squeeze(-1).squeeze(-1)
+                td_target = data.rewards.flatten() + args.gamma * target_max * (
                         1 - data.dones.flatten()
-                    )
-                old_val = (
-                    q_network(data.observations)
-                    .squeeze(-1)
-                    .gather(1, data.actions)
-                    .squeeze()
                 )
-                loss = F.mse_loss(td_target, old_val)
+            old_val = q_network(data.observations).squeeze(-1).squeeze(-1)
 
-                if global_step % 100 == 0:
-                    writer.add_scalar("losses/td_loss", loss, global_step)
+            loss = F.mse_loss(old_val, td_target)
+
+            writer.add_scalar("losses/td_loss", loss, global_step)
+            writer.add_scalar("losses/target_q", td_target.mean().item(), global_step)
+            writer.add_scalar("losses/old_q", old_val.mean().item(), global_step)
+            if epoch % 100 == 0:
+                print("SPS:", int(global_step / (time.time() - start_time)))
+                print("Loss", loss.item())
+            writer.add_scalar(
+                "charts/SPS",
+                int(global_step / (time.time() - start_time)),
+                global_step,
+            )
+            writer.add_scalar(
+                "schedule/epsilon",
+                epsilon,
+                global_step,
+            )
+
+            for info in infos["final_info"]:
+                if info and "episode" in info:
+                    print(
+                        f"epoch={epoch}, episodic_return={info['episode']['r']}, episodic_len={info['episode']['l']}, episodic_lines={epoch_lines_cleared}"
+                    )
                     writer.add_scalar(
-                        "losses/q_values", old_val.mean().item(), global_step
+                        "charts/episodic_return", info["episode"]["r"], global_step
                     )
-                    print("SPS:", int(global_step / (time.time() - start_time)))
                     writer.add_scalar(
-                        "charts/SPS",
-                        int(global_step / (time.time() - start_time)),
-                        global_step,
+                        "charts/episodic_lines", epoch_lines_cleared, global_step
                     )
-
-                # optimize the model
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-
-            print("Loss", loss.item())
-            # update target network
-            if global_step % args.target_network_frequency == 0:
-                for target_network_param, q_network_param in zip(
-                    target_network.parameters(), q_network.parameters()
-                ):
-                    target_network_param.data.copy_(
-                        args.tau * q_network_param.data
-                        + (1.0 - args.tau) * target_network_param.data
+                    writer.add_scalar(
+                        "charts/episodic_length", info["episode"]["l"], global_step
                     )
+                    epoch_lines_cleared = 0
 
-    if args.save_model:
-        model_path = f"runs/{run_name}/{args.exp_name}.cleanrl_model"
-        torch.save(q_network.state_dict(), model_path)
-        print(f"model saved to {model_path}")
 
-        episodic_returns = evaluate(
-            model_path,
-            make_env,
-            args.env_id,
-            eval_episodes=10,
-            run_name=f"{run_name}-eval",
-            Model=QNetwork,
-            device=device,
-            epsilon=0.05,
-        )
-        for idx, episodic_return in enumerate(episodic_returns):
-            writer.add_scalar("eval/episodic_return", episodic_return, idx)
+            # optimize the model
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        # if args.upload_model:
-        #     from cleanrl_utils.huggingface import push_to_hub
-        #
-        #     repo_name = f"{args.env_id}-{args.exp_name}-seed{args.seed}"
-        #     repo_id = f"{args.hf_entity}/{repo_name}" if args.hf_entity else repo_name
-        #     push_to_hub(args, episodic_returns, repo_id, "DQN", f"runs/{run_name}", f"videos/{run_name}-eval")
+
 
     envs.close()
     writer.close()

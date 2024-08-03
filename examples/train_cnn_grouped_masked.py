@@ -81,9 +81,9 @@ class Args:
     """if toggled, `torch.backends.cudnn.deterministic=False`"""
     cuda: bool = True
     """if toggled, cuda will be enabled by default"""
-    track: bool = False
+    track: bool = True
     """if toggled, this experiment will be tracked with Weights and Biases"""
-    wandb_project_name: str = "tetris_gymnasium"
+    wandb_project_name: str = "tetris_gymnasium_grouped"
     """the wandb's project name"""
     wandb_entity: str = None
     """the entity (team) of wandb's project"""
@@ -114,7 +114,7 @@ class Args:
     """the target network update rate"""
     target_network_frequency: int = 1
     """the timesteps it takes to update the target network"""
-    batch_size: int = 1
+    batch_size: int = 512
     """the batch size of sample from the reply memory"""
     start_e: float = 1
     """the starting epsilon for exploration"""
@@ -272,6 +272,8 @@ poetry run pip install "stable_baselines3==2.0.0a1"
 
     # TRY NOT TO MODIFY: start the game
     obs, info = envs.reset(seed=args.seed)
+    action_mask = info["action_mask"][0]
+
     epoch = 0
     for global_step in range(args.total_timesteps):
         # ALGO LOGIC: put action logic here
@@ -283,23 +285,24 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         )
         if random.random() < epsilon:
             # sample action using legal action mask
-            actions = np.array(
-                [envs.single_action_space.sample() for _ in range(envs.num_envs)]
-            )
             # actions = np.array(
-            #     [
-            #         np.random.choice(np.where(info['action_mask'][env_idx] == 1)[0])
-            #         for env_idx in range(envs.num_envs)
-            #     ]
+            #     [envs.single_action_space.sample() for _ in range(envs.num_envs)]
             # )
+            actions = np.array(
+                [
+                    np.random.choice(np.where(action_mask == 1)[0])
+                    for env_idx in range(envs.num_envs)
+                ]
+            )
         else:
             # Normalization by dividing with piece count
-            q_values = q_network(torch.Tensor(obs).to(device))
-            # q_values[0,info["action_mask"] == 0] = -np.inf
+            q_values = torch.ones((1, envs.single_action_space.n, 1), dtype=torch.float) * -np.inf
+            q_values[:,action_mask == 1,:] = q_network(torch.Tensor(obs[:,action_mask == 1,:]).to(device))
             actions = torch.argmax(q_values, dim=1)[0].cpu().numpy()
 
         # TRY NOT TO MODIFY: execute the game and log data.
         next_obs, rewards, terminations, truncations, infos = envs.step(actions)
+        action_mask = infos["action_mask"][0]
 
         # TRY NOT TO MODIFY: record rewards for plotting purposes
         if "final_info" in infos:
@@ -360,7 +363,6 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                 loss.backward()
                 optimizer.step()
 
-            print("Loss", loss.item())
             # update target network
             if global_step % args.target_network_frequency == 0:
                 for target_network_param, q_network_param in zip(

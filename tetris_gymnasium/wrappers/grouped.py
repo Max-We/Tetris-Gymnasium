@@ -156,19 +156,51 @@ class GroupedActionsObservations(gym.ObservationWrapper):
                 while not self.env.unwrapped.collision(t, x, y + 1):
                     y += 1
 
+
+                # # append to results
+                # if self.collision_with_frame(t, x, y):
+                #     self.legal_actions_mask[
+                #         self.encode_action(x - self.env.unwrapped.padding, r)
+                #     ] = 0
+                #     grouped_board_obs.append(np.ones_like(board_obs))
+                # elif not self.env.unwrapped.collision(t, x, y):
+                #     grouped_board_obs.append(
+                #         self.env.unwrapped.project_tetromino(t, x, y)
+                #     )
+                # else:
+                #     # regular game over
+                #     grouped_board_obs.append(np.ones_like(board_obs))
+
                 # append to results
                 if self.collision_with_frame(t, x, y):
                     self.legal_actions_mask[
                         self.encode_action(x - self.env.unwrapped.padding, r)
                     ] = 0
                     grouped_board_obs.append(np.ones_like(board_obs))
+                elif self.env.game_over:
+                    # game over due to stack too high
+                    grouped_board_obs.append(np.zeros_like(board_obs))
                 elif not self.env.unwrapped.collision(t, x, y):
-                    grouped_board_obs.append(
-                        self.env.unwrapped.project_tetromino(t, x, y)
-                    )
+                    # check if next tetromino can spawn
+                    center_x = self.env.unwrapped.width_padded // 2 - self.env.unwrapped.active_tetromino.matrix.shape[0] // 2
+                    next_tetromino_index = self.env.unwrapped.queue.get_queue()[0]
+                    next_tetromino =  copy.deepcopy(self.env.unwrapped.tetrominoes[next_tetromino_index])
+                    # project current T
+                    old_board = self.env.unwrapped.board.copy()
+                    self.env.unwrapped.board = self.env.unwrapped.project_tetromino(t, x, y)
+                    if self.env.unwrapped.collision(
+                        next_tetromino, center_x, 0
+                    ):
+                        # game over due to next tetromino
+                        grouped_board_obs.append(np.zeros_like(board_obs))
+                    else:
+                        grouped_board_obs.append(
+                            self.env.unwrapped.project_tetromino(t, x, y)
+                        )
+                    self.env.unwrapped.board = old_board
                 else:
                     # regular game over
-                    grouped_board_obs.append(np.ones_like(board_obs))
+                    grouped_board_obs.append(np.zeros_like(board_obs))
 
             t = self.env.unwrapped.rotate(
                 t
@@ -217,7 +249,7 @@ class GroupedActionsObservations(gym.ObservationWrapper):
                     np.ones(self.observation_space.shape) * self.observation_space.high
                 )
                 game_over, truncated = True, False
-                info = {"action_mask": self.legal_actions_mask}
+                info = {"action_mask": self.legal_actions_mask, "lines_cleared": 0}
             else:
                 (
                     observation,
@@ -248,6 +280,10 @@ class GroupedActionsObservations(gym.ObservationWrapper):
         observation, reward, game_over, truncated, info = self.env.unwrapped.step(
             self.env.unwrapped.actions.hard_drop
         )
+        board = observation
+        for wrapper in self.observation_wrappers:
+            board = wrapper.observation(board)
+        info["board"] = board
 
         observation = self.observation(observation)  # generates legal_action_mask
         info["action_mask"] = self.legal_actions_mask
@@ -268,6 +304,10 @@ class GroupedActionsObservations(gym.ObservationWrapper):
         """
         self.legal_actions_mask = np.ones(self.action_space.n)
         observation, info = self.env.reset(seed=seed, options=options)
+        board = observation
+        for wrapper in self.observation_wrappers:
+            board = wrapper.observation(board)
+        info["board"] = board
 
         observation = self.observation(observation)  # generates legal_action_mask
         info["action_mask"] = self.legal_actions_mask
