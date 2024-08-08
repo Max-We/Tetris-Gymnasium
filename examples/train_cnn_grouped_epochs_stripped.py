@@ -101,8 +101,6 @@ class Args:
     # env_id: str = "BreakoutNoFrameskip-v4"
     env_id: str = "tetris_gymnasium/Tetris"
     """the id of the environment"""
-    total_timesteps: int = 60000
-    """total timesteps of the experiments"""
     learning_rate: float = 1e-3
     """the learning rate of the optimizer"""
     num_envs: int = 1
@@ -111,22 +109,12 @@ class Args:
     """the replay memory buffer size"""
     gamma: float = 0.99
     """the discount factor gamma"""
-    tau: float = 1.0
-    """the target network update rate"""
-    target_network_frequency: int = 1
-    """the timesteps it takes to update the target network"""
-    batch_size: int = 512
+    batch_size: int = 1024
     """the batch size of sample from the reply memory"""
     start_e: float = 1
     """the starting epsilon for exploration"""
     end_e: float = 1e-3
     """the ending epsilon for exploration"""
-    exploration_fraction: float = 0.10
-    """the fraction of `total-timesteps` it takes from start-e to go end-e"""
-    learning_starts: int = 3000
-    """timestep to start learning"""
-    train_frequency: int = 1
-    """the frequency of training"""
     total_epochs: int = 3000
     """the total epochs to train the model"""
     num_decay_epochs: int = 2000
@@ -312,11 +300,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         action_mask = infos["action_mask"][0]
         epoch_lines_cleared += infos["lines_cleared"][0]
 
-        # TRY NOT TO MODIFY: save data to reply buffer; handle `final_observation`
-        real_next_obs = next_obs.copy()
-        for idx, trunc in enumerate(truncations):
-            if trunc:
-                real_next_obs[idx] = infos["final_observation"][idx]
+        # TRY NOT TO MODIFY: save data to reply buffer
         rb.add(board, next_board, actions, rewards, terminations, infos)
 
         # TRY NOT TO MODIFY: CRUCIAL step easy to overlook

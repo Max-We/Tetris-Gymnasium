@@ -140,6 +140,10 @@ class GroupedActionsObservations(gym.ObservationWrapper):
 
         grouped_board_obs = []
 
+        if self.env.game_over:
+            # game over (previous step)
+            np.zeros(self.observation_space.shape)
+
         t = self.env.unwrapped.active_tetromino
         for x in range(self.env.unwrapped.width):
             # reset position
@@ -156,7 +160,6 @@ class GroupedActionsObservations(gym.ObservationWrapper):
                 while not self.env.unwrapped.collision(t, x, y + 1):
                     y += 1
 
-
                 # # append to results
                 # if self.collision_with_frame(t, x, y):
                 #     self.legal_actions_mask[
@@ -169,38 +172,26 @@ class GroupedActionsObservations(gym.ObservationWrapper):
                 #     )
                 # else:
                 #     # regular game over
-                #     grouped_board_obs.append(np.ones_like(board_obs))
+                #     grouped_board_obs.append(np.zeros_like(board_obs))
 
                 # append to results
+
                 if self.collision_with_frame(t, x, y):
+                    # illegal action
                     self.legal_actions_mask[
                         self.encode_action(x - self.env.unwrapped.padding, r)
                     ] = 0
                     grouped_board_obs.append(np.ones_like(board_obs))
-                elif self.env.game_over:
-                    # game over due to stack too high
-                    grouped_board_obs.append(np.zeros_like(board_obs))
-                elif not self.env.unwrapped.collision(t, x, y):
-                    # check if next tetromino can spawn
-                    center_x = self.env.unwrapped.width_padded // 2 - self.env.unwrapped.active_tetromino.matrix.shape[0] // 2
-                    next_tetromino_index = self.env.unwrapped.queue.get_queue()[0]
-                    next_tetromino =  copy.deepcopy(self.env.unwrapped.tetrominoes[next_tetromino_index])
-                    # project current T
-                    old_board = self.env.unwrapped.board.copy()
-                    self.env.unwrapped.board = self.env.unwrapped.project_tetromino(t, x, y)
-                    if self.env.unwrapped.collision(
-                        next_tetromino, center_x, 0
-                    ):
-                        # game over due to next tetromino
-                        grouped_board_obs.append(np.zeros_like(board_obs))
-                    else:
-                        grouped_board_obs.append(
-                            self.env.unwrapped.project_tetromino(t, x, y)
-                        )
-                    self.env.unwrapped.board = old_board
+                elif self.env.unwrapped.collision(t, x, y):
+                    # game over placement
+                    grouped_board_obs.append(
+                        np.zeros_like(board_obs)
+                    )
                 else:
-                    # regular game over
-                    grouped_board_obs.append(np.zeros_like(board_obs))
+                    # regular placement
+                    grouped_board_obs.append(
+                        self.env.unwrapped.project_tetromino(t, x, y)
+                    )
 
             t = self.env.unwrapped.rotate(
                 t
