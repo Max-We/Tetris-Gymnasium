@@ -322,6 +322,7 @@
         <span class="n">randomizer</span><span class="p">:</span> <span class="n">Randomizer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">base_pixels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">tetrominoes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">render_upscale</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a new Tetris environment.</span>
 
@@ -337,8 +338,10 @@
 <span class="sd">            randomizer: The :class:`Randomizer` to use for selecting tetrominoes</span>
 <span class="sd">            base_pixels: A list of base (non-Tetromino) :class:`Pixel` to use for the environment (e.g. empty, bedrock).</span>
 <span class="sd">            tetrominoes: A list of :class:`Tetromino` to use in the environment.</span>
+<span class="sd">            render_upscale: The factor to upscale the rendered board by.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Dimensions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_over</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">height</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">width</span>
 
@@ -429,6 +432,7 @@
 
         <span class="k">assert</span> <span class="n">render_mode</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">render_mode</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;render_modes&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">=</span> <span class="n">render_mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render_scaling_factor</span> <span class="o">=</span> <span class="n">render_upscale</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window_name</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[dict, float, bool, bool, dict]&quot;</span><span class="p">:</span>
@@ -447,9 +451,9 @@
             <span class="n">action</span>
         <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">action</span><span class="si">!r}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">action</span><span class="p">)</span><span class="si">}</span><span class="s2">) invalid&quot;</span>
 
-        <span class="n">game_over</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">truncated</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Tetris without levels will never truncate</span>
         <span class="n">reward</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">lines_cleared</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">move_left</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">collision</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">):</span>
@@ -482,7 +486,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">reset_tetromino_position</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">hard_drop</span><span class="p">:</span>
-            <span class="n">reward</span><span class="p">,</span> <span class="n">game_over</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">commit_active_tetromino</span><span class="p">()</span>
+            <span class="n">reward</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_over</span><span class="p">,</span> <span class="n">lines_cleared</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">commit_active_tetromino</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">no_op</span><span class="p">:</span>
             <span class="k">pass</span>
 
@@ -492,9 +496,15 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># If there&#39;s no more room to move, lock in the tetromino</span>
-                <span class="n">reward</span><span class="p">,</span> <span class="n">game_over</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">commit_active_tetromino</span><span class="p">()</span>
+                <span class="n">reward</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_over</span><span class="p">,</span> <span class="n">lines_cleared</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">commit_active_tetromino</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_obs</span><span class="p">(),</span> <span class="n">reward</span><span class="p">,</span> <span class="n">game_over</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_info</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_obs</span><span class="p">(),</span>
+            <span class="n">reward</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">game_over</span><span class="p">,</span>
+            <span class="n">truncated</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;lines_cleared&quot;</span><span class="p">:</span> <span class="n">lines_cleared</span><span class="p">},</span>
+        <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="s2">&quot;int | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="s2">&quot;dict[str, Any] | None&quot;</span> <span class="o">=</span> <span class="kc">None</span>
@@ -513,6 +523,7 @@
 
         <span class="c1"># Initialize fresh board</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_board</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_over</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># Reset the randomizer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
@@ -587,14 +598,17 @@
         <span class="n">matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rgb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_obs</span><span class="p">())</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">==</span> <span class="s2">&quot;human&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">==</span> <span class="s2">&quot;rgb_array&quot;</span><span class="p">:</span>
+            <span class="c1"># Upscale the matrix for better visualization</span>
+            <span class="n">kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">render_scaling_factor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_scaling_factor</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">==</span> <span class="s2">&quot;rgb_array&quot;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">matrix</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">==</span> <span class="s2">&quot;human&quot;</span><span class="p">:</span>
-                <span class="c1"># Upscale the matrix for better visibility</span>
-                <span class="n">scale_factor</span> <span class="o">=</span> <span class="mi">10</span>
-                <span class="n">kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">scale_factor</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
-                <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">window_name</span> <span class="o">=</span> <span class="s2">&quot;Tetris Gymnasium&quot;</span>
                     <span class="n">cv2</span><span class="o">.</span><span class="n">namedWindow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_name</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">WINDOW_GUI_NORMAL</span><span class="p">)</span>
@@ -678,26 +692,28 @@
 <span class="sd">            The reward for the current step and whether the game is over.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># 1. Drop the tetromino and lock it in place</span>
+        <span class="n">lines_cleared</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">collision</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">):</span>
             <span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="o">.</span><span class="n">game_over</span>
-            <span class="n">game_over</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">game_over</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">drop_active_tetromino</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">place_active_tetromino</span><span class="p">()</span>
-            <span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clear_filled_rows</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="n">lines_cleared</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clear_filled_rows</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">lines_cleared</span><span class="p">)</span>
 
             <span class="c1"># 2. Spawn the next tetromino and check if the game continues</span>
-            <span class="n">game_over</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">spawn_tetromino</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">game_over</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">spawn_tetromino</span><span class="p">()</span>
             <span class="n">reward</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="o">.</span><span class="n">alife</span>
-            <span class="k">if</span> <span class="n">game_over</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_over</span><span class="p">:</span>
                 <span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="o">.</span><span class="n">game_over</span>
 
             <span class="c1"># 3. Reset the swap flag (agent can swap once per tetromino)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">has_swapped</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="n">reward</span><span class="p">,</span> <span class="n">game_over</span>
+        <span class="k">return</span> <span class="n">reward</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_over</span><span class="p">,</span> <span class="n">lines_cleared</span>
 
-    <span class="k">def</span> <span class="nf">clear_filled_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">clear_filled_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple(np.ndarray, int)&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear any filled rows on the board.</span>
 
 <span class="sd">        The clearing is performed using numpy by indexing only the rows that are not filled and</span>
@@ -709,14 +725,12 @@
 <span class="sd">            The number of rows that were cleared.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># A row is filled if it doesn&#39;t contain any free space (0) and doesn&#39;t contain any bedrock / padding (1).</span>
-        <span class="n">filled_rows</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span>
-            <span class="o">~</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="n">filled_rows</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="p">(</span><span class="n">board</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="p">(</span><span class="n">board</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
         <span class="n">n_filled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">filled_rows</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">n_filled</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># Identify the rows that are not filled.</span>
-            <span class="n">unfilled_rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="o">~</span><span class="n">filled_rows</span><span class="p">]</span>
+            <span class="n">unfilled_rows</span> <span class="o">=</span> <span class="n">board</span><span class="p">[</span><span class="o">~</span><span class="n">filled_rows</span><span class="p">]</span>
 
             <span class="c1"># Create a new top part of the board with free space (0) to compensate for the cleared rows.</span>
             <span class="n">free_space</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_filled</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
@@ -728,9 +742,9 @@
             <span class="p">)</span>
 
             <span class="c1"># Concatenate the new top with the unfilled rows to form the updated board.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">free_space</span><span class="p">,</span> <span class="n">unfilled_rows</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">board</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">free_space</span><span class="p">,</span> <span class="n">unfilled_rows</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">n_filled</span>
+        <span class="k">return</span> <span class="n">board</span><span class="p">,</span> <span class="n">n_filled</span>
 
     <span class="k">def</span> <span class="nf">crop_padding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Crop the padding from the given matrix.</span>
@@ -837,7 +851,7 @@
 
     <span class="k">def</span> <span class="nf">_get_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the current game state as info.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;lines_cleared&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows_cleared</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the score based on the number of lines cleared.</span>
@@ -848,7 +862,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">            The score for the given number of lines cleared.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">rows_cleared</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="o">.</span><span class="n">clear_line</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">rows_cleared</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span>
 
     <span class="k">def</span> <span class="nf">create_board</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new board with the given dimensions.&quot;&quot;&quot;</span>
