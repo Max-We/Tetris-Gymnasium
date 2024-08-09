@@ -184,13 +184,13 @@ class GroupedActionsObservations(gym.ObservationWrapper):
                     grouped_board_obs.append(np.ones_like(board_obs))
                 elif self.env.unwrapped.collision(t, x, y):
                     # game over placement
-                    grouped_board_obs.append(
-                        np.zeros_like(board_obs)
-                    )
+                    grouped_board_obs.append(np.zeros_like(board_obs))
                 else:
                     # regular placement
                     grouped_board_obs.append(
-                        self.env.unwrapped.project_tetromino(t, x, y)
+                        self.env.clear_filled_rows(
+                            self.env.unwrapped.project_tetromino(t, x, y)
+                        )[0]
                     )
 
             t = self.env.unwrapped.rotate(

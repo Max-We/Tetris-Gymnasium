@@ -71,6 +71,7 @@ class Tetris(gym.Env):
         randomizer: Randomizer = None,
         base_pixels=None,
         tetrominoes=None,
+        render_upscale: int = 10,
     ):
         """Creates a new Tetris environment.
 
@@ -86,6 +87,7 @@ class Tetris(gym.Env):
             randomizer: The :class:`Randomizer` to use for selecting tetrominoes
             base_pixels: A list of base (non-Tetromino) :class:`Pixel` to use for the environment (e.g. empty, bedrock).
             tetrominoes: A list of :class:`Tetromino` to use in the environment.
+            render_upscale: The factor to upscale the rendered board by.
         """
         # Dimensions
         self.game_over = False
@@ -179,6 +181,7 @@ class Tetris(gym.Env):
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
+        self.render_scaling_factor = render_upscale
         self.window_name = None
 
     def step(self, action: ActType) -> "tuple[dict, float, bool, bool, dict]":
@@ -244,7 +247,13 @@ class Tetris(gym.Env):
                 # If there's no more room to move, lock in the tetromino
                 reward, self.game_over, lines_cleared = self.commit_active_tetromino()
 
-        return self._get_obs(), reward, self.game_over, truncated, {"lines_cleared": lines_cleared}
+        return (
+            self._get_obs(),
+            reward,
+            self.game_over,
+            truncated,
+            {"lines_cleared": lines_cleared},
+        )
 
     def reset(
         self, *, seed: "int | None" = None, options: "dict[str, Any] | None" = None
@@ -338,14 +347,17 @@ class Tetris(gym.Env):
         matrix = self.get_rgb(self._get_obs())
 
         if self.render_mode == "human" or self.render_mode == "rgb_array":
+            # Upscale the matrix for better visualization
+            kernel = np.ones(
+                (self.render_scaling_factor, self.render_scaling_factor, 1),
+                dtype=np.uint8,
+            )
+            matrix = np.kron(matrix, kernel)
+
             if self.render_mode == "rgb_array":
                 return matrix
 
             if self.render_mode == "human":
-                # Upscale the matrix for better visibility
-                scale_factor = 10
-                kernel = np.ones((scale_factor, scale_factor, 1), dtype=np.uint8)
-                matrix = np.kron(matrix, kernel)
                 if self.window_name is None:
                     self.window_name = "Tetris Gymnasium"
                     cv2.namedWindow(self.window_name, cv2.WINDOW_GUI_NORMAL)
@@ -436,7 +448,7 @@ class Tetris(gym.Env):
         else:
             self.drop_active_tetromino()
             self.place_active_tetromino()
-            lines_cleared = self.clear_filled_rows()
+            self.board, lines_cleared = self.clear_filled_rows(self.board)
             reward = self.score(lines_cleared)
 
             # 2. Spawn the next tetromino and check if the game continues
@@ -450,7 +462,7 @@ class Tetris(gym.Env):
 
         return reward, self.game_over, lines_cleared
 
-    def clear_filled_rows(self) -> int:
+    def clear_filled_rows(self, board) -> "tuple(np.ndarray, int)":
         """Clear any filled rows on the board.
 
         The clearing is performed using numpy by indexing only the rows that are not filled and
@@ -462,14 +474,12 @@ class Tetris(gym.Env):
             The number of rows that were cleared.
         """
         # A row is filled if it doesn't contain any free space (0) and doesn't contain any bedrock / padding (1).
-        filled_rows = (~(self.board == 0).any(axis=1)) & (
-            ~(self.board == 1).all(axis=1)
-        )
+        filled_rows = (~(board == 0).any(axis=1)) & (~(board == 1).all(axis=1))
         n_filled = np.sum(filled_rows)
 
         if n_filled > 0:
             # Identify the rows that are not filled.
-            unfilled_rows = self.board[~filled_rows]
+            unfilled_rows = board[~filled_rows]
 
             # Create a new top part of the board with free space (0) to compensate for the cleared rows.
             free_space = np.zeros((n_filled, self.width), dtype=np.uint8)
@@ -481,9 +491,9 @@ class Tetris(gym.Env):
             )
 
             # Concatenate the new top with the unfilled rows to form the updated board.
-            self.board[:] = np.concatenate((free_space, unfilled_rows), axis=0)
+            board[:] = np.concatenate((free_space, unfilled_rows), axis=0)
 
-        return n_filled
+        return board, n_filled
 
     def crop_padding(self, matrix: np.ndarray) -> np.ndarray:
         """Crop the padding from the given matrix.
@@ -601,9 +611,7 @@ class Tetris(gym.Env):
         Returns
             The score for the given number of lines cleared.
         """
-
-        return (rows_cleared ** 2) * self.width
-        # return rows_cleared
+        return (rows_cleared**2) * self.width
 
     def create_board(self) -> np.ndarray:
         """Create a new board with the given dimensions."""
