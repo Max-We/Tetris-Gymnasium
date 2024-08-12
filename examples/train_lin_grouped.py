@@ -113,7 +113,7 @@ class Args:
     """the target network update rate"""
     target_network_frequency: int = 1
     """the timesteps it takes to update the target network"""
-    batch_size: int = 32
+    batch_size: int = 512
     """the batch size of sample from the reply memory"""
     start_e: float = 1
     """the starting epsilon for exploration"""
@@ -140,7 +140,7 @@ def make_env(env_id, seed, idx, capture_video, run_name):
                 episode_trigger=lambda x: x % args.video_epoch_interval == 0,
             )
         else:
-            env = gym.make(env_id)
+            env = gym.make(env_id, render_mode="rgb_array", gravity=False)
             env = GroupedActionsObservations(
                 env, observation_wrappers=[FeatureVectorObservation(env)]
             )
@@ -371,6 +371,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                     )
                 old_val = q_network(data.observations).squeeze(-1).squeeze(-1)
 
+                assert old_val.shape == td_target.shape
                 loss = F.mse_loss(old_val, td_target)
 
                 if global_step % 100 == 0:
