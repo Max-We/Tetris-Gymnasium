@@ -80,6 +80,11 @@ class RgbObservation(gym.ObservationWrapper):
         the environment.
         """
         matrix = self.observation(self.env.unwrapped._get_obs())
+        kernel = np.ones(
+            (self.render_scaling_factor, self.render_scaling_factor, 1),
+            dtype=np.uint8,
+        )
+        matrix = np.kron(matrix, kernel)
 
         if self.render_mode == "human" or self.render_mode == "rgb_array":
             if self.render_mode == "rgb_array":
@@ -101,6 +106,7 @@ class RgbObservation(gym.ObservationWrapper):
                     self.env.unwrapped.window_name,
                     cv2.cvtColor(matrix, cv2.COLOR_RGB2BGR),
                 )
+                cv2.waitKey(1)
 
         return None
 
