@@ -1,0 +1,29 @@
+# Ignore pytest cache
+.pytest_cache
+
+# Ignore runs directory
+runs
+
+# Ignore videos directory
+videos
+
+# Ignore wandb directory
+wandb
+
+# Python cache files
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv
+.env
+
+# IDE specific files
+.vscode
+.idea
+
+# OS generated files
+.DS_Store
+Thumbs.db
