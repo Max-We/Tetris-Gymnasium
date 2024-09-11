@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tetris-gymnasium"
-version = "0.1.0"
+version = "0.0.0"
 description = "A fully configurable Gymnasium compatible Tetris environment"
 authors = ["mw <maximilian.weichart@icloud.com>"]
 readme = "README.md"
@@ -46,6 +46,9 @@ pyright = "^1.1.355"
 pydocstyle = "^6.3.0"
 pre-commit = "^3.6.2"
 pytest = "^8.2.2"
+
+[tool.poetry-dynamic-versioning]
+enable = true
 
 [tool.pyright]
 include = ["tetris_gymnasium/**"]
