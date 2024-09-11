@@ -34,14 +34,16 @@ For example, the `play_interactive.py` script allows you to play the Tetris envi
 
 ## Training
 
-In order to do Reinforcement Learning, you need to train an agent. To give some real-world examples, the code in the files `train_lin.py` and `train_cnn.py` in the `examples` directory show how to train a DQN agent on the Tetris environment.
+To do Reinforcement Learning, you need to train an agent. The `examples` directory contains a script demonstrating how to train a DQN agent on the Tetris environment using a convolutional neural network (CNN) model.
 
-To run the training, you can use the following command:
+To run the training, use the following command:
 
-```{code-block} bash
-poetry run python examples/train_lin.py # uses a linear model
-# or
-poetry run python examples/train_cnn.py # uses convolutions
+```bash
+poetry run python examples/train_cnn.py
 ```
 
-You can refer to the [CleanRL documentation](https://docs.cleanrl.dev/rl-algorithms/dqn/) for more information on the training script. Note: If you have tracking enabled, you will be prompted to login to Weights & Biases during the first run. This behavior can be adjusted in the script.
+This script trains a DQN agent with a CNN architecture.
+
+You can refer to the [CleanRL documentation](https://docs.cleanrl.dev/rl-algorithms/dqn/) for more information on the training script.
+
+Note: If you have tracking enabled, you will be prompted to login to Weights & Biases during the first run. This behavior can be adjusted in the script or by passing the parameter `--track False`.

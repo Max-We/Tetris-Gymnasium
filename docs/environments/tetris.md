@@ -1,6 +1,6 @@
 # Tetris
 
-![Tetris](../_static/components/holder.png)
+![Tetris](../_static/components/board.png)
 
 
 | Description       | Details                                                   |

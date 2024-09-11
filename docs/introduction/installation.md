@@ -1,11 +1,17 @@
 # Installation
 
-At the moment, you can install the environment by cloning the repository and running `poetry install`.
+You can install the Tetris-Gymnasium package using pip:
 
-> In the near future, this library will be distributed via PyPI.
+```bash
+pip install tetris-gymnasium
+```
 
-```{code-block} bash
+Alternatively, you can install the environment by cloning the repository and using Poetry:
+
+```bash
 git clone https://github.com/Max-We/Tetris-Gymnasium.git
 cd Tetris-Gymnasium
 poetry install
 ```
+
+This method is useful if you want to contribute to the project or need the latest development version.
