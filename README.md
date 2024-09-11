@@ -7,7 +7,7 @@ with OpenAI's Gymnasium.
 
 ## Quick Start
 
-Getting started with Tetris Gymnasium is straightforward. Here's a simple example to run an environment with random
+Getting started with Tetris Gymnasium is straightforward. Here's an example to run an environment with random
 actions:
 
 ```python
@@ -29,7 +29,7 @@ For more examples, e.g. training a DQN agent, please refer to the [examples](exa
 
 ## Installation
 
-To install Tetris Gymnasium, simply run:
+Tetris Gymnasium can be installed via pip:
 
 ```bash
 pip install tetris-gymnasium
