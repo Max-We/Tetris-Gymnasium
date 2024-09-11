@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tetris-gymnasium"
-version = "0.0.0"
+version = "0.2.0"
 description = "A fully configurable Gymnasium compatible Tetris environment"
 authors = ["mw <maximilian.weichart@icloud.com>"]
 readme = "README.md"
@@ -11,7 +11,6 @@ python = ">=3.9,<4.0"
 gymnasium = ">=0.28.1"
 numpy = "^1.21.6"
 opencv-python = "^4.10.0.84"
-poetry-dynamic-versioning = {extras = ["plugin"], version = "^1.4.1"}
 
 [tool.poetry.group.examples]
 optional = true
@@ -47,9 +46,6 @@ pydocstyle = "^6.3.0"
 pre-commit = "^3.6.2"
 pytest = "^8.2.2"
 
-[tool.poetry-dynamic-versioning]
-enable = true
-
 [tool.pyright]
 include = ["tetris_gymnasium/**"]
 exclude = ["**/node_modules", "**/__pycache__", "examples/**"]
@@ -82,5 +78,5 @@ reportUnboundVariable = "warning"
 reportPrivateImportUsage = "none"  # -> commented out raises 144 errors
 
 [build-system]
-requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
-build-backend = "poetry_dynamic_versioning.backend"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
