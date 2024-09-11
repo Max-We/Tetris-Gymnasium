@@ -1,0 +1,40 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  Tetris Gymnasium: A Modular Reinforcement Learning
+  Environment for Tetris
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Maximilian
+    family-names: Weichart
+    affiliation: University of Regensburg
+  - given-names: Philipp
+    family-names: Hartl
+    affiliation: University of Regensburg
+identifiers:
+  - type: url
+    value: 'https://easychair.org/publications/preprint/154Q'
+repository-code: 'https://github.com/Max-We/Tetris-Gymnasium'
+url: 'https://max-we.github.io/Tetris-Gymnasium/'
+abstract: >-
+  Tetris Gymnasium is a modern Reinforcement Learning (RL)
+  environment for Tetris, built with Gymnasium. It addresses
+  the limitations of existing Tetris environments by being
+  modular, understandable, and adjustable. This environment
+  fulfills all requirements of a feature-complete RL
+  environment while being adaptable to various research
+  needs.
+keywords:
+  - reinforcement learning
+  - tetris
+  - machine learning
+  - artificial intelligence
+  - gymnasium
+license: MIT
+version: '2'
+date-released: '2024-07-20'
