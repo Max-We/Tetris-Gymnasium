@@ -1,6 +1,11 @@
+[![Python](https://img.shields.io/pypi/pyversions/gymnasium.svg)](https://badge.fury.io/py/tetris-gymnasium)
+[![PyPI](https://badge.fury.io/py/gymnasium.svg)](https://badge.fury.io/py/tetris-gymnasium)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://pre-commit.com/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 # Tetris Gymnasium
 
-![logo](./docs/_static/logo.png "Tetris Gymnasium")
+![logo](https://raw.githubusercontent.com/Max-We/Tetris-Gymnasium/main/docs/_static/logo.png "Tetris Gymnasium")
 
 Tetris Gymnasium is a state-of-the-art, modular Reinforcement Learning (RL) environment for Tetris, tightly integrated
 with OpenAI's Gymnasium.
