@@ -14,4 +14,4 @@ jobs:
         with:
           pypi_token: ${{ secrets.PYPI_TOKEN }}
           repository_name: "tetris-gymnasium"
-          repository_url: "https://test.pypi.org/simple/"
+          repository_url: "https://test.pypi.org/legacy/"
