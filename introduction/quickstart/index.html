@@ -347,14 +347,14 @@
 </section>
 <section id="training">
 <h2>Training<a class="headerlink" href="#training" title="Link to this heading">¶</a></h2>
-<p>In order to do Reinforcement Learning, you need to train an agent. To give some real-world examples, the code in the files <code class="docutils literal notranslate"><span class="pre">train_lin.py</span></code> and <code class="docutils literal notranslate"><span class="pre">train_cnn.py</span></code> in the <code class="docutils literal notranslate"><span class="pre">examples</span></code> directory show how to train a DQN agent on the Tetris environment.</p>
-<p>To run the training, you can use the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/train_lin.py<span class="w"> </span><span class="c1"># uses a linear model</span>
-<span class="c1"># or</span>
-poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/train_cnn.py<span class="w"> </span><span class="c1"># uses convolutions</span>
+<p>To do Reinforcement Learning, you need to train an agent. The <code class="docutils literal notranslate"><span class="pre">examples</span></code> directory contains a script demonstrating how to train a DQN agent on the Tetris environment using a convolutional neural network (CNN) model.</p>
+<p>To run the training, use the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/train_cnn.py
 </pre></div>
 </div>
-<p>You can refer to the <a class="reference external" href="https://docs.cleanrl.dev/rl-algorithms/dqn/">CleanRL documentation</a> for more information on the training script. Note: If you have tracking enabled, you will be prompted to login to Weights &amp; Biases during the first run. This behavior can be adjusted in the script.</p>
+<p>This script trains a DQN agent with a CNN architecture.</p>
+<p>You can refer to the <a class="reference external" href="https://docs.cleanrl.dev/rl-algorithms/dqn/">CleanRL documentation</a> for more information on the training script.</p>
+<p>Note: If you have tracking enabled, you will be prompted to login to Weights &amp; Biases during the first run. This behavior can be adjusted in the script or by passing the parameter <code class="docutils literal notranslate"><span class="pre">--track</span> <span class="pre">False</span></code>.</p>
 </section>
 </section>
 
