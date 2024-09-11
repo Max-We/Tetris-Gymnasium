@@ -17,6 +17,7 @@ jobs:
           pypi_token: ${{ secrets.TEST_PYPI_TOKEN }}
           repository_name: "tetris-gymnasium"
           repository_url: "https://test.pypi.org/legacy/"
+          plugins: "poetry-dynamic-versioning[plugin]"
 
       - name: Build and publish to PyPI
         if: "!github.event.release.prerelease"
@@ -24,3 +25,4 @@ jobs:
         with:
           pypi_token: ${{ secrets.PYPI_TOKEN }}
           repository_name: "tetris-gymnasium"
+          plugins: "poetry-dynamic-versioning[plugin]"
