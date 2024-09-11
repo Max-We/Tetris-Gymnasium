@@ -1,9 +1,10 @@
 [tool.poetry]
 name = "tetris-gymnasium"
 version = "0.1.0"
-description = ""
+description = "A fully configurable Gymnasium compatible Tetris environment"
 authors = ["mw <maximilian.weichart@icloud.com>"]
 readme = "README.md"
+packages = [{include = "tetris_gymnasium"}]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
