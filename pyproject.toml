@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tetris-gymnasium"
-version = "0.1.0"
+version = "0.1.0-test"
 description = "A fully configurable Gymnasium compatible Tetris environment"
 authors = ["mw <maximilian.weichart@icloud.com>"]
 readme = "README.md"
