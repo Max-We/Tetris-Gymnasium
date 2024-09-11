@@ -17,3 +17,4 @@ jobs:
           PUBLISH_REGISTRY_PASSWORD: ${{ secrets.PYPI_TOKEN }}
           PUBLISH_REGISTRY: "https://test.pypi.org/simple/"
           BRANCH: "main"
+          POETRY_VERSION: "1.1.7"
