@@ -2,16 +2,25 @@ name: Build and publish python package
 
 on:
   release:
-    types: [ published ]
+    types: [published]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Build and publish to pypi
+
+      - name: Build and publish to TestPyPI
+        if: github.event.release.prerelease
+        uses: JRubics/poetry-publish@v2.0
+        with:
+          pypi_token: ${{ secrets.TEST_PYPI_TOKEN }}
+          repository_name: "tetris-gymnasium"
+          repository_url: "https://test.pypi.org/legacy/"
+
+      - name: Build and publish to PyPI
+        if: "!github.event.release.prerelease"
         uses: JRubics/poetry-publish@v2.0
         with:
           pypi_token: ${{ secrets.PYPI_TOKEN }}
           repository_name: "tetris-gymnasium"
-          repository_url: "https://test.pypi.org/legacy/"
