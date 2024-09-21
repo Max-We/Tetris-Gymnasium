@@ -142,9 +142,13 @@ class MCTS:
         state: the current game state
         temp: temperature parameter in (0, 1] controls the level of exploration
         """
+
+        state_copy = env.unwrapped.clone_state()
         for n in range(self._n_playout):
-            env_copy = copy.deepcopy(env)
-            self._playout(env_copy)
+            env.unwrapped.restore_state(state_copy)
+            self._playout(env)
+
+        env.unwrapped.restore_state(state_copy)
 
         # calc the move probabilities based on visit counts at the root node
         act_visits = [

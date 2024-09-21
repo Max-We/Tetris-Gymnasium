@@ -153,15 +153,19 @@ class MCTSPure:
             print("WARNING: rollout reached move limit")
         return reward_sum
 
-    def get_move(self, state):
+    def get_move(self, env):
         """Runs all playouts sequentially and returns the most visited action.
         state: the current game state
 
         Return: the selected action
         """
+        state_copy = env.unwrapped.clone_state()
         for n in range(self._n_playout):
-            state_copy = copy.deepcopy(state)
-            self._playout(state_copy)
+            env.unwrapped.restore_state(state_copy)
+            self._playout(env)
+
+        env.unwrapped.restore_state(state_copy)
+
         return max(
             self._root._children.items(), key=lambda act_node: act_node[1]._n_visits
         )[0]
