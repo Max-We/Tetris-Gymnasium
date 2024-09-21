@@ -122,12 +122,19 @@ class Tetris(gym.Env):
         # Reason for this kind of initialization: https://stackoverflow.com/q/41686829
         if randomizer is None:
             self.randomizer = BagRandomizer(len(self.tetrominoes))
+        else:
+            self.randomizer = randomizer(len(self.tetrominoes))
         if queue is None:
             self.queue = TetrominoQueue(self.randomizer)
+        else:
+            self.queue = queue(self.randomizer)
         if holder is None:
             self.holder = TetrominoHolder()
+        else:
+            self.holder = holder
         self.has_swapped = False
         self.gravity_enabled = gravity
+        self.score = 0
 
         # Position
         self.x: int = 0
@@ -247,12 +254,15 @@ class Tetris(gym.Env):
                 # If there's no more room to move, lock in the tetromino
                 reward, self.game_over, lines_cleared = self.commit_active_tetromino()
 
+        # update score
+        self.score += reward
+
         return (
             self._get_obs(),
             reward,
             self.game_over,
             truncated,
-            {"lines_cleared": lines_cleared},
+            {"lines_cleared": lines_cleared, "score": self.score},
         )
 
     def reset(
@@ -287,6 +297,9 @@ class Tetris(gym.Env):
 
         # Render
         self.window_name = None
+
+        # Score
+        self.score = 0
 
         return self._get_obs(), self._get_info()
 
@@ -449,7 +462,7 @@ class Tetris(gym.Env):
             self.drop_active_tetromino()
             self.place_active_tetromino()
             self.board, lines_cleared = self.clear_filled_rows(self.board)
-            reward = self.score(lines_cleared)
+            reward = self.calc_score(lines_cleared)
 
             # 2. Spawn the next tetromino and check if the game continues
             self.game_over = not self.spawn_tetromino()
@@ -602,7 +615,7 @@ class Tetris(gym.Env):
         """Return the current game state as info."""
         return {"lines_cleared": 0}
 
-    def score(self, rows_cleared) -> int:
+    def calc_score(self, rows_cleared) -> int:
         """Calculate the score based on the number of lines cleared.
 
         Args:
