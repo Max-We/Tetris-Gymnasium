@@ -572,6 +572,14 @@ class Tetris(gym.Env):
         active_tetromino_mask = np.zeros_like(board_obs)
         active_tetromino_mask[active_tetromino_slices] = 1
 
+        # todo: make this cleaner
+        return {
+            "board": board_obs.astype(np.uint8),
+            "active_tetromino_mask": active_tetromino_mask.astype(np.uint8),
+            "holder": None,
+            "queue": None,
+        }
+
         # Holder
         max_size = self.padding
         holder_tetrominoes = self.holder.get_tetrominoes()
@@ -674,3 +682,31 @@ class Tetris(gym.Env):
             tetrominoes[i].matrix = tetrominoes[i].matrix * (i + offset)
 
         return tetrominoes
+
+    def restore_state(self, state):
+        """Restore the state of the environment."""
+        self.board = state["board"]
+        self.active_tetromino = state["active_tetromino"]
+        self.x = state["x"]
+        self.y = state["y"]
+        self.queue = state["queue"]
+        self.holder = state["holder"]
+        self.randomizer = state["randomizer"]
+        self.has_swapped = state["has_swapped"]
+        self.game_over = state["game_over"]
+        self.score = state["score"]
+
+    def clone_state(self):
+        """Clone the current state of the environment."""
+        return {
+            "board": self.board.copy(),
+            "active_tetromino": copy.deepcopy(self.active_tetromino),
+            "x": self.x,
+            "y": self.y,
+            "queue": copy.deepcopy(self.queue),
+            "holder": copy.deepcopy(self.holder),
+            "randomizer": copy.deepcopy(self.randomizer),
+            "has_swapped": self.has_swapped,
+            "game_over": self.game_over,
+            "score": self.score,
+        }

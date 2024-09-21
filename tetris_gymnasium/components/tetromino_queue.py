@@ -1,5 +1,6 @@
 """Module for a queue of tetrominoes for use in a game of Tetris."""
 from collections import deque
+from copy import deepcopy
 
 from tetris_gymnasium.components.tetromino_randomizer import Randomizer
 
@@ -44,3 +45,12 @@ class TetrominoQueue:
     def get_queue(self):
         """Get all tetrominoes currently in the queue."""
         return list(self.queue)
+
+    def __deepcopy__(self, memo):
+        # Create a new instance
+        new_queue = TetrominoQueue(deepcopy(self.randomizer, memo), self.size)
+
+        # Deep copy the queue
+        new_queue.queue = deepcopy(self.queue, memo)
+
+        return new_queue

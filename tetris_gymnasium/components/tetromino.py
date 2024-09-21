@@ -1,4 +1,5 @@
 """Data structures for Tetris."""
+from copy import deepcopy
 from dataclasses import dataclass
 
 import numpy as np
@@ -16,6 +17,11 @@ class Pixel:
 
     id: int
     color_rgb: list
+
+    def __deepcopy__(self, memo):
+        # Since id is immutable and color_rgb is a list that needs to be copied,
+        # we can use the default deepcopy behavior
+        return deepcopy(super(), memo)
 
 
 @dataclass
@@ -42,3 +48,11 @@ class Tetromino(Pixel):
     """
 
     matrix: np.ndarray
+
+    def __deepcopy__(self, memo):
+        # Create a new instance with copied attributes
+        return Tetromino(
+            id=self.id,
+            color_rgb=deepcopy(self.color_rgb, memo),
+            matrix=self.matrix.copy(),
+        )
