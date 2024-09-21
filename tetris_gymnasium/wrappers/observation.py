@@ -8,6 +8,53 @@ from gymnasium.spaces import Box
 from tetris_gymnasium.envs import Tetris
 
 
+class SimpleObservationWrapper(gym.ObservationWrapper):
+    """Observation wrapper that displays all observations (board, holder, queue) as one single RGB Image.
+
+    The observation contains the board on the left, the queue on the top right and the holder on the bottom right.
+    The size of the matrix depends on how many tetrominoes can be stored in the queue / holder.
+    """
+
+    def __init__(self, env: Tetris):
+        """Initialize the RgbObservation wrapper.
+
+        Args:
+            env (Tetris): The environment
+        """
+        super().__init__(env)
+        self.observation_space = Box(
+            low=0,
+            high=2,
+            shape=(env.unwrapped.height_padded, env.unwrapped.width_padded),
+            dtype=np.uint8,
+        )
+
+    def observation(self, observation):
+        """Observation wrapper that displays all observations (board, holder, queue) as one single RGB Image.
+
+        The observation contains the board on the left, the queue on the top right and the holder on the bottom right.
+        """
+        # Board
+        board_obs = observation["board"]
+        active_tetromnio_mask = observation["active_tetromino_mask"]
+
+        # make board binary (0-1)
+        board_obs = np.where(board_obs > 0, 1, 0)
+        # add active tetromino with value 2
+        board_obs[active_tetromnio_mask == 1] = 2
+
+        board_obs = board_obs[
+            0 : -self.env.unwrapped.padding,
+            self.env.unwrapped.padding : -self.env.unwrapped.padding,
+        ]
+
+        return board_obs
+
+    def get_obs(self):
+        obs = self.env.unwrapped._get_obs()
+        return self.observation(obs)
+
+
 class RgbObservation(gym.ObservationWrapper):
     """Observation wrapper that displays all observations (board, holder, queue) as one single RGB Image.
 
