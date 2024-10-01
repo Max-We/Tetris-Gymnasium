@@ -89,11 +89,13 @@ class PolicyValueNet:
         """
         if self.use_gpu:
             state_batch = Variable(torch.FloatTensor(state_batch).cuda())
+            state_batch = state_batch.unsqueeze(1)
             log_act_probs, value = self.policy_value_net(state_batch)
             act_probs = np.exp(log_act_probs.data.cpu().numpy())
             return act_probs, value.data.cpu().numpy()
         else:
             state_batch = Variable(torch.FloatTensor(state_batch))
+            state_batch = state_batch.unsqueeze(1)
             log_act_probs, value = self.policy_value_net(state_batch)
             act_probs = np.exp(log_act_probs.data.numpy())
             return act_probs, value.data.numpy()
@@ -128,10 +130,12 @@ class PolicyValueNet:
         # wrap in Variable
         if self.use_gpu:
             state_batch = Variable(torch.FloatTensor(state_batch).cuda())
+            state_batch = state_batch.unsqueeze(1)
             mcts_probs = Variable(torch.FloatTensor(mcts_probs).cuda())
             z_batch = Variable(torch.FloatTensor(z_batch).cuda())
         else:
             state_batch = Variable(torch.FloatTensor(state_batch))
+            state_batch = state_batch.unsqueeze(1)
             mcts_probs = Variable(torch.FloatTensor(mcts_probs))
             z_batch = Variable(torch.FloatTensor(z_batch))
 
@@ -152,9 +156,9 @@ class PolicyValueNet:
         self.optimizer.step()
         # calc policy entropy, for monitoring only
         entropy = -torch.mean(torch.sum(torch.exp(log_act_probs) * log_act_probs, 1))
-        return loss.data[0], entropy.data[0]
+        # return loss.data[0], entropy.data[0]
         # for pytorch version >= 0.5 please use the following line instead.
-        # return loss.item(), entropy.item()
+        return loss.item(), entropy.item()
 
     def get_policy_param(self):
         net_params = self.policy_value_net.state_dict()
