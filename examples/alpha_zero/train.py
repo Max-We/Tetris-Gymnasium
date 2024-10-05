@@ -50,14 +50,17 @@ class TrainPipeline:
         # num of simulations used for the pure mcts, which is used as
         # the opponent to evaluate the trained policy
         self.pure_mcts_playout_num = 1000
+        action_size = self.env.action_space.n
         if init_model:
             # start training from an initial policy-value net
             self.policy_value_net = PolicyValueNet(
-                self.board_width, self.board_height, model_file=init_model
+                self.board_width, self.board_height, action_size, model_file=init_model
             )
         else:
             # start training from a new policy-value net
-            self.policy_value_net = PolicyValueNet(self.board_width, self.board_height)
+            self.policy_value_net = PolicyValueNet(
+                self.board_width, self.board_height, action_size
+            )
         self.mcts_player = MCTSAgent(
             self.policy_value_net.policy_value_fn,
             c_puct=self.c_puct,

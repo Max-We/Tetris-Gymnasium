@@ -24,7 +24,7 @@ def set_learning_rate(optimizer, lr):
 class Net(nn.Module):
     """policy-value network module"""
 
-    def __init__(self, board_width, board_height):
+    def __init__(self, board_width, board_height, action_size):
         super().__init__()
 
         self.board_width = board_width
@@ -36,9 +36,7 @@ class Net(nn.Module):
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
         # action policy layers
         self.act_conv1 = nn.Conv2d(128, 4, kernel_size=1)
-        self.act_fc1 = nn.Linear(
-            4 * board_width * board_height, board_width * board_height
-        )
+        self.act_fc1 = nn.Linear(4 * board_width * board_height, action_size)
         # state value layers
         self.val_conv1 = nn.Conv2d(128, 2, kernel_size=1)
         self.val_fc1 = nn.Linear(2 * board_width * board_height, 64)
@@ -64,16 +62,18 @@ class Net(nn.Module):
 class PolicyValueNet:
     """policy-value network"""
 
-    def __init__(self, board_width, board_height, model_file=None, use_gpu=False):
+    def __init__(
+        self, board_width, board_height, action_size, model_file=None, use_gpu=False
+    ):
         self.use_gpu = use_gpu
         self.board_width = board_width
         self.board_height = board_height
         self.l2_const = 1e-4  # coef of l2 penalty
         # the policy value net module
         if self.use_gpu:
-            self.policy_value_net = Net(board_width, board_height).cuda()
+            self.policy_value_net = Net(board_width, board_height, action_size).cuda()
         else:
-            self.policy_value_net = Net(board_width, board_height)
+            self.policy_value_net = Net(board_width, board_height, action_size)
         self.optimizer = optim.Adam(
             self.policy_value_net.parameters(), weight_decay=self.l2_const
         )
