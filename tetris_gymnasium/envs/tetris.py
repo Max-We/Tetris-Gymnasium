@@ -122,12 +122,19 @@ class Tetris(gym.Env):
         # Reason for this kind of initialization: https://stackoverflow.com/q/41686829
         if randomizer is None:
             self.randomizer = BagRandomizer(len(self.tetrominoes))
+        else:
+            self.randomizer = randomizer(len(self.tetrominoes))
         if queue is None:
             self.queue = TetrominoQueue(self.randomizer)
+        else:
+            self.queue = queue(self.randomizer)
         if holder is None:
             self.holder = TetrominoHolder()
+        else:
+            self.holder = holder
         self.has_swapped = False
         self.gravity_enabled = gravity
+        self.score = 0
 
         # Position
         self.x: int = 0
@@ -247,12 +254,15 @@ class Tetris(gym.Env):
                 # If there's no more room to move, lock in the tetromino
                 reward, self.game_over, lines_cleared = self.commit_active_tetromino()
 
+        # update score
+        self.score += reward
+
         return (
             self._get_obs(),
             reward,
             self.game_over,
             truncated,
-            {"lines_cleared": lines_cleared},
+            {"lines_cleared": lines_cleared, "score": self.score},
         )
 
     def reset(
@@ -287,6 +297,9 @@ class Tetris(gym.Env):
 
         # Render
         self.window_name = None
+
+        # Score
+        self.score = 0
 
         return self._get_obs(), self._get_info()
 
@@ -449,7 +462,7 @@ class Tetris(gym.Env):
             self.drop_active_tetromino()
             self.place_active_tetromino()
             self.board, lines_cleared = self.clear_filled_rows(self.board)
-            reward = self.score(lines_cleared)
+            reward = self.calc_score(lines_cleared)
 
             # 2. Spawn the next tetromino and check if the game continues
             self.game_over = not self.spawn_tetromino()
@@ -559,6 +572,18 @@ class Tetris(gym.Env):
         active_tetromino_mask = np.zeros_like(board_obs)
         active_tetromino_mask[active_tetromino_slices] = 1
 
+        # todo: make this cleaner
+        return {
+            "board": board_obs.astype(np.uint8),
+            "active_tetromino_mask": active_tetromino_mask.astype(np.uint8),
+            "holder": np.zeros(
+                (self.padding, self.padding * self.holder.size), dtype=np.uint8
+            ),
+            "queue": np.zeros(
+                (self.padding, self.padding * self.queue.size), dtype=np.uint8
+            ),
+        }
+
         # Holder
         max_size = self.padding
         holder_tetrominoes = self.holder.get_tetrominoes()
@@ -602,7 +627,7 @@ class Tetris(gym.Env):
         """Return the current game state as info."""
         return {"lines_cleared": 0}
 
-    def score(self, rows_cleared) -> int:
+    def calc_score(self, rows_cleared) -> int:
         """Calculate the score based on the number of lines cleared.
 
         Args:
@@ -661,3 +686,31 @@ class Tetris(gym.Env):
             tetrominoes[i].matrix = tetrominoes[i].matrix * (i + offset)
 
         return tetrominoes
+
+    def restore_state(self, state):
+        """Restore the state of the environment."""
+        self.board = state["board"]
+        self.active_tetromino = state["active_tetromino"]
+        self.x = state["x"]
+        self.y = state["y"]
+        self.queue = state["queue"]
+        self.holder = state["holder"]
+        self.randomizer = state["randomizer"]
+        self.has_swapped = state["has_swapped"]
+        self.game_over = state["game_over"]
+        self.score = state["score"]
+
+    def clone_state(self):
+        """Clone the current state of the environment."""
+        return {
+            "board": self.board.copy(),
+            "active_tetromino": copy.deepcopy(self.active_tetromino),
+            "x": self.x,
+            "y": self.y,
+            "queue": copy.deepcopy(self.queue),
+            "holder": copy.deepcopy(self.holder),
+            "randomizer": copy.deepcopy(self.randomizer),
+            "has_swapped": self.has_swapped,
+            "game_over": self.game_over,
+            "score": self.score,
+        }
