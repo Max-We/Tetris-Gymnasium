@@ -576,8 +576,12 @@ class Tetris(gym.Env):
         return {
             "board": board_obs.astype(np.uint8),
             "active_tetromino_mask": active_tetromino_mask.astype(np.uint8),
-            "holder": None,
-            "queue": None,
+            "holder": np.zeros(
+                (self.padding, self.padding * self.holder.size), dtype=np.uint8
+            ),
+            "queue": np.zeros(
+                (self.padding, self.padding * self.queue.size), dtype=np.uint8
+            ),
         }
 
         # Holder

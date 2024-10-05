@@ -25,7 +25,7 @@ class SimpleObservationWrapper(gym.ObservationWrapper):
         self.observation_space = Box(
             low=0,
             high=2,
-            shape=(env.unwrapped.height_padded, env.unwrapped.width_padded),
+            shape=(env.unwrapped.height, env.unwrapped.width),
             dtype=np.uint8,
         )
 
@@ -39,7 +39,7 @@ class SimpleObservationWrapper(gym.ObservationWrapper):
         active_tetromnio_mask = observation["active_tetromino_mask"]
 
         # make board binary (0-1)
-        board_obs = np.where(board_obs > 0, 1, 0)
+        board_obs = np.where(board_obs > 0, 1, 0).astype(np.uint8)
         # add active tetromino with value 2
         board_obs[active_tetromnio_mask == 1] = 2
 
@@ -48,6 +48,8 @@ class SimpleObservationWrapper(gym.ObservationWrapper):
             self.env.unwrapped.padding : -self.env.unwrapped.padding,
         ]
 
+        # print(board_obs.shape, board_obs.min(), board_obs.max(), board_obs.dtype)
+        # print(self.observation_space)
         return board_obs
 
     def get_obs(self):
