@@ -13,7 +13,7 @@ import numpy as np
 
 from examples.alpha_zero.agent import MCTSAgent
 from examples.alpha_zero.model import PolicyValueNet
-from examples.alpha_zero.simulation import start_self_play
+from tetris_gymnasium.envs import Tetris
 from tetris_gymnasium.wrappers.observation import SimpleObservationWrapper
 
 
@@ -61,17 +61,39 @@ class TrainPipeline:
             self.policy_value_net = PolicyValueNet(
                 self.board_width, self.board_height, action_size
             )
-        self.mcts_player = MCTSAgent(
+        self.agent = MCTSAgent(
             self.policy_value_net.policy_value_fn,
             c_puct=self.c_puct,
             n_playout=self.n_playout,
             is_selfplay=1,
         )
 
+    def start_self_play(self, is_shown=False):
+        """start a self-play game using a MCTS player, reuse the search tree,
+        and store the self-play data: (state, mcts_probs, z) for training
+        """
+        obs, _ = self.env.reset()
+        states, mcts_probs, rewards = [], [], []
+        while True:
+            move, move_probs = self.agent.get_action(self.env, temp=self.temp, return_prob=1)
+            # store the data
+            states.append(obs)
+            mcts_probs.append(move_probs)
+            # perform a move
+            obs, reward, terminated, truncated, info = self.env.step(move)
+            rewards.append(reward)
+            if is_shown:
+                self.env.render()
+            if terminated:
+                self.agent.reset_agent()
+                if is_shown:
+                    print("Game over")
+                return zip(states, mcts_probs, rewards)
+
     def collect_selfplay_data(self, n_games=1):
         """collect self-play data for training"""
         for i in range(n_games):
-            play_data = start_self_play(self.env, self.mcts_player, temp=self.temp)
+            play_data = self.start_self_play()
             play_data = list(play_data)[:]
             self.episode_len = len(play_data)
             # augment the data
@@ -130,29 +152,6 @@ class TrainPipeline:
             )
         )
         return loss, entropy
-
-    # def policy_evaluate(self, n_games=10):
-    #     """
-    #     Evaluate the trained policy by playing against the pure MCTS player
-    #     Note: this is only for monitoring the progress of training
-    #     """
-    #     current_mcts_player = MCTSAgent(self.policy_value_net.policy_value_fn,
-    #                                      c_puct=self.c_puct,
-    #                                      n_playout=self.n_playout)
-    #     pure_mcts_player = MCTS_Pure(c_puct=5,
-    #                                  n_playout=self.pure_mcts_playout_num)
-    #     win_cnt = defaultdict(int)
-    #     for i in range(n_games):
-    #         zs = self.game.start_play(current_mcts_player,
-    #                                       pure_mcts_player,
-    #                                       start_player=i % 2,
-    #                                       is_shown=0)
-    #         win_cnt[zs] += 1
-    #     win_ratio = 1.0*(win_cnt[1] + 0.5*win_cnt[-1]) / n_games
-    #     print("num_playouts:{}, win: {}, lose: {}, tie:{}".format(
-    #             self.pure_mcts_playout_num,
-    #             win_cnt[1], win_cnt[2], win_cnt[-1]))
-    #     return win_ratio
 
     def run(self):
         """run the training pipeline"""

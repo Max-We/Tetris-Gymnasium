@@ -1,5 +1,6 @@
 """Tetris environment for Gymnasium."""
 import copy
+from collections import deque
 from dataclasses import fields
 from typing import Any, List
 
@@ -702,15 +703,52 @@ class Tetris(gym.Env):
 
     def clone_state(self):
         """Clone the current state of the environment."""
+        randomizer = self.clone_randomizer(self.randomizer)
         return {
-            "board": self.board.copy(),
-            "active_tetromino": copy.deepcopy(self.active_tetromino),
+            "board": self.clone_board(self.board),
+            "active_tetromino": self.clone_tetromino(self.active_tetromino),
             "x": self.x,
             "y": self.y,
-            "queue": copy.deepcopy(self.queue),
-            "holder": copy.deepcopy(self.holder),
-            "randomizer": copy.deepcopy(self.randomizer),
+            "queue": self.clone_queue(self.queue, randomizer),
+            "holder": self.clone_holder(self.holder),
+            "randomizer": randomizer,
             "has_swapped": self.has_swapped,
             "game_over": self.game_over,
             "score": self.score,
         }
+
+    @staticmethod
+    def clone_board(board):
+        return board.copy()
+
+    @staticmethod
+    def clone_tetromino(tetromino):
+        return Tetromino(
+            id=tetromino.id,
+            color_rgb=tetromino.color_rgb.copy(),
+            matrix=tetromino.matrix.copy()
+        )
+
+    @staticmethod
+    def clone_queue(queue, randomizer):
+        new_queue = TetrominoQueue(randomizer, queue.size)
+        new_queue.queue = deque(queue.queue)
+        return new_queue
+
+    @staticmethod
+    def clone_holder(holder):
+        new_holder = TetrominoHolder(holder.size)
+        new_holder.queue = deque(holder.queue)
+        return new_holder
+
+    @staticmethod
+    def clone_randomizer(randomizer):
+        new_randomizer = randomizer.__class__(randomizer.size)
+        new_randomizer.rng = np.random.Generator(np.random.PCG64())
+        new_randomizer.rng.bit_generator.state = randomizer.rng.bit_generator.state
+        # new_randomizer.rng = copy.deepcopy(randomizer.rng)
+
+        if hasattr(randomizer, 'bag'):
+            new_randomizer.bag = randomizer.bag.copy()
+            new_randomizer.index = randomizer.index
+        return new_randomizer
