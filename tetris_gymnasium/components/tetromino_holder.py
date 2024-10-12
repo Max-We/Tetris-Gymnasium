@@ -1,5 +1,6 @@
 """Module for the Holder class, which stores one or more tetrominoes for later use in a game of Tetris."""
 from collections import deque
+from copy import deepcopy
 from typing import Optional
 
 from tetris_gymnasium.components.tetromino import Tetromino
@@ -55,3 +56,12 @@ class TetrominoHolder:
     def get_tetrominoes(self):
         """Get all the tetrominoes currently in the holder."""
         return list(self.queue)
+
+    def __deepcopy__(self, memo):
+        # Create a new instance
+        new_holder = TetrominoHolder(self.size)
+
+        # Deep copy the queue
+        new_holder.queue = deepcopy(self.queue, memo)
+
+        return new_holder
