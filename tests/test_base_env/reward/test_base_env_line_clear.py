@@ -31,7 +31,7 @@ def test_line_clear_normal(tetris_env, vertical_i_tetromino):
     # Check that the board has been cleared and that the reward is correct
     assert np.array_equal(tetris_env.unwrapped.board, cleared_board)
     assert (
-        reward == RewardsMapping.clear_line * 4
+        reward == (RewardsMapping.clear_line**2) * 10 + 1
     )  # In the future, this reward formula may change
 
     # Check that the game is not terminated or truncated
