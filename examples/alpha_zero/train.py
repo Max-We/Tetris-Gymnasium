@@ -75,7 +75,9 @@ class TrainPipeline:
         obs, _ = self.env.reset()
         states, mcts_probs, rewards = [], [], []
         while True:
-            move, move_probs = self.agent.get_action(self.env, temp=self.temp, return_prob=1)
+            move, move_probs = self.agent.get_action(
+                self.env, temp=self.temp, return_prob=1
+            )
             # store the data
             states.append(obs)
             mcts_probs.append(move_probs)

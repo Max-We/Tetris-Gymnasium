@@ -1,9 +1,11 @@
+import copy
 import time
-import numpy as np
+
 import gymnasium as gym
+import numpy as np
+
 from tetris_gymnasium.envs import Tetris
 from tetris_gymnasium.wrappers.observation import RgbObservation
-import copy
 
 
 def create_env():
@@ -48,12 +50,18 @@ def main():
     for n_state_inits in n_state_inits_values:
         for n_copy_operations in n_copy_operations_values:
             if n_copy_operations <= n_state_inits:
-                creation_time, copy_operations_time, single_copy_time = run_test(n_state_inits, n_copy_operations)
-                print(f"Test with {n_state_inits} state initializations and {n_copy_operations} copy operations")
+                creation_time, copy_operations_time, single_copy_time = run_test(
+                    n_state_inits, n_copy_operations
+                )
+                print(
+                    f"Test with {n_state_inits} state initializations and {n_copy_operations} copy operations"
+                )
                 print(f"  State creation time: {creation_time:.6f} seconds")
                 print(f"  Copy operations time: {copy_operations_time:.6f} seconds")
                 print(f"  Single copy time: {single_copy_time:.6f} seconds")
-                print(f"  Total time: {creation_time + copy_operations_time + single_copy_time:.6f} seconds")
+                print(
+                    f"  Total time: {creation_time + copy_operations_time + single_copy_time:.6f} seconds"
+                )
                 print()
 
 

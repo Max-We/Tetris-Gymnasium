@@ -1,14 +1,17 @@
+import gymnasium as gym
 import numpy as np
 import pytest
-import gymnasium as gym
-from tetris_gymnasium.envs import Tetris
-from tetris_gymnasium.wrappers.observation import RgbObservation
+
 from tetris_gymnasium.components.tetromino_queue import TetrominoQueue
 from tetris_gymnasium.components.tetromino_randomizer import Randomizer
+from tetris_gymnasium.envs import Tetris
+from tetris_gymnasium.wrappers.observation import RgbObservation
+
 
 def create_env():
     env = gym.make("tetris_gymnasium/Tetris", render_mode="rgb_array")
     return RgbObservation(env)
+
 
 def compare_states(state1, state2):
     """Compare two Tetris game states."""
@@ -30,18 +33,27 @@ def compare_states(state1, state2):
         else:
             raise ValueError(f"Unknown key in state: {key}")
 
+
 def compare_tetrominos(tetromino1, tetromino2):
     assert tetromino1.id == tetromino2.id, "Tetromino ID mismatch"
-    assert np.array_equal(tetromino1.color_rgb, tetromino2.color_rgb), "Tetromino color mismatch"
-    assert np.array_equal(tetromino1.matrix, tetromino2.matrix), "Tetromino matrix mismatch"
+    assert np.array_equal(
+        tetromino1.color_rgb, tetromino2.color_rgb
+    ), "Tetromino color mismatch"
+    assert np.array_equal(
+        tetromino1.matrix, tetromino2.matrix
+    ), "Tetromino matrix mismatch"
+
 
 def compare_tetromino_queues(queue1, queue2):
-    assert isinstance(queue1, TetrominoQueue) and isinstance(queue2, TetrominoQueue), "Queue type mismatch"
+    assert isinstance(queue1, TetrominoQueue) and isinstance(
+        queue2, TetrominoQueue
+    ), "Queue type mismatch"
     assert queue1.size == queue2.size, "Queue size mismatch"
     assert len(queue1.queue) == len(queue2.queue), "Queue length mismatch"
     for t1, t2 in zip(queue1.queue, queue2.queue):
         assert t1 == t2, "Queue content mismatch"
     compare_randomizers(queue1.randomizer, queue2.randomizer)
+
 
 def compare_holders(holder1, holder2):
     assert holder1.size == holder2.size, "Holder size mismatch"
@@ -49,21 +61,28 @@ def compare_holders(holder1, holder2):
     for t1, t2 in zip(holder1.queue, holder2.queue):
         if t1 is None and t2 is None:
             continue
-        compare_tetrominos(t1,t2)
+        compare_tetrominos(t1, t2)
+
 
 def compare_randomizers(randomizer1, randomizer2):
-    assert isinstance(randomizer1, Randomizer) and isinstance(randomizer2, Randomizer), "Randomizer type mismatch"
+    assert isinstance(randomizer1, Randomizer) and isinstance(
+        randomizer2, Randomizer
+    ), "Randomizer type mismatch"
     assert randomizer1.__class__ == randomizer2.__class__, "Randomizer class mismatch"
     assert randomizer1.size == randomizer2.size, "Randomizer size mismatch"
-    if hasattr(randomizer1, 'bag'):
-        assert np.array_equal(randomizer1.bag, randomizer2.bag), "Randomizer bag mismatch"
+    if hasattr(randomizer1, "bag"):
+        assert np.array_equal(
+            randomizer1.bag, randomizer2.bag
+        ), "Randomizer bag mismatch"
         assert randomizer1.index == randomizer2.index, "Randomizer index mismatch"
+
 
 @pytest.fixture(scope="module")
 def env():
     environment = create_env()
     yield environment
     environment.close()
+
 
 @pytest.mark.parametrize("test_number", range(1000))
 def test_clone_restore_consistency(env, test_number):

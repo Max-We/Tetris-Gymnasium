@@ -726,7 +726,7 @@ class Tetris(gym.Env):
         return Tetromino(
             id=tetromino.id,
             color_rgb=tetromino.color_rgb.copy(),
-            matrix=tetromino.matrix.copy()
+            matrix=tetromino.matrix.copy(),
         )
 
     @staticmethod
@@ -748,7 +748,7 @@ class Tetris(gym.Env):
         new_randomizer.rng.bit_generator.state = randomizer.rng.bit_generator.state
         # new_randomizer.rng = copy.deepcopy(randomizer.rng)
 
-        if hasattr(randomizer, 'bag'):
+        if hasattr(randomizer, "bag"):
             new_randomizer.bag = randomizer.bag.copy()
             new_randomizer.index = randomizer.index
         return new_randomizer
