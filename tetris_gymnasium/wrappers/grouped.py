@@ -140,7 +140,7 @@ class GroupedActionsObservations(gym.ObservationWrapper):
 
         grouped_board_obs = []
 
-        if self.env.game_over:
+        if self.env.unwrapped.game_over:
             # game over (previous step)
             np.zeros(self.observation_space.shape)
 
@@ -188,7 +188,7 @@ class GroupedActionsObservations(gym.ObservationWrapper):
                 else:
                     # regular placement
                     grouped_board_obs.append(
-                        self.env.clear_filled_rows(
+                        self.env.unwrapped.clear_filled_rows(
                             self.env.unwrapped.project_tetromino(t, x, y)
                         )[0]
                     )
@@ -272,8 +272,9 @@ class GroupedActionsObservations(gym.ObservationWrapper):
             self.env.unwrapped.actions.hard_drop
         )
         board = observation
-        for wrapper in self.observation_wrappers:
-            board = wrapper.observation(board)
+        if self.observation_wrappers:
+            for wrapper in self.observation_wrappers:
+                board = wrapper.observation(board)
         info["board"] = board
 
         observation = self.observation(observation)  # generates legal_action_mask
@@ -296,8 +297,9 @@ class GroupedActionsObservations(gym.ObservationWrapper):
         self.legal_actions_mask = np.ones(self.action_space.n)
         observation, info = self.env.reset(seed=seed, options=options)
         board = observation
-        for wrapper in self.observation_wrappers:
-            board = wrapper.observation(board)
+        if self.observation_wrappers:
+            for wrapper in self.observation_wrappers:
+                board = wrapper.observation(board)
         info["board"] = board
 
         observation = self.observation(observation)  # generates legal_action_mask
