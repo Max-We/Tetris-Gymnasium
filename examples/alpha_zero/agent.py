@@ -1,7 +1,6 @@
 import numpy as np
 
 from examples.alpha_zero.mcts import MCTS
-from examples.alpha_zero.mcts_pure import MCTSPure, policy_value_fn
 from tetris_gymnasium.envs import Tetris
 
 
@@ -45,21 +44,3 @@ class MCTSAgent:
 
     def __str__(self):
         return "MCTS Agent"
-
-
-class MCTSAgentPure:
-    """AI player based on MCTS"""
-
-    def __init__(self, c_puct=5, n_playout=2000):
-        self.mcts = MCTSPure(policy_value_fn, c_puct, n_playout)
-
-    def reset_player(self):
-        self.mcts.update_with_move(-1)
-
-    def get_action(self, obs):
-        move = self.mcts.get_move(obs)
-        self.mcts.update_with_move(-1)
-        return move
-
-    def __str__(self):
-        return "MCTS pure Agent"
