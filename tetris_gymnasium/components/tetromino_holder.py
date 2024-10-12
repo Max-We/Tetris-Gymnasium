@@ -55,3 +55,9 @@ class TetrominoHolder:
     def get_tetrominoes(self):
         """Get all the tetrominoes currently in the holder."""
         return list(self.queue)
+
+    def __copy__(self):
+        """Create a copy of the holder."""
+        new_holder = TetrominoHolder(self.size)
+        new_holder.queue = deque(self.queue)
+        return new_holder

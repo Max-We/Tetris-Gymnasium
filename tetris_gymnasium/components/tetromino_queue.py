@@ -44,3 +44,13 @@ class TetrominoQueue:
     def get_queue(self):
         """Get all tetrominoes currently in the queue."""
         return list(self.queue)
+
+    def copy(self, randomizer: Randomizer):
+        """Create a copy of the queue.
+
+        Args:
+            randomizer: The randomizer to use for the new queue. Should be copied using its respective `copy` method.
+        """
+        new_queue = TetrominoQueue(randomizer, self.size)
+        new_queue.queue = deque(self.queue)
+        return new_queue

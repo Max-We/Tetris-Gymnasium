@@ -89,6 +89,17 @@ class BagRandomizer(Randomizer):
         super().reset(seed)
         self.shuffle_bag()
 
+    def __copy__(self):
+        """Create a copy of the `BagRandomizer`."""
+        new_randomizer = BagRandomizer(self.size)
+        # RNG (this is faster than deepcopy)
+        new_randomizer.rng = np.random.Generator(np.random.PCG64())
+        new_randomizer.rng.bit_generator.state = self.rng.bit_generator.state
+        # Content
+        new_randomizer.bag = np.copy(self.bag.copy())
+        new_randomizer.index = self.index
+        return new_randomizer
+
 
 class TrueRandomizer(Randomizer):
     """Randomly selects tetrominoes.
@@ -114,3 +125,11 @@ class TrueRandomizer(Randomizer):
         # In the case of `TrueRandomizer`, there is no state to reset
         # In this case, only the RNG is reset with the specified seed
         super().reset(seed)
+
+    def __copy__(self):
+        """Create a copy of the `TrueRandomizer`."""
+        new_randomizer = TrueRandomizer(self.size)
+        # RNG (this is faster than deepcopy)
+        new_randomizer.rng = np.random.Generator(np.random.PCG64())
+        new_randomizer.rng.bit_generator.state = self.rng.bit_generator.state
+        return new_randomizer

@@ -1,6 +1,6 @@
 """Tetris environment for Gymnasium."""
 import copy
-from dataclasses import fields
+from dataclasses import dataclass, fields
 from typing import Any, List
 
 import cv2
@@ -15,6 +15,22 @@ from tetris_gymnasium.components.tetromino_queue import TetrominoQueue
 from tetris_gymnasium.components.tetromino_randomizer import BagRandomizer, Randomizer
 from tetris_gymnasium.mappings.actions import ActionsMapping
 from tetris_gymnasium.mappings.rewards import RewardsMapping
+
+
+@dataclass
+class TetrisState:
+    """State of the Tetris environment."""
+
+    board: np.ndarray
+    active_tetromino: Tetromino
+    x: int
+    y: int
+    queue: TetrominoQueue
+    holder: TetrominoHolder
+    randomizer: Randomizer
+    has_swapped: bool
+    game_over: bool
+    score: int
 
 
 class Tetris(gym.Env):
@@ -642,7 +658,7 @@ class Tetris(gym.Env):
     def offset_tetromino_id(
         self, tetrominoes: "List[Tetromino]", offset: int
     ) -> "List[Tetromino]":
-        """In order to make the tetrominos distinguishable, each tetromino should have a unique value.
+        """In order to make the tetominos distinguishable, each tetromino should have a unique value.
 
         The tetrominoes already possess a unique ID, but the matrix should also be updated to reflect this.
         Additionally, the tetrominoes should be offset by a certain value to avoid conflicts with the board.
@@ -661,3 +677,32 @@ class Tetris(gym.Env):
             tetrominoes[i].matrix = tetrominoes[i].matrix * (i + offset)
 
         return tetrominoes
+
+    def set_state(self, state: TetrisState) -> None:
+        """Restore the state of the environment. Should be used instead of deepcopy for performance."""
+        self.board = state.board
+        self.active_tetromino = state.active_tetromino
+        self.x = state.x
+        self.y = state.y
+        self.queue = state.queue
+        self.holder = state.holder
+        self.randomizer = state.randomizer
+        self.has_swapped = state.has_swapped
+        self.game_over = state.game_over
+        self.score = state.score
+
+    def get_state(self) -> TetrisState:
+        """Clone the current state of the environment. Should be used instead of deepcopy for performance."""
+        randomizer = copy.copy(self.randomizer)
+        return TetrisState(
+            board=self.board.copy(),
+            active_tetromino=copy.copy(self.active_tetromino),
+            x=self.x,
+            y=self.y,
+            queue=self.queue.copy(randomizer),
+            holder=copy.copy(self.holder),
+            randomizer=randomizer,
+            has_swapped=self.has_swapped,
+            game_over=self.game_over,
+            score=self.score,
+        )

@@ -42,3 +42,11 @@ class Tetromino(Pixel):
     """
 
     matrix: np.ndarray
+
+    def __copy__(self):
+        """Create a copy of the tetromino."""
+        return Tetromino(
+            id=self.id,
+            color_rgb=self.color_rgb.copy(),
+            matrix=self.matrix.copy(),
+        )
