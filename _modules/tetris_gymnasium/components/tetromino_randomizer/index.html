@@ -350,7 +350,18 @@
     <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Resets the randomizer to start from a fresh state.&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shuffle_bag</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shuffle_bag</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a copy of the `BagRandomizer`.&quot;&quot;&quot;</span>
+        <span class="n">new_randomizer</span> <span class="o">=</span> <span class="n">BagRandomizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="c1"># RNG (this is faster than deepcopy)</span>
+        <span class="n">new_randomizer</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PCG64</span><span class="p">())</span>
+        <span class="n">new_randomizer</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">bit_generator</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">bit_generator</span><span class="o">.</span><span class="n">state</span>
+        <span class="c1"># Content</span>
+        <span class="n">new_randomizer</span><span class="o">.</span><span class="n">bag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bag</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="n">new_randomizer</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">return</span> <span class="n">new_randomizer</span></div>
 
 
 
@@ -382,7 +393,15 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Resets the randomizer to start from a fresh state.&quot;&quot;&quot;</span>
         <span class="c1"># In the case of `TrueRandomizer`, there is no state to reset</span>
         <span class="c1"># In this case, only the RNG is reset with the specified seed</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a copy of the `TrueRandomizer`.&quot;&quot;&quot;</span>
+        <span class="n">new_randomizer</span> <span class="o">=</span> <span class="n">TrueRandomizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="c1"># RNG (this is faster than deepcopy)</span>
+        <span class="n">new_randomizer</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PCG64</span><span class="p">())</span>
+        <span class="n">new_randomizer</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">bit_generator</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">bit_generator</span><span class="o">.</span><span class="n">state</span>
+        <span class="k">return</span> <span class="n">new_randomizer</span></div>
 
 </pre></div>
           </article>

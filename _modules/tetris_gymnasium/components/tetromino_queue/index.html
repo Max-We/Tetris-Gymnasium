@@ -303,7 +303,17 @@
     <span class="k">def</span> <span class="nf">get_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all tetrominoes currently in the queue.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">)</span></div>
-</div>
+
+
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">randomizer</span><span class="p">:</span> <span class="n">Randomizer</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a copy of the queue.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            randomizer: The randomizer to use for the new queue. Should be copied using its respective `copy` method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_queue</span> <span class="o">=</span> <span class="n">TetrominoQueue</span><span class="p">(</span><span class="n">randomizer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">new_queue</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_queue</span></div>
 
 </pre></div>
           </article>

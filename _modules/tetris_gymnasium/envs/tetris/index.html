@@ -249,7 +249,7 @@
             <h1>Source code for tetris_gymnasium.envs.tetris</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Tetris environment for Gymnasium.&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">fields</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">import</span> <span class="nn">cv2</span>
@@ -264,6 +264,22 @@
 <span class="kn">from</span> <span class="nn">tetris_gymnasium.components.tetromino_randomizer</span> <span class="kn">import</span> <span class="n">BagRandomizer</span><span class="p">,</span> <span class="n">Randomizer</span>
 <span class="kn">from</span> <span class="nn">tetris_gymnasium.mappings.actions</span> <span class="kn">import</span> <span class="n">ActionsMapping</span>
 <span class="kn">from</span> <span class="nn">tetris_gymnasium.mappings.rewards</span> <span class="kn">import</span> <span class="n">RewardsMapping</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">TetrisState</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;State of the Tetris environment.&quot;&quot;&quot;</span>
+
+    <span class="n">board</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">active_tetromino</span><span class="p">:</span> <span class="n">Tetromino</span>
+    <span class="n">x</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">y</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">queue</span><span class="p">:</span> <span class="n">TetrominoQueue</span>
+    <span class="n">holder</span><span class="p">:</span> <span class="n">TetrominoHolder</span>
+    <span class="n">randomizer</span><span class="p">:</span> <span class="n">Randomizer</span>
+    <span class="n">has_swapped</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">game_over</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">score</span><span class="p">:</span> <span class="nb">int</span>
 
 
 <div class="viewcode-block" id="Tetris">
@@ -893,7 +909,7 @@
     <span class="k">def</span> <span class="nf">offset_tetromino_id</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">tetrominoes</span><span class="p">:</span> <span class="s2">&quot;List[Tetromino]&quot;</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;List[Tetromino]&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;In order to make the tetrominos distinguishable, each tetromino should have a unique value.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;In order to make the tetominos distinguishable, each tetromino should have a unique value.</span>
 
 <span class="sd">        The tetrominoes already possess a unique ID, but the matrix should also be updated to reflect this.</span>
 <span class="sd">        Additionally, the tetrominoes should be offset by a certain value to avoid conflicts with the board.</span>
@@ -911,7 +927,36 @@
             <span class="n">tetrominoes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">id</span> <span class="o">+=</span> <span class="n">offset</span>
             <span class="n">tetrominoes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">tetrominoes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">matrix</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">tetrominoes</span></div>
+        <span class="k">return</span> <span class="n">tetrominoes</span>
+
+    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">TetrisState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Restore the state of the environment. Should be used instead of deepcopy for performance.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">board</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">active_tetromino</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">queue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">holder</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">holder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">randomizer</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">randomizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_swapped</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">has_swapped</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_over</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">game_over</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">score</span>
+
+    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TetrisState</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clone the current state of the environment. Should be used instead of deepcopy for performance.&quot;&quot;&quot;</span>
+        <span class="n">randomizer</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">randomizer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">TetrisState</span><span class="p">(</span>
+            <span class="n">board</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="n">active_tetromino</span><span class="o">=</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">),</span>
+            <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+            <span class="n">queue</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">randomizer</span><span class="p">),</span>
+            <span class="n">holder</span><span class="o">=</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">holder</span><span class="p">),</span>
+            <span class="n">randomizer</span><span class="o">=</span><span class="n">randomizer</span><span class="p">,</span>
+            <span class="n">has_swapped</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">has_swapped</span><span class="p">,</span>
+            <span class="n">game_over</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game_over</span><span class="p">,</span>
+            <span class="n">score</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 </pre></div>
           </article>
