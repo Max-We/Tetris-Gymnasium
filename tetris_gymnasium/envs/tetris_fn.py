@@ -139,11 +139,11 @@ def reset(
     key, subkey = random.split(key)
 
     if config.queue_size > 0:
-        queue = random.randint(subkey, (config.queue_size,), 0, len(const.tetromino_ids))
+        queue = random.randint(subkey, (config.queue_size,), 0, len(const.ids))
         active_tetromino = queue[0]
     else:
         queue = None
-        active_tetromino = random.randint(subkey, (), 0, len(const.tetromino_ids))
+        active_tetromino = random.randint(subkey, (), 0, len(const.ids))
 
     x, y = get_initial_x_y(config, const, active_tetromino)
 

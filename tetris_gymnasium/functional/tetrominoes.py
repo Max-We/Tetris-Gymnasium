@@ -13,9 +13,9 @@ class TetrominoType(NamedTuple):
 class Tetrominoes:
     base_pixels: chex.Array
     base_pixel_colors: chex.Array
-    tetromino_ids: chex.Array
-    tetromino_colors: chex.Array
-    tetromino_matrices: chex.Array
+    ids: chex.Array
+    colors: chex.Array
+    matrices: chex.Array
 
 # Define tetrominoes without padding
 base_tetrominoes = (
@@ -62,16 +62,16 @@ base_pixels_colors = jnp.array([
 TETROMINOES = Tetrominoes(
     base_pixels=base_pixels,
     base_pixel_colors=base_pixels_colors,
-    tetromino_ids=jnp.array([t.id for t in base_tetrominoes], dtype=jnp.uint8),
-    tetromino_colors=jnp.array([t.color for t in base_tetrominoes], dtype=jnp.uint8),
-    tetromino_matrices=jnp.array(padded_rotations, dtype=jnp.uint8),
+    ids=jnp.array([t.id for t in base_tetrominoes], dtype=jnp.uint8),
+    colors=jnp.array([t.color for t in base_tetrominoes], dtype=jnp.uint8),
+    matrices=jnp.array(padded_rotations, dtype=jnp.uint8),
 )
 
 # Helper functions for JIT-compatible access
 @jax.jit
-def get_tetromino_matrix(constants: Tetrominoes, tetromino_index: int, rotation: int) -> chex.Array:
-    return constants.tetromino_matrices[tetromino_index, rotation]
+def get_tetromino_matrix(constants: Tetrominoes, tetromino_id: int, rotation: int) -> chex.Array:
+    return constants.matrices[tetromino_id, rotation]
 
 @jax.jit
-def get_tetromino_color(constants: Tetrominoes, tetromino_index: int) -> chex.Array:
-    return jax.lax.dynamic_slice(constants.tetromino_colors, (tetromino_index, 0), (1, 3))[0]
+def get_tetromino_color(constants: Tetrominoes, tetromino_id: int) -> chex.Array:
+    return jax.lax.dynamic_slice(constants.colors, (tetromino_id, 0), (1, 3))[0]

@@ -84,7 +84,7 @@ def hard_drop(board: chex.Array, tetromino: chex.Array, x: int, y: int) -> int:
 
 def update_queue(const: Tetrominoes, queue: chex.Array, key: chex.PRNGKey) -> Tuple[chex.Array, chex.PRNGKey]:
     key, subkey = random.split(key)
-    new_tetromino = random.randint(subkey, (), 0, len(const.tetromino_ids))
+    new_tetromino = random.randint(subkey, (), 0, len(const.ids))
     new_queue = jnp.roll(queue, -1)
     new_queue = new_queue.at[-1].set(new_tetromino)
     return new_queue, key
@@ -98,7 +98,7 @@ def swap_holder(active_tetromino: int, holder: int, has_swapped: bool) -> Tuple[
 
 def commit_active_tetromino(config: EnvConfig, const: Tetrominoes, state: State, key: chex.PRNGKey) -> Tuple[chex.PRNGKey, State, float, bool]:
     tetromino_matrix = get_tetromino_matrix(const, state.active_tetromino, state.rotation)
-    board = project_tetromino(state.board, tetromino_matrix, state.x, state.y, const.tetromino_ids[state.active_tetromino])
+    board = project_tetromino(state.board, tetromino_matrix, state.x, state.y, const.ids[state.active_tetromino])
     board, lines_cleared = clear_filled_rows(config, const, board)
     reward = score(config, lines_cleared)
 
@@ -110,7 +110,7 @@ def commit_active_tetromino(config: EnvConfig, const: Tetrominoes, state: State,
     def use_random(args):
         _, key = args
         new_key, subkey = random.split(key)
-        new_tetromino = random.randint(subkey, (), 0, len(const.tetromino_ids))
+        new_tetromino = random.randint(subkey, (), 0, len(const.ids))
         return new_tetromino, None, new_key
 
     new_active_tetromino, new_queue, key = use_random((None, key))
