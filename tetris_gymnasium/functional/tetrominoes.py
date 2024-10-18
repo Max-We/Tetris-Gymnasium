@@ -58,7 +58,7 @@ base_pixels_colors = jnp.array([
     [128, 128, 128] # Bedrock
 ], dtype=jnp.uint8)
 
-# Create the constants object
+# Create the tetrominoes object
 TETROMINOES = Tetrominoes(
     base_pixels=base_pixels,
     base_pixel_colors=base_pixels_colors,
@@ -69,9 +69,9 @@ TETROMINOES = Tetrominoes(
 
 # Helper functions for JIT-compatible access
 @jax.jit
-def get_tetromino_matrix(constants: Tetrominoes, tetromino_id: int, rotation: int) -> chex.Array:
-    return constants.matrices[tetromino_id, rotation]
+def get_tetromino_matrix(tetrominoes: Tetrominoes, tetromino_id: int, rotation: int) -> chex.Array:
+    return tetrominoes.matrices[tetromino_id, rotation]
 
 @jax.jit
-def get_tetromino_color(constants: Tetrominoes, tetromino_id: int) -> chex.Array:
-    return jax.lax.dynamic_slice(constants.colors, (tetromino_id, 0), (1, 3))[0]
+def get_tetromino_color(tetrominoes: Tetrominoes, tetromino_id: int) -> chex.Array:
+    return jax.lax.dynamic_slice(tetrominoes.colors, (tetromino_id, 0), (1, 3))[0]

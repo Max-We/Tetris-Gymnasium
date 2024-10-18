@@ -6,7 +6,7 @@ from typing import Tuple
 
 from tetris_gymnasium.envs.tetris_fn import reset, step
 from tetris_gymnasium.functional.tetrominoes import TETROMINOES, Tetrominoes
-from tetris_gymnasium.functional.game_logic import EnvConfig, State
+from tetris_gymnasium.functional.logic import EnvConfig, State
 
 
 def print_board(board: chex.Array):

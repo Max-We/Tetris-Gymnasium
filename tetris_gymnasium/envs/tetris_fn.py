@@ -8,7 +8,7 @@ from jax import random
 
 from typing import Tuple, Optional, Callable
 
-from tetris_gymnasium.functional.game_logic import EnvConfig, State, create_board, collision, project_tetromino, \
+from tetris_gymnasium.functional.logic import EnvConfig, State, create_board, collision, project_tetromino, \
     clear_filled_rows, get_initial_x_y, hard_drop, commit_active_tetromino
 from tetris_gymnasium.functional.tetrominoes import get_tetromino_matrix, Tetrominoes
 
