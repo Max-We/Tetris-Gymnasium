@@ -1,5 +1,4 @@
-# step.py
-
+"""Wrappers for the Tetris environment implemented as pure functions."""
 from typing import Tuple
 
 import chex
@@ -28,17 +27,35 @@ from tetris_gymnasium.functional.tetrominoes import Tetrominoes, get_tetromino_m
 
 
 def step(
-    const: Tetrominoes,
+    tetrominoes: Tetrominoes,
     key: chex.PRNGKey,
     state: State,
     action: int,
     config: EnvConfig,
     queue_fn: QueueFunction = bag_queue_get_next_element,
 ) -> Tuple[chex.PRNGKey, State, float, bool, dict]:
+    """Performs a single step in the Tetris environment.
+
+    Args:
+        tetrominoes: Tetrominoes object containing tetromino configurations.
+        key: Random number generator key.
+        state: Current state of the environment.
+        action: Integer representing the action to take.
+        config: Environment configuration.
+        queue_fn: Function to get the next element from the queue.
+
+    Returns:
+        A tuple containing:
+        - Updated random number generator key
+        - New state after the action
+        - Reward obtained from the action
+        - Boolean indicating if the game is over
+        - Dictionary containing additional information
+    """
     x, y, rotation = state.x, state.y, state.rotation
     board = state.board
     active_tetromino_matrix = get_tetromino_matrix(
-        const, state.active_tetromino, rotation
+        tetrominoes, state.active_tetromino, rotation
     )
 
     def move_left():
@@ -64,7 +81,9 @@ def step(
 
     def rotate_clockwise():
         new_rotation = (rotation + 1) % 4
-        new_matrix = get_tetromino_matrix(const, state.active_tetromino, new_rotation)
+        new_matrix = get_tetromino_matrix(
+            tetrominoes, state.active_tetromino, new_rotation
+        )
         return jax.lax.cond(
             ~collision(board, new_matrix, x, y),
             lambda: (new_rotation, new_matrix),
@@ -73,7 +92,9 @@ def step(
 
     def rotate_counterclockwise():
         new_rotation = (rotation - 1) % 4
-        new_matrix = get_tetromino_matrix(const, state.active_tetromino, new_rotation)
+        new_matrix = get_tetromino_matrix(
+            tetrominoes, state.active_tetromino, new_rotation
+        )
         return jax.lax.cond(
             ~collision(board, new_matrix, x, y),
             lambda: (new_rotation, new_matrix),
@@ -110,7 +131,7 @@ def step(
     )
 
     # Check if the tetromino should be locked
-    y_gravity = graviy_step(const, board, state.active_tetromino, rotation, x, y)
+    y_gravity = graviy_step(tetrominoes, board, state.active_tetromino, rotation, x, y)
     should_lock = y_gravity == y
 
     state = State(
@@ -128,7 +149,7 @@ def step(
     # If should lock or it's a hard drop, commit the tetromino
     new_state, new_key = jax.lax.cond(
         should_lock | (action == 6),
-        lambda: place_active_tetromino(config, const, state, queue_fn, key),
+        lambda: place_active_tetromino(config, tetrominoes, state, queue_fn, key),
         lambda: (state, key),
     )
 
@@ -137,18 +158,32 @@ def step(
         new_state,
         new_state.score - state.score,
         new_state.game_over,
-        {}, # info
+        {},  # info
     )
 
 
 def reset(
-    tetromiones: Tetrominoes,
+    tetrominoes: Tetrominoes,
     key: chex.PRNGKey,
     config: EnvConfig,
     create_queue_fn: CreateQueueFunction = create_bag_queue,
     queue_fn: QueueFunction = bag_queue_get_next_element,
 ) -> Tuple[chex.PRNGKey, State]:
-    board = create_board(config, tetromiones)
+    """Resets the Tetris environment to its initial state.
+
+    Args:
+        tetrominoes: Tetrominoes object containing tetromino configurations.
+        key: Random number generator key.
+        config: Environment configuration.
+        create_queue_fn: Function to create the initial queue.
+        queue_fn: Function to get the next element from the queue.
+
+    Returns:
+        A tuple containing:
+        - Updated random number generator key
+        - Initial state of the environment
+    """
+    board = create_board(config, tetrominoes)
 
     key, subkey = random.split(key)
     queue, queue_index = create_queue_fn(config, key)
@@ -156,7 +191,7 @@ def reset(
         config, queue, queue_index, key
     )
 
-    x, y = get_initial_x_y(config, tetromiones, active_tetromino)
+    x, y = get_initial_x_y(config, tetrominoes, active_tetromino)
 
     state = State(
         board=board,
@@ -180,6 +215,20 @@ def place_active_tetromino(
     queue_fn: QueueFunction,
     key: chex.PRNGKey,
 ) -> Tuple[State, chex.PRNGKey]:
+    """Places the active tetromino on the board and updates the game state.
+
+    Args:
+        config: Environment configuration.
+        tetrominoes: Tetrominoes object containing tetromino configurations.
+        state: Current state of the environment.
+        queue_fn: Function to get the next element from the queue.
+        key: Random number generator key.
+
+    Returns:
+        A tuple containing:
+        - Updated state after placing the tetromino
+        - Updated random number generator key
+    """
     # Commit the active tetromino
     new_board, reward = lock_active_tetromino(
         config,
