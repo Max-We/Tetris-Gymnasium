@@ -1,6 +1,6 @@
 # step.py
 
-from typing import Callable, Optional, Tuple
+from typing import Tuple
 
 import chex
 import jax
@@ -18,7 +18,7 @@ from tetris_gymnasium.functional.core import (
     check_game_over,
 )
 from tetris_gymnasium.functional.queue import QueueFunction, create_bag_queue, bag_queue_get_next_element, \
-    uniform_queue_get_next_element, CreateQueueFunction
+    CreateQueueFunction
 from tetris_gymnasium.functional.tetrominoes import Tetrominoes, get_tetromino_matrix
 
 
@@ -29,7 +29,6 @@ def step(
     action: int,
     config: EnvConfig,
     queue_fn: QueueFunction = bag_queue_get_next_element,
-    holder_fn: Optional[Callable] = None
 ) -> Tuple[chex.PRNGKey, State, float, bool, dict]:
     x, y, rotation = state.x, state.y, state.rotation
     board = state.board
@@ -75,13 +74,6 @@ def step(
             lambda: (rotation, active_tetromino_matrix)
         )
 
-    def handle_swap():
-        if holder_fn is not None:
-            new_active, new_holder, new_has_swapped = holder_fn(state.active_tetromino, state.holder, state.has_swapped)
-            new_x, new_y = get_initial_x_y(config, const, new_active)
-            return new_active, new_holder, new_x, new_y, 0, new_has_swapped
-        return state.active_tetromino, state.holder, x, y, rotation, state.has_swapped
-
     x = jax.lax.switch(action, [move_left, move_right, lambda: x, lambda: x, lambda: x, lambda: x, lambda: x])
     y = jax.lax.switch(action, [lambda: y, lambda: y, move_down, lambda: y, lambda: y, lambda: y, lambda: hard_drop(
         board, active_tetromino_matrix, x, y)])
@@ -95,12 +87,6 @@ def step(
         lambda: (rotation, active_tetromino_matrix)
     ])
 
-    state.active_tetromino, state.holder, x, y, rotation, state.has_swapped = jax.lax.cond(
-        action == 5,
-        handle_swap,
-        lambda: (state.active_tetromino, state.holder, x, y, rotation, state.has_swapped)
-    )
-
     # Check if the tetromino should be locked
     should_lock = collision(board, active_tetromino_matrix, x, y + 1)
 
@@ -112,8 +98,6 @@ def step(
         y = y,
         queue = state.queue,
         queue_index = state.queue_index,
-        holder = state.holder,
-        has_swapped = state.has_swapped,
         game_over = False,
         score = state.score
     )
@@ -128,24 +112,19 @@ def step(
     return key, new_state, new_state.score - state.score, new_state.game_over, {"lines_cleared": lines_cleared}
 
 def reset(
-    const: EnvConfig,
+    tetromiones: Tetrominoes,
     key: chex.PRNGKey,
     config: EnvConfig,
-    create_queue_fn: CreateQueueFunction= create_bag_queue
+    create_queue_fn: CreateQueueFunction= create_bag_queue,
+    queue_fn: QueueFunction = bag_queue_get_next_element
 ) -> Tuple[chex.PRNGKey, State]:
-    board = create_board(config, const)
+    board = create_board(config, tetromiones)
+
     key, subkey = random.split(key)
-
-    if config.queue_size > 0:
-        queue = random.randint(subkey, (config.queue_size,), 0, len(const.ids))
-        active_tetromino = queue[0]
-    else:
-        queue = None
-        active_tetromino = random.randint(subkey, (), 0, len(const.ids))
-
-    x, y = get_initial_x_y(config, const, active_tetromino)
-
     queue, queue_index = create_queue_fn(config, key)
+    active_tetromino, queue, queue_index, key = queue_fn(config, queue, queue_index, key)
+
+    x, y = get_initial_x_y(config, tetromiones, active_tetromino)
 
     state = State(
         board=board,
@@ -155,8 +134,6 @@ def reset(
         y=y,
         queue=queue,
         queue_index=queue_index,
-        holder=-1,
-        has_swapped=False,
         game_over=False,
         score=jnp.uint8(0)
     )
@@ -193,8 +170,6 @@ def place_active_tetromino(
         y=new_y,
         queue=new_queue,
         queue_index=new_queue_index,
-        holder=state.holder,
-        has_swapped=state.has_swapped,
         game_over=game_over,
         score=state.score + reward
     )

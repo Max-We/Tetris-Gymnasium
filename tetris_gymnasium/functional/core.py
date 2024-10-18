@@ -25,8 +25,7 @@ class State:
     y: int
     queue: chex.Array  # Fixed-size array for the queue
     queue_index: int
-    holder: Optional[int]
-    has_swapped: bool
+    # holder: Optional[int]
     game_over: bool
     score: int
 
