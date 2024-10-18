@@ -40,7 +40,6 @@ def step(
     active_tetromino_matrix = get_tetromino_matrix(
         const, state.active_tetromino, rotation
     )
-    lines_cleared = 0
 
     def move_left():
         return jax.lax.cond(
@@ -138,7 +137,7 @@ def step(
         new_state,
         new_state.score - state.score,
         new_state.game_over,
-        {"lines_cleared": lines_cleared},
+        {}, # info
     )
 
 

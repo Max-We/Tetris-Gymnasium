@@ -98,7 +98,7 @@ def graviy_step(
 def clear_filled_rows(
     config: EnvConfig, tetrominoes: Tetrominoes, board: chex.Array
 ) -> Tuple[chex.Array, chex.Array]:
-    filled_rows = jnp.all(board[:, config.padding : -config.padding] > 0, axis=1)
+    filled_rows = jnp.all(board[:-config.padding, config.padding : -config.padding] > 0, axis=1)
     n_filled = jnp.sum(filled_rows)
 
     def clear_rows(board):
