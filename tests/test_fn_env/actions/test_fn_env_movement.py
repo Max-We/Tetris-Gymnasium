@@ -4,10 +4,6 @@ import pytest
 
 from tetris_gymnasium.envs.tetris_fn import reset, step
 from tetris_gymnasium.functional.core import EnvConfig, State
-from tetris_gymnasium.functional.queue import (
-    bag_queue_get_next_element,
-    create_bag_queue,
-)
 from tetris_gymnasium.functional.tetrominoes import TETROMINOES
 
 
@@ -135,4 +131,6 @@ def test_game_over(env_config, initial_state):
 
 # Run the tests
 if __name__ == "__main__":
+    # for debugging, otherwise cant see concrete values (only tracer)
+    jax.config.update("jax_disable_jit", True)
     pytest.main([__file__])
