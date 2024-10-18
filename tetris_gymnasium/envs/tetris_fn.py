@@ -70,7 +70,7 @@ def step(
     def handle_swap():
         if holder_function is not None:
             new_active, new_holder, new_has_swapped = holder_function(state.active_tetromino, state.holder, state.has_swapped)
-            new_x, new_y = get_initial_x_y(const, config, new_active)
+            new_x, new_y = get_initial_x_y(config, const, new_active)
             return new_active, new_holder, new_x, new_y, 0, new_has_swapped
         return state.active_tetromino, state.holder, x, y, rotation, state.has_swapped
 
@@ -99,7 +99,7 @@ def step(
     # If should lock or it's a hard drop, commit the tetromino
     key, new_state, lock_reward, game_over = jax.lax.cond(
         should_lock | (action == 6),
-        lambda: commit_active_tetromino(const, TetrisState(
+        lambda: commit_active_tetromino(config, const, TetrisState(
             board=board,
             active_tetromino=state.active_tetromino,
             rotation=rotation,
@@ -110,7 +110,7 @@ def step(
             has_swapped=state.has_swapped,
             game_over=False,
             score=state.score
-        ), config, key),
+        ), key),
         lambda: (key, TetrisState(
             board=board,
             active_tetromino=state.active_tetromino,
@@ -135,7 +135,7 @@ def reset(
     key: chex.PRNGKey,
     config: TetrisConfig
 ) -> Tuple[chex.PRNGKey, TetrisState]:
-    board = create_board(const, config)
+    board = create_board(config, const)
     key, subkey = random.split(key)
 
     if config.queue_size > 0:
@@ -145,7 +145,7 @@ def reset(
         queue = None
         active_tetromino = random.randint(subkey, (), 0, len(const.tetromino_ids))
 
-    x, y = get_initial_x_y(const, config, active_tetromino)
+    x, y = get_initial_x_y(config, const, active_tetromino)
 
     state = TetrisState(
         board=board,

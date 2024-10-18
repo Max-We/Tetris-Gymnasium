@@ -78,12 +78,6 @@ def test_tetris_game():
         print_board(final_state.board)
         print(f"Episode {episode + 1}: Steps: {steps_taken}, Score: {final_state.score}, Game over: {final_state.game_over}")
 
-    print("\nTesting with dynamic constants:")
-    for episode in range(num_episodes):
-        key, final_state, steps_taken = play_episode_dynamic(key, TETRIS_CONSTANTS, CONFIG)
-        print_board(final_state.board)
-        print(f"Episode {episode + 1}: Steps: {steps_taken}, Score: {final_state.score}, Game over: {final_state.game_over}")
-
 if __name__ == "__main__":
     # jax.config.update("jax_disable_jit", True)
     test_tetris_game()
