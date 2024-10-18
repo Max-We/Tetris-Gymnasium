@@ -130,7 +130,7 @@ def step(
             has_swapped=state.has_swapped,
             game_over=False,
             score=state.score
-        ), jnp.float32(0.0), False)
+        ), jnp.uint8(0), False)
     )
     #     return key, new_state, reward, game_over
 
@@ -165,7 +165,7 @@ def reset(
         holder=-1,
         has_swapped=False,
         game_over=False,
-        score=0
+        score=jnp.uint8(0)
     )
 
     return key, state

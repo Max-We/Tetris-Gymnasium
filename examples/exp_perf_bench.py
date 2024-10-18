@@ -71,7 +71,7 @@ def run_gym_environment(num_steps: int) -> float:
 
 
 def main():
-    num_steps = 5000
+    num_steps = 50000
 
     print("Running JAX environment...")
     key = random.PRNGKey(0)
@@ -87,14 +87,14 @@ def main():
     end_time = time.time()
 
     jax_time_per_step = (end_time - start_time) / num_steps
-    print(f"JAX environment: {jax_time_per_step:.6f} seconds per step")
+    print(f"JAX environment: {jax_time_per_step:.7f} seconds per step")
 
-    print("\nRunning Gym environment...")
-    gym_time_per_step = run_gym_environment(num_steps)
-    print(f"Gym environment: {gym_time_per_step:.6f} seconds per step")
-
-    speedup = gym_time_per_step / jax_time_per_step
-    print(f"\nSpeedup factor: {speedup:.2f}x")
+    # print("\nRunning Gym environment...")
+    # gym_time_per_step = run_gym_environment(num_steps)
+    # print(f"Gym environment: {gym_time_per_step:.6f} seconds per step")
+    #
+    # speedup = gym_time_per_step / jax_time_per_step
+    # print(f"\nSpeedup factor: {speedup:.2f}x")
 
 
 if __name__ == "__main__":
