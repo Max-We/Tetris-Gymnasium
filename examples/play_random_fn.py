@@ -4,8 +4,10 @@ from jax import random
 import chex
 from typing import Tuple
 
-from examples.exp_t import TETRIS_CONSTANTS, TetrisConstants
-from tetris_gymnasium.envs.tetris_fn import TetrisState, TetrisConfig, reset, step
+from tetris_gymnasium.envs.tetris_fn import reset, step
+from tetris_gymnasium.functional.tetrominoes import TETROMINOES, Tetrominoes
+from tetris_gymnasium.functional.game_logic import EnvConfig, State
+
 
 def print_board(board: chex.Array):
     """Print the Tetris board in a human-readable format."""
@@ -14,7 +16,7 @@ def print_board(board: chex.Array):
     print()
 
 # Static constants
-CONFIG = TetrisConfig(width=10, height=20, padding=10, queue_size=3)
+CONFIG = EnvConfig(width=10, height=20, padding=10, queue_size=3)
 MAX_STEPS = 100
 
 # Approach 1: Using static arguments
@@ -23,16 +25,16 @@ step_static = jax.jit(step, static_argnames=['config'])
 # reset_static = jax.jit(reset)
 # step_static = jax.jit(step)
 @jax.jit
-def play_episode_static(key: chex.PRNGKey) -> Tuple[chex.PRNGKey, TetrisState, int]:
+def play_episode_static(key: chex.PRNGKey) -> Tuple[chex.PRNGKey, State, int]:
     """Play a single episode of Tetris with random actions (static constants)."""
     key, subkey = random.split(key)
-    key, state = reset_static(TETRIS_CONSTANTS, subkey, CONFIG)
+    key, state = reset_static(TETROMINOES, subkey, CONFIG)
 
     def body_fun(carry):
         key, state, step_count = carry
         key, subkey = random.split(key)
         action = random.randint(subkey, (), 0, 7)  # 7 possible actions
-        key, new_state, reward, game_over, info = step_static(TETRIS_CONSTANTS, key, state, action, CONFIG)
+        key, new_state, reward, game_over, info = step_static(TETROMINOES, key, state, action, CONFIG)
         return key, new_state, step_count + 1
 
     def cond_fun(carry):
@@ -47,7 +49,7 @@ reset_dynamic = jax.jit(reset)
 step_dynamic = jax.jit(step)
 
 @jax.jit
-def play_episode_dynamic(key: chex.PRNGKey, const: TetrisConstants, config: TetrisConfig) -> Tuple[chex.PRNGKey, TetrisState, int]:
+def play_episode_dynamic(key: chex.PRNGKey, const: Tetrominoes, config: EnvConfig) -> Tuple[chex.PRNGKey, State, int]:
     """Play a single episode of Tetris with random actions (dynamic constants)."""
     key, subkey = random.split(key)
     key, state = reset_dynamic(const, subkey, config)

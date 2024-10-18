@@ -6,16 +6,17 @@ from jax import random
 import chex
 from typing import Tuple, Optional, Callable, NamedTuple
 
-from examples.exp_t import get_tetromino_matrix, TetrisConstants
+from tetris_gymnasium.functional.tetrominoes import Tetrominoes, get_tetromino_matrix
 
-class TetrisConfig(NamedTuple):
+
+class EnvConfig(NamedTuple):
     width: int
     height: int
     padding: int
     queue_size: int
 
 @chex.dataclass
-class TetrisState:
+class State:
     board: chex.Array
     active_tetromino: int
     rotation: int
@@ -27,7 +28,7 @@ class TetrisState:
     game_over: bool
     score: int
 
-def create_board(config: TetrisConfig, const: TetrisConstants) -> chex.Array:
+def create_board(config: EnvConfig, const: Tetrominoes) -> chex.Array:
     board = jnp.zeros((config.height, config.width), dtype=jnp.uint8)
     return jnp.pad(board, ((0, config.padding), (config.padding, config.padding)), mode='constant', constant_values=const.base_pixels[1])
 
@@ -41,7 +42,7 @@ def project_tetromino(board: chex.Array, tetromino: chex.Array, x: int, y: int, 
     update = jax.lax.dynamic_update_slice(jnp.zeros_like(board), tetromino * tetromino_id, (y, x))
     return board + update
 
-def clear_filled_rows(config: TetrisConfig, const: TetrisConstants, board: chex.Array) -> Tuple[chex.Array, int]:
+def clear_filled_rows(config: EnvConfig, const: Tetrominoes, board: chex.Array) -> Tuple[chex.Array, int]:
     filled_rows = jnp.all(board[:, config.padding:-config.padding] > 0, axis=1)
     n_filled = jnp.sum(filled_rows)
 
@@ -68,7 +69,7 @@ def clear_filled_rows(config: TetrisConfig, const: TetrisConstants, board: chex.
 
     return board, n_filled
 
-def score(config: TetrisConfig, rows_cleared: int) -> float:
+def score(config: EnvConfig, rows_cleared: int) -> float:
     return jnp.float32((rows_cleared ** 2) * config.width)
 
 def hard_drop(board: chex.Array, tetromino: chex.Array, x: int, y: int) -> int:
@@ -81,7 +82,7 @@ def hard_drop(board: chex.Array, tetromino: chex.Array, x: int, y: int) -> int:
     final_y = jax.lax.while_loop(cond_fun, body_fun, y)
     return final_y
 
-def update_queue(const: TetrisConstants, queue: chex.Array, key: chex.PRNGKey) -> Tuple[chex.Array, chex.PRNGKey]:
+def update_queue(const: Tetrominoes, queue: chex.Array, key: chex.PRNGKey) -> Tuple[chex.Array, chex.PRNGKey]:
     key, subkey = random.split(key)
     new_tetromino = random.randint(subkey, (), 0, len(const.tetromino_ids))
     new_queue = jnp.roll(queue, -1)
@@ -95,7 +96,7 @@ def swap_holder(active_tetromino: int, holder: int, has_swapped: bool) -> Tuple[
         lambda: (active_tetromino, holder, has_swapped)
     )
 
-def commit_active_tetromino(config: TetrisConfig, const: TetrisConstants, state: TetrisState, key: chex.PRNGKey) -> Tuple[chex.PRNGKey, TetrisState, float, bool]:
+def commit_active_tetromino(config: EnvConfig, const: Tetrominoes, state: State, key: chex.PRNGKey) -> Tuple[chex.PRNGKey, State, float, bool]:
     tetromino_matrix = get_tetromino_matrix(const, state.active_tetromino, state.rotation)
     board = project_tetromino(state.board, tetromino_matrix, state.x, state.y, const.tetromino_ids[state.active_tetromino])
     board, lines_cleared = clear_filled_rows(config, const, board)
@@ -119,7 +120,7 @@ def commit_active_tetromino(config: TetrisConfig, const: TetrisConstants, state:
 
     game_over = collision(board, get_tetromino_matrix(const, new_active_tetromino, new_rotation), new_x, new_y)
 
-    new_state = TetrisState(
+    new_state = State(
         board=board,
         active_tetromino=new_active_tetromino,
         rotation=new_rotation,
@@ -134,7 +135,7 @@ def commit_active_tetromino(config: TetrisConfig, const: TetrisConstants, state:
 
     return key, new_state, reward, game_over
 
-def get_initial_x_y(config: TetrisConfig, const: TetrisConstants, active_tetromino: int) -> Tuple[int, int]:
+def get_initial_x_y(config: EnvConfig, const: Tetrominoes, active_tetromino: int) -> Tuple[int, int]:
     x = (config.width + config.padding * 2) // 2 - get_tetromino_matrix(const, active_tetromino, 0).shape[1] // 2
     y = 0
     return x, y

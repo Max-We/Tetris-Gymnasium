@@ -6,34 +6,34 @@ import chex
 from typing import Tuple
 import gymnasium as gym
 
-from examples.exp_t import TETRIS_CONSTANTS, TetrisConstants
-from tetris_gymnasium.envs.tetris_fn import TetrisState, TetrisConfig, reset, step
+from tetris_gymnasium.envs.tetris_fn import State, EnvConfig, reset, step
 from tetris_gymnasium.envs.tetris import Tetris
+from tetris_gymnasium.functional.tetrominoes import TETROMINOES
 
 # JAX Environment Setup
-CONFIG = TetrisConfig(width=10, height=20, padding=10, queue_size=3)
+CONFIG = EnvConfig(width=10, height=20, padding=10, queue_size=3)
 
-# reset_static = jax.jit(reset, static_argnames=['config'])
-# step_static = jax.jit(step, static_argnames=['config'])
+reset_static = jax.jit(reset, static_argnames=['config'])
+step_static = jax.jit(step, static_argnames=['config'])
 
 
-# @jax.jit
-def play_episode_jax(key: chex.PRNGKey, num_steps: int) -> Tuple[chex.PRNGKey, TetrisState, int]:
+@jax.jit
+def play_episode_jax(key: chex.PRNGKey, num_steps: int) -> Tuple[chex.PRNGKey, State, int]:
     key, subkey = random.split(key)
-    key, state = reset(TETRIS_CONSTANTS, subkey, CONFIG)
+    key, state = reset_static(TETROMINOES, subkey, CONFIG)
 
     def body_fun(carry):
         key, state, step_count = carry
         key, subkey = random.split(key)
         action = random.randint(subkey, (), 0, 7)  # 7 possible actions
-        key, new_state, reward, game_over, info = step(TETRIS_CONSTANTS, key, state, action, CONFIG)
+        key, new_state, reward, game_over, info = step_static(TETROMINOES, key, state, action, CONFIG)
 
         # Reset if game over
         key, reset_key = random.split(key)
         # reset_state = reset_static(TETRIS_CONSTANTS, reset_key, CONFIG)[1]
         state = jax.lax.cond(
             game_over,
-            lambda _: reset(TETRIS_CONSTANTS, reset_key, CONFIG)[1],
+            lambda _: reset_static(TETROMINOES, reset_key, CONFIG)[1],
             lambda _: new_state,
             None
         )
@@ -48,8 +48,8 @@ def play_episode_jax(key: chex.PRNGKey, num_steps: int) -> Tuple[chex.PRNGKey, T
     return key, final_state, steps_taken
 
 
-# @jax.jit
-def run_jax_environment(key: chex.PRNGKey, num_steps: int) -> Tuple[chex.PRNGKey, TetrisState, int]:
+@jax.jit
+def run_jax_environment(key: chex.PRNGKey, num_steps: int) -> Tuple[chex.PRNGKey, State, int]:
     return play_episode_jax(key, num_steps)
 
 
@@ -98,5 +98,5 @@ def main():
 
 
 if __name__ == "__main__":
-    jax.config.update("jax_disable_jit", True)
+    # jax.config.update("jax_disable_jit", True)
     main()

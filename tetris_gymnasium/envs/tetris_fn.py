@@ -5,23 +5,23 @@ import jax
 import jax.numpy as jnp
 from jax import random
 
-from examples.exp_t import TetrisConstants, get_tetromino_matrix
 
 from typing import Tuple, Optional, Callable
 
-from tetris_gymnasium.envs.game_logic import TetrisConfig, TetrisState, create_board, collision, project_tetromino, \
+from tetris_gymnasium.functional.game_logic import EnvConfig, State, create_board, collision, project_tetromino, \
     clear_filled_rows, get_initial_x_y, hard_drop, commit_active_tetromino
+from tetris_gymnasium.functional.tetrominoes import get_tetromino_matrix, Tetrominoes
 
 
 def step(
-    const: TetrisConstants,
+    const: Tetrominoes,
     key: chex.PRNGKey,
-    state: TetrisState,
+    state: State,
     action: int,
-    config: TetrisConfig,
+    config: EnvConfig,
     queue_function: Optional[Callable] = None,
     holder_function: Optional[Callable] = None
-) -> Tuple[chex.PRNGKey, TetrisState, float, bool, dict]:
+) -> Tuple[chex.PRNGKey, State, float, bool, dict]:
     x, y, rotation = state.x, state.y, state.rotation
     board = state.board
     active_tetromino_matrix = get_tetromino_matrix(const, state.active_tetromino, rotation)
@@ -99,7 +99,7 @@ def step(
     # If should lock or it's a hard drop, commit the tetromino
     key, new_state, lock_reward, game_over = jax.lax.cond(
         should_lock | (action == 6),
-        lambda: commit_active_tetromino(config, const, TetrisState(
+        lambda: commit_active_tetromino(config, const, State(
             board=board,
             active_tetromino=state.active_tetromino,
             rotation=rotation,
@@ -111,7 +111,7 @@ def step(
             game_over=False,
             score=state.score
         ), key),
-        lambda: (key, TetrisState(
+        lambda: (key, State(
             board=board,
             active_tetromino=state.active_tetromino,
             rotation=rotation,
@@ -131,10 +131,10 @@ def step(
     return key, new_state, reward, game_over, {"lines_cleared": lines_cleared}
 
 def reset(
-    const: TetrisConstants,
+    const: EnvConfig,
     key: chex.PRNGKey,
-    config: TetrisConfig
-) -> Tuple[chex.PRNGKey, TetrisState]:
+    config: EnvConfig
+) -> Tuple[chex.PRNGKey, State]:
     board = create_board(config, const)
     key, subkey = random.split(key)
 
@@ -147,7 +147,7 @@ def reset(
 
     x, y = get_initial_x_y(config, const, active_tetromino)
 
-    state = TetrisState(
+    state = State(
         board=board,
         active_tetromino=active_tetromino,
         rotation=0,
