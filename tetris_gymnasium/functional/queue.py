@@ -9,6 +9,7 @@ from tetris_gymnasium.functional.core import EnvConfig
 
 # This is the type signature for a function that gets the next element from a queue
 QueueFunction = Callable[[EnvConfig, chex.Array, int, chex.PRNGKey], Tuple[int, chex.Array, int, chex.PRNGKey]]
+CreateQueueFunction = Callable[[EnvConfig, chex.PRNGKey], Tuple[chex.Array, int]]
 
 # Bag functions
 def create_bag_queue(config: EnvConfig, key: chex.Array) -> Tuple[chex.Array, int]:

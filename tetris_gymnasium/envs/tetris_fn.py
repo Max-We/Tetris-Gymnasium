@@ -18,7 +18,7 @@ from tetris_gymnasium.functional.core import (
     check_game_over,
 )
 from tetris_gymnasium.functional.queue import QueueFunction, create_bag_queue, bag_queue_get_next_element, \
-    uniform_queue_get_next_element
+    uniform_queue_get_next_element, CreateQueueFunction
 from tetris_gymnasium.functional.tetrominoes import Tetrominoes, get_tetromino_matrix
 
 
@@ -130,7 +130,8 @@ def step(
 def reset(
     const: EnvConfig,
     key: chex.PRNGKey,
-    config: EnvConfig
+    config: EnvConfig,
+    create_queue_fn: CreateQueueFunction= create_bag_queue
 ) -> Tuple[chex.PRNGKey, State]:
     board = create_board(config, const)
     key, subkey = random.split(key)
@@ -144,7 +145,7 @@ def reset(
 
     x, y = get_initial_x_y(config, const, active_tetromino)
 
-    queue, queue_index = create_bag_queue(config, key)
+    queue, queue_index = create_queue_fn(config, key)
 
     state = State(
         board=board,
