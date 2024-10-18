@@ -6,7 +6,7 @@ import jax.numpy as jnp
 from jax import random
 
 from tetris_gymnasium.envs.tetris_fn import reset, step
-from tetris_gymnasium.functional.logic import EnvConfig, State
+from tetris_gymnasium.functional.core import EnvConfig, State
 from tetris_gymnasium.functional.tetrominoes import TETROMINOES, Tetrominoes
 
 

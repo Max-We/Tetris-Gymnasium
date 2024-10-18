@@ -5,7 +5,6 @@ from typing import NamedTuple, Optional, Tuple
 import chex
 import jax
 import jax.numpy as jnp
-from jax import random
 
 from tetris_gymnasium.functional.tetrominoes import Tetrominoes, get_tetromino_matrix
 
@@ -24,7 +23,8 @@ class State:
     rotation: int
     x: int
     y: int
-    queue: Optional[chex.Array]
+    queue: chex.Array  # Fixed-size array for the queue
+    queue_index: int
     holder: Optional[int]
     has_swapped: bool
     game_over: bool
@@ -91,59 +91,16 @@ def hard_drop(board: chex.Array, tetromino: chex.Array, x: int, y: int) -> int:
 
     return jax.lax.while_loop(cond_fun, body_fun, y)
 
-def commit_active_tetromino(config: EnvConfig, tetrominoes: Tetrominoes, state: State, key: chex.PRNGKey) -> Tuple[chex.PRNGKey, State, int, bool]:
-    tetromino_matrix = get_tetromino_matrix(tetrominoes, state.active_tetromino, state.rotation)
+def lock_active_tetromino(config: EnvConfig, tetrominoes: Tetrominoes, board, active_tetromino, rotation, x, y) -> Tuple[chex.Array, chex.Array]:
+    tetromino_matrix = get_tetromino_matrix(tetrominoes, active_tetromino, rotation)
     # place the tetromino on the board
-    updated_board = project_tetromino(state.board, tetromino_matrix, state.x, state.y, tetrominoes.ids[state.active_tetromino])
+    updated_board = project_tetromino(board, tetromino_matrix, x, y, tetrominoes.ids[active_tetromino])
     # clear filled rows
     updated_board, lines_cleared = clear_filled_rows(config, tetrominoes, updated_board)
     # calculate reward
     reward = score(config, lines_cleared)
 
-    # generate new tetromino
-    def use_queue(args):
-        queue, key = args
-        new_queue, new_key = update_queue(tetrominoes, queue, key)
-        return new_queue[0], new_queue, new_key
+    return updated_board, reward
 
-    def use_random(args):
-        _, key = args
-        new_key, subkey = random.split(key)
-        new_tetromino = random.randint(subkey, (), 0, len(tetrominoes.ids))
-        return new_tetromino, None, new_key
-
-    new_active_tetromino, new_queue, key = use_random((None, key))
-    new_x, new_y = get_initial_x_y(config, tetrominoes, new_active_tetromino)
-    new_rotation = 0
-
-    # check if the game is over (new tetromino collides with the board)
-    game_over = collision(updated_board, get_tetromino_matrix(tetrominoes, new_active_tetromino, new_rotation), new_x, new_y)
-
-    new_state = State(
-        board=updated_board,
-        active_tetromino=new_active_tetromino,
-        rotation=new_rotation,
-        x=new_x,
-        y=new_y,
-        queue=state.queue,
-        holder=state.holder,
-        has_swapped=False,
-        game_over=game_over,
-        score=state.score + reward
-    )
-
-    return key, new_state, reward, game_over
-
-def update_queue(tetrominoes: Tetrominoes, queue: chex.Array, key: chex.PRNGKey) -> Tuple[chex.Array, chex.PRNGKey]:
-    key, subkey = random.split(key)
-    new_tetromino = random.randint(subkey, (), 0, len(tetrominoes.ids))
-    new_queue = jnp.roll(queue, -1)
-    new_queue = new_queue.at[-1].set(new_tetromino)
-    return new_queue, key
-
-def swap_holder(active_tetromino: int, holder: int, has_swapped: bool) -> Tuple[int, int, bool]:
-    return jax.lax.cond(
-        ~has_swapped,
-        lambda: (holder if holder != -1 else active_tetromino, active_tetromino, True),
-        lambda: (active_tetromino, holder, has_swapped)
-    )
+def check_game_over(tetrominoes: Tetrominoes, board, active_tetromino, rotation, x, y) -> bool:
+    return collision(board, get_tetromino_matrix(tetrominoes, active_tetromino, rotation), x, y)
