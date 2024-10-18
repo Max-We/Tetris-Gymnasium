@@ -1,12 +1,14 @@
 # game_logic.py
 
+from typing import NamedTuple, Optional, Tuple
+
+import chex
 import jax
 import jax.numpy as jnp
 from jax import random
-import chex
-from typing import Tuple, Optional, NamedTuple
 
 from tetris_gymnasium.functional.tetrominoes import Tetrominoes, get_tetromino_matrix
+
 
 # Configuration and State definitions
 class EnvConfig(NamedTuple):

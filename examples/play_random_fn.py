@@ -1,12 +1,13 @@
+from typing import Tuple
+
+import chex
 import jax
 import jax.numpy as jnp
 from jax import random
-import chex
-from typing import Tuple
 
 from tetris_gymnasium.envs.tetris_fn import reset, step
-from tetris_gymnasium.functional.tetrominoes import TETROMINOES, Tetrominoes
 from tetris_gymnasium.functional.logic import EnvConfig, State
+from tetris_gymnasium.functional.tetrominoes import TETROMINOES, Tetrominoes
 
 
 def print_board(board: chex.Array):

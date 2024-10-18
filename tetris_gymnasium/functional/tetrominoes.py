@@ -1,7 +1,8 @@
+from typing import NamedTuple, Tuple
+
+import chex
 import jax
 import jax.numpy as jnp
-import chex
-from typing import Tuple, NamedTuple
 
 
 class TetrominoType(NamedTuple):
