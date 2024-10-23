@@ -41,7 +41,37 @@ class Tetrominoes:
 
 # Define tetrominoes without padding
 base_tetrominoes = (
-    # ... (existing TetrominoType definitions)
+    TetrominoType(
+        id=2, color=(0, 240, 240), matrix=jnp.array([[1, 1, 1, 1]], dtype=jnp.uint8)
+    ),  # I
+    TetrominoType(
+        id=3, color=(240, 240, 0), matrix=jnp.array([[1, 1], [1, 1]], dtype=jnp.uint8)
+    ),  # O
+    TetrominoType(
+        id=4,
+        color=(160, 0, 240),
+        matrix=jnp.array([[0, 1, 0], [1, 1, 1]], dtype=jnp.uint8),
+    ),  # T
+    TetrominoType(
+        id=5,
+        color=(0, 240, 0),
+        matrix=jnp.array([[0, 1, 1], [1, 1, 0]], dtype=jnp.uint8),
+    ),  # S
+    TetrominoType(
+        id=6,
+        color=(240, 0, 0),
+        matrix=jnp.array([[1, 1, 0], [0, 1, 1]], dtype=jnp.uint8),
+    ),  # Z
+    TetrominoType(
+        id=7,
+        color=(0, 0, 240),
+        matrix=jnp.array([[1, 0, 0], [1, 1, 1]], dtype=jnp.uint8),
+    ),  # J
+    TetrominoType(
+        id=8,
+        color=(240, 160, 0),
+        matrix=jnp.array([[0, 0, 1], [1, 1, 1]], dtype=jnp.uint8),
+    ),  # L
 )
 
 
