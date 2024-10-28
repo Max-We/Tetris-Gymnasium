@@ -142,16 +142,20 @@ def step(
             lambda: (rotation, active_tetromino_matrix),
             lambda: (rotation, active_tetromino_matrix),
             lambda: (rotation, active_tetromino_matrix),
-            rotate_clockwise,
             rotate_counterclockwise,
+            rotate_clockwise,
             lambda: (rotation, active_tetromino_matrix),
             lambda: (rotation, active_tetromino_matrix),
         ],
     )
 
     # Check if the tetromino should be locked
-    y_gravity = graviy_step(tetrominoes, board, state.active_tetromino, rotation, x, y)
-    should_lock = y_gravity == y
+    y_gravity = jax.lax.cond(
+        config.gravity_enabled,
+        lambda: graviy_step(tetrominoes, board, state.active_tetromino, rotation, x, y),
+        lambda: y,
+    )
+    should_lock = (y_gravity == y) & config.gravity_enabled
 
     state = State(
         board=board,

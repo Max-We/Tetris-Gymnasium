@@ -103,7 +103,7 @@ class TetrisVisualizer:
 
 
 def main():
-    config = EnvConfig(width=10, height=20, padding=10, queue_size=3)
+    config = EnvConfig(width=10, height=20, padding=10, queue_size=7, gravity_enabled=False)
     game = TetrisVisualizer(config)
 
     cv2.namedWindow('Tetris')
