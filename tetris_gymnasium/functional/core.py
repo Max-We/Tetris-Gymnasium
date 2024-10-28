@@ -92,7 +92,6 @@ def collision(board: chex.Array, tetromino: chex.Array, x: int, y: int) -> chex.
     Returns:
         A boolean indicating whether there's a collision.
     """
-    what = tetromino.shape
     h, w = tetromino.shape
     board_section = jax.lax.dynamic_slice(board, (y, x), (h, w))
     return jnp.any((board_section > 0) & (tetromino > 0))

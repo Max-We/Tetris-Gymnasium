@@ -176,14 +176,14 @@ def step(
         lambda: (state, key),
     )
 
-    observation = get_observation(
-        state.board, state.x, state.y, state.active_tetromino, state.rotation, tetrominoes, config
+    new_observation = get_observation(
+        new_state.board, new_state.x, new_state.y, new_state.active_tetromino, new_state.rotation, tetrominoes, config
     )
 
     return (
         key,
         new_state,
-        observation,
+        new_observation,
         new_state.score - state.score,
         new_state.game_over,
         {},  # info
