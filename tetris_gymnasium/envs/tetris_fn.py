@@ -1,10 +1,11 @@
 """Wrappers for the Tetris environment implemented as pure functions."""
+from functools import partial
 from typing import Tuple
 
 import chex
 import jax
 import jax.numpy as jnp
-from jax import random
+from jax import random, vmap
 
 from tetris_gymnasium.functional.core import (
     EnvConfig,
@@ -15,7 +16,7 @@ from tetris_gymnasium.functional.core import (
     get_initial_x_y,
     graviy_step,
     hard_drop,
-    lock_active_tetromino,
+    lock_active_tetromino, project_tetromino,
 )
 from tetris_gymnasium.functional.queue import (
     CreateQueueFunction,
@@ -26,6 +27,24 @@ from tetris_gymnasium.functional.queue import (
 from tetris_gymnasium.functional.tetrominoes import Tetrominoes, get_tetromino_matrix
 
 
+def get_observation(board, x, y, active_tetromino, rotation, tetrominoes: Tetrominoes, config: EnvConfig) -> chex.Array:
+    tetromino_matrix = get_tetromino_matrix(
+        tetrominoes, active_tetromino, rotation
+    )
+
+    # convert board to values 0 1 (0 if 0, 1 otherwise)
+    # board = jnp.where(board > 0, 1, 0).astype(jnp.uint8)
+    board = board.astype(jnp.uint8)
+
+    board = project_tetromino(
+        board,
+        tetromino_matrix,
+        x,
+        y,
+        tetrominoes.ids[active_tetromino]
+    )
+    return board[0:-config.padding, config.padding:-config.padding]
+
 def step(
     tetrominoes: Tetrominoes,
     key: chex.PRNGKey,
@@ -33,7 +52,7 @@ def step(
     action: int,
     config: EnvConfig,
     queue_fn: QueueFunction = bag_queue_get_next_element,
-) -> Tuple[chex.PRNGKey, State, float, bool, dict]:
+) -> Tuple[chex.PRNGKey, State, chex.Array, float, bool, dict]:
     """Performs a single step in the Tetris environment.
 
     Args:
@@ -153,9 +172,14 @@ def step(
         lambda: (state, key),
     )
 
+    observation = get_observation(
+        state.board, state.x, state.y, state.active_tetromino, state.rotation, tetrominoes, config
+    )
+
     return (
         key,
         new_state,
+        observation,
         new_state.score - state.score,
         new_state.game_over,
         {},  # info
@@ -168,7 +192,7 @@ def reset(
     config: EnvConfig,
     create_queue_fn: CreateQueueFunction = create_bag_queue,
     queue_fn: QueueFunction = bag_queue_get_next_element,
-) -> Tuple[chex.PRNGKey, State]:
+) -> Tuple[chex.PRNGKey, State, chex.Array]:
     """Resets the Tetris environment to its initial state.
 
     Args:
@@ -205,7 +229,11 @@ def reset(
         score=jnp.uint8(0),
     )
 
-    return key, state
+    observation = get_observation(
+        state.board, state.x, state.y, state.active_tetromino, state.rotation, tetrominoes, config
+    )
+
+    return key, state, observation
 
 
 def place_active_tetromino(
@@ -265,3 +293,73 @@ def place_active_tetromino(
     )
 
     return new_state, new_key
+
+
+def batched_step(
+        tetrominoes: Tetrominoes,
+        keys: chex.PRNGKey,  # [B, 2]
+        states: State,
+        actions: chex.Array,  # [B]
+        *,  # Force config to be a keyword argument
+        config: EnvConfig,
+        queue_fn: QueueFunction = bag_queue_get_next_element,
+) -> Tuple[chex.PRNGKey, State, chex.Array, chex.Array, chex.Array, dict]:
+    """Vectorized version of step function that handles batches of states."""
+
+    # Create a partial function with static config
+    step_partial = partial(step, tetrominoes, config=config, queue_fn=queue_fn)
+
+    # Combine vmap and jit with static config
+    batched_step_fn = jax.jit(
+        vmap(
+            step_partial,
+            in_axes=(0, 0, 0),  # Batch key, state, and action
+            out_axes=(0, 0, 0, 0, 0, None)  # Batch all outputs except info dict
+        ),
+        static_argnames=['config']
+    )
+
+    return batched_step_fn(keys, states, actions)
+
+
+def batched_reset(
+        tetrominoes: Tetrominoes,
+        keys: chex.PRNGKey,  # [B, 2]
+        *,  # Force config to be a keyword argument
+        config: EnvConfig,
+        create_queue_fn: CreateQueueFunction = create_bag_queue,
+        queue_fn: QueueFunction = bag_queue_get_next_element,
+        batch_size: int = 1,
+) -> Tuple[chex.PRNGKey, chex.Array, State]:
+    """Vectorized version of reset function that handles batches."""
+
+    # Create a partial function with static config
+    reset_partial = partial(
+        reset,
+        tetrominoes,
+        config=config,
+        create_queue_fn=create_queue_fn,
+        queue_fn=queue_fn
+    )
+
+    # Combine vmap and jit with static config
+    batched_reset_fn = jax.jit(
+        vmap(
+            reset_partial,
+            in_axes=(0,),  # Batch only the key
+            out_axes=(0, 0, 0)  # Batch both outputs
+        ),
+        static_argnames=['config']
+    )
+
+    return batched_reset_fn(keys)
+
+ACTION_ID_TO_NAME = {
+    0: "move_left",
+    1: "move_right",
+    2: "move_down",
+    3: "rotate_clockwise",
+    4: "rotate_counterclockwise",
+    5: "do_nothing",
+    6: "hard_drop",
+}

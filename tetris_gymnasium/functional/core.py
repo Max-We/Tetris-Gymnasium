@@ -26,30 +26,16 @@ class EnvConfig(NamedTuple):
 
 @chex.dataclass
 class State:
-    """Represents the current state of the Tetris game.
-
-    Attributes:
-        board (chex.Array): The game board, represented as a 2D array.
-        active_tetromino (int): The index of the currently active tetromino.
-        rotation (int): The current rotation state of the active tetromino.
-        x (int): The x-coordinate of the active tetromino on the board.
-        y (int): The y-coordinate of the active tetromino on the board.
-        queue (chex.Array): Fixed-size array representing the queue of upcoming tetrominoes.
-        queue_index (int): The current index in the tetromino queue.
-        game_over (bool): Indicates whether the game has ended.
-        score (int): The current score of the game.
-    """
-
-    board: chex.Array
-    active_tetromino: int
-    rotation: int
-    x: int
-    y: int
-    queue: chex.Array
-    queue_index: int
+    board: chex.Array # [B, H, W]
+    active_tetromino: chex.Array # [B, 1]
+    rotation: chex.Array # [B, 1]
+    x: chex.Array # [B, 1]
+    y: chex.Array # [B, 1]
+    queue: chex.Array # [B, L, 1]
+    queue_index: chex.Array # [B, 1]
     # holder: Optional[int]
-    game_over: bool
-    score: int
+    game_over: chex.Array # [B, 1]
+    score: chex.Array # [B, 1]
 
 
 # Utility functions
