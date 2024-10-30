@@ -27,16 +27,18 @@ class EnvConfig(NamedTuple):
 
 @chex.dataclass
 class State:
-    board: chex.Array # [B, H, W]
-    active_tetromino: chex.Array # [B, 1]
-    rotation: chex.Array # [B, 1]
-    x: chex.Array # [B, 1]
-    y: chex.Array # [B, 1]
-    queue: chex.Array # [B, L, 1]
-    queue_index: chex.Array # [B, 1]
+    """State of the Tetris environment."""
+
+    board: chex.Array  # [B, H, W]
+    active_tetromino: chex.Array  # [B, 1]
+    rotation: chex.Array  # [B, 1]
+    x: chex.Array  # [B, 1]
+    y: chex.Array  # [B, 1]
+    queue: chex.Array  # [B, L, 1]
+    queue_index: chex.Array  # [B, 1]
     # holder: Optional[int]
-    game_over: chex.Array # [B, 1]
-    score: chex.Array # [B, 1]
+    game_over: chex.Array  # [B, 1]
+    score: chex.Array  # [B, 1]
 
 
 # Utility functions
@@ -180,31 +182,34 @@ def clear_filled_rows(
     Returns:
         A tuple containing the updated board and the number of cleared rows.
     """
-    filled_rows = jnp.all(
-        board[: -config.padding, config.padding : -config.padding] > 0, axis=1
-    )
-    n_filled = jnp.sum(filled_rows)
+    sub_board = board[: -config.padding, config.padding : -config.padding]
+    filled_rows_mask = jnp.all(sub_board > 0, axis=1)
+    n_filled = jnp.sum(filled_rows_mask)
 
-    def clear_rows(iter_board):
-        height = iter_board.shape[0]
+    def clear_rows(sub_board):
+        indices = jnp.arange(config.height)
+        uncleared_board_indices = jnp.where(
+            filled_rows_mask, -config.height, indices
+        )  # -config.height for invalid indices
+        cleared_board_indices = jnp.sort(
+            uncleared_board_indices
+        )  # cleared rows to the top
 
-        def body_fn(i, state):
-            new_board, write_idx = state
-            row = iter_board[i]
-            is_filled = filled_rows[i]
+        # Create new board by referencing the cleared rows
+        cleared_sub_board = jnp.take(
+            sub_board, cleared_board_indices, axis=0, fill_value=0
+        )
 
-            new_board = new_board.at[write_idx].set(
-                jnp.where(is_filled, new_board[write_idx], row)
-            )
-            write_idx = write_idx + (1 - is_filled)
+        # Add padding to the cleared sub-board
+        board = jnp.pad(
+            cleared_sub_board,
+            ((0, config.padding), (config.padding, config.padding)),
+            mode="constant",
+            constant_values=tetrominoes.base_pixels[1],
+        )
+        return board
 
-            return new_board, write_idx
-
-        init_board = create_board(config, tetrominoes)
-        final_board, _ = jax.lax.fori_loop(0, height, body_fn, (init_board, 0))
-        return final_board
-
-    board = jax.lax.cond(n_filled > 0, clear_rows, lambda x: x, board)
+    board = jax.lax.cond(n_filled > 0, clear_rows, lambda x: board, sub_board)
 
     return board, n_filled
 
