@@ -16,7 +16,8 @@ from tetris_gymnasium.functional.core import (
     get_initial_x_y,
     graviy_step,
     hard_drop,
-    lock_active_tetromino, project_tetromino,
+    lock_active_tetromino,
+    project_tetromino,
 )
 from tetris_gymnasium.functional.queue import (
     CreateQueueFunction,
@@ -27,23 +28,19 @@ from tetris_gymnasium.functional.queue import (
 from tetris_gymnasium.functional.tetrominoes import Tetrominoes, get_tetromino_matrix
 
 
-def get_observation(board, x, y, active_tetromino, rotation, tetrominoes: Tetrominoes, config: EnvConfig) -> chex.Array:
-    tetromino_matrix = get_tetromino_matrix(
-        tetrominoes, active_tetromino, rotation
-    )
+def get_observation(
+    board, x, y, active_tetromino, rotation, tetrominoes: Tetrominoes, config: EnvConfig
+) -> chex.Array:
+    tetromino_matrix = get_tetromino_matrix(tetrominoes, active_tetromino, rotation)
 
     # convert board to values 0 1 (0 if 0, 1 otherwise)
-    # board = jnp.where(board > 0, 1, 0).astype(jnp.uint8)
-    board = board.astype(jnp.uint8)
+    board = jnp.where(board > 0, 1, 0).astype(jnp.int8)
 
     board = project_tetromino(
-        board,
-        tetromino_matrix,
-        x,
-        y,
-        tetrominoes.ids[active_tetromino]
+        board, tetromino_matrix, x, y, -1  # display falling tetromino
     )
-    return board[0:-config.padding, config.padding:-config.padding]
+    return board[0 : -config.padding, config.padding : -config.padding]
+
 
 def step(
     tetrominoes: Tetrominoes,
@@ -177,7 +174,13 @@ def step(
     )
 
     new_observation = get_observation(
-        new_state.board, new_state.x, new_state.y, new_state.active_tetromino, new_state.rotation, tetrominoes, config
+        new_state.board,
+        new_state.x,
+        new_state.y,
+        new_state.active_tetromino,
+        new_state.rotation,
+        tetrominoes,
+        config,
     )
 
     return (
@@ -234,7 +237,13 @@ def reset(
     )
 
     observation = get_observation(
-        state.board, state.x, state.y, state.active_tetromino, state.rotation, tetrominoes, config
+        state.board,
+        state.x,
+        state.y,
+        state.active_tetromino,
+        state.rotation,
+        tetrominoes,
+        config,
     )
 
     return key, state, observation
@@ -300,13 +309,13 @@ def place_active_tetromino(
 
 
 def batched_step(
-        tetrominoes: Tetrominoes,
-        keys: chex.PRNGKey,  # [B, 2]
-        states: State,
-        actions: chex.Array,  # [B]
-        *,  # Force config to be a keyword argument
-        config: EnvConfig,
-        queue_fn: QueueFunction = bag_queue_get_next_element,
+    tetrominoes: Tetrominoes,
+    keys: chex.PRNGKey,  # [B, 2]
+    states: State,
+    actions: chex.Array,  # [B]
+    *,  # Force config to be a keyword argument
+    config: EnvConfig,
+    queue_fn: QueueFunction = bag_queue_get_next_element,
 ) -> Tuple[chex.PRNGKey, State, chex.Array, chex.Array, chex.Array, dict]:
     """Vectorized version of step function that handles batches of states."""
 
@@ -318,22 +327,22 @@ def batched_step(
         vmap(
             step_partial,
             in_axes=(0, 0, 0),  # Batch key, state, and action
-            out_axes=(0, 0, 0, 0, 0, None)  # Batch all outputs except info dict
+            out_axes=(0, 0, 0, 0, 0, None),  # Batch all outputs except info dict
         ),
-        static_argnames=['config']
+        static_argnames=["config"],
     )
 
     return batched_step_fn(keys, states, actions)
 
 
 def batched_reset(
-        tetrominoes: Tetrominoes,
-        keys: chex.PRNGKey,  # [B, 2]
-        *,  # Force config to be a keyword argument
-        config: EnvConfig,
-        create_queue_fn: CreateQueueFunction = create_bag_queue,
-        queue_fn: QueueFunction = bag_queue_get_next_element,
-        batch_size: int = 1,
+    tetrominoes: Tetrominoes,
+    keys: chex.PRNGKey,  # [B, 2]
+    *,  # Force config to be a keyword argument
+    config: EnvConfig,
+    create_queue_fn: CreateQueueFunction = create_bag_queue,
+    queue_fn: QueueFunction = bag_queue_get_next_element,
+    batch_size: int = 1,
 ) -> Tuple[chex.PRNGKey, chex.Array, State]:
     """Vectorized version of reset function that handles batches."""
 
@@ -343,7 +352,7 @@ def batched_reset(
         tetrominoes,
         config=config,
         create_queue_fn=create_queue_fn,
-        queue_fn=queue_fn
+        queue_fn=queue_fn,
     )
 
     # Combine vmap and jit with static config
@@ -351,12 +360,13 @@ def batched_reset(
         vmap(
             reset_partial,
             in_axes=(0,),  # Batch only the key
-            out_axes=(0, 0, 0)  # Batch both outputs
+            out_axes=(0, 0, 0),  # Batch both outputs
         ),
-        static_argnames=['config']
+        static_argnames=["config"],
     )
 
     return batched_reset_fn(keys)
+
 
 ACTION_ID_TO_NAME = {
     0: "move_left",

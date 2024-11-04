@@ -42,35 +42,39 @@ class Tetrominoes:
 # Define tetrominoes without padding
 base_tetrominoes = (
     TetrominoType(
-        id=2, color=(0, 240, 240), matrix=jnp.array([[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]], dtype=jnp.uint8)
+        id=2,
+        color=(0, 240, 240),
+        matrix=jnp.array(
+            [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]], dtype=jnp.int8
+        ),
     ),  # I
     TetrominoType(
-        id=3, color=(240, 240, 0), matrix=jnp.array([[1, 1], [1, 1]], dtype=jnp.uint8)
+        id=3, color=(240, 240, 0), matrix=jnp.array([[1, 1], [1, 1]], dtype=jnp.int8)
     ),  # O
     TetrominoType(
         id=4,
         color=(160, 0, 240),
-        matrix=jnp.array([[0, 1, 0], [1, 1, 1], [0, 0, 0]], dtype=jnp.uint8),
+        matrix=jnp.array([[0, 1, 0], [1, 1, 1], [0, 0, 0]], dtype=jnp.int8),
     ),  # T
     TetrominoType(
         id=5,
         color=(0, 240, 0),
-        matrix=jnp.array([[0, 1, 1], [1, 1, 0], [0, 0, 0]], dtype=jnp.uint8),
+        matrix=jnp.array([[0, 1, 1], [1, 1, 0], [0, 0, 0]], dtype=jnp.int8),
     ),  # S
     TetrominoType(
         id=6,
         color=(240, 0, 0),
-        matrix=jnp.array([[1, 1, 0], [0, 1, 1], [0, 0, 0]], dtype=jnp.uint8),
+        matrix=jnp.array([[1, 1, 0], [0, 1, 1], [0, 0, 0]], dtype=jnp.int8),
     ),  # Z
     TetrominoType(
         id=7,
         color=(0, 0, 240),
-        matrix=jnp.array([[1, 0, 0], [1, 1, 1], [0, 0, 0]], dtype=jnp.uint8),
+        matrix=jnp.array([[1, 0, 0], [1, 1, 1], [0, 0, 0]], dtype=jnp.int8),
     ),  # J
     TetrominoType(
         id=8,
         color=(240, 160, 0),
-        matrix=jnp.array([[0, 0, 1], [1, 1, 1], [0, 0, 0]], dtype=jnp.uint8),
+        matrix=jnp.array([[0, 0, 1], [1, 1, 1], [0, 0, 0]], dtype=jnp.int8),
     ),  # L
 )
 
@@ -129,18 +133,18 @@ padded_rotations = [
 ]
 
 # Define base pixels
-base_pixels = jnp.array([0, 1], dtype=jnp.uint8)
+base_pixels = jnp.array([0, 1], dtype=jnp.int8)
 base_pixels_colors = jnp.array(
-    [[0, 0, 0], [128, 128, 128]], dtype=jnp.uint8  # Empty  # Bedrock
+    [[0, 0, 0], [128, 128, 128]], dtype=jnp.int8  # Empty  # Bedrock
 )
 
 # Create the tetrominoes object
 TETROMINOES = Tetrominoes(
     base_pixels=base_pixels,
     base_pixel_colors=base_pixels_colors,
-    ids=jnp.array([t.id for t in base_tetrominoes], dtype=jnp.uint8),
-    colors=jnp.array([t.color for t in base_tetrominoes], dtype=jnp.uint8),
-    matrices=jnp.array(padded_rotations, dtype=jnp.uint8),
+    ids=jnp.array([t.id for t in base_tetrominoes], dtype=jnp.int8),
+    colors=jnp.array([t.color for t in base_tetrominoes], dtype=jnp.int8),
+    matrices=jnp.array(padded_rotations, dtype=jnp.int8),
 )
 
 

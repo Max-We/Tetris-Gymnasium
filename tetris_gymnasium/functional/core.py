@@ -52,7 +52,7 @@ def create_board(config: EnvConfig, tetrominoes: Tetrominoes) -> chex.Array:
     Returns:
         A 2D array representing the empty Tetris board with padding.
     """
-    empty_board = jnp.zeros((config.height, config.width), dtype=jnp.uint8)
+    empty_board = jnp.zeros((config.height, config.width), dtype=jnp.int8)
     padded_board = jnp.pad(
         empty_board,
         ((0, config.padding), (config.padding, config.padding)),
