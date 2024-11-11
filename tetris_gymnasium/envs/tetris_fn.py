@@ -179,7 +179,7 @@ def step(
         queue=state.queue,
         queue_index=state.queue_index,
         game_over=False,
-        score=state.score + reward,
+        score=state.score,
     )
 
     # If should lock or it's a hard drop, commit the tetromino
@@ -188,6 +188,9 @@ def step(
         lambda: place_active_tetromino(config, tetrominoes, state, queue_fn, key),
         lambda: (state, key),
     )
+
+    # add reward to new state
+    new_state = new_state.replace(score=new_state.score + reward)
 
     new_observation = get_observation(
         new_state.board,
@@ -249,7 +252,7 @@ def reset(
         queue=queue,
         queue_index=queue_index,
         game_over=False,
-        score=jnp.int32(0),
+        score=jnp.float32(0),
     )
 
     observation = get_observation(
