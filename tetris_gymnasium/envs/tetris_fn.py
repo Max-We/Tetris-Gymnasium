@@ -31,6 +31,19 @@ from tetris_gymnasium.functional.tetrominoes import Tetrominoes, get_tetromino_m
 def get_observation(
     board, x, y, active_tetromino, rotation, tetrominoes: Tetrominoes, config: EnvConfig
 ) -> chex.Array:
+    """Returns the observation of the environment.
+
+    Args:
+        board: The current state of the board.
+        x: The x-coordinate of the active tetromino.
+        y: The y-coordinate of the active tetromino.
+        active_tetromino: The ID of the active tetromino.
+        rotation: The rotation of the active tetromino.
+        tetrominoes: Tetrominoes object containing tetromino configurations.
+        config: The environment configuration.
+
+    Returns: The observation of the environment.
+    """
     tetromino_matrix = get_tetromino_matrix(tetrominoes, active_tetromino, rotation)
 
     # convert board to values 0 1 (0 if 0, 1 otherwise)
@@ -89,11 +102,14 @@ def step(
         )
 
     def move_down():
-        return jax.lax.cond(
+        new_y = jax.lax.cond(
             ~collision(board, active_tetromino_matrix, x, y + 1),
             lambda: y + 1,
             lambda: y,
         )
+        move_reward = jnp.int32(new_y - y)
+
+        return new_y, move_reward
 
     def rotate_clockwise():
         new_rotation = (rotation + 1) % 4
@@ -121,15 +137,15 @@ def step(
         action,
         [move_left, move_right, lambda: x, lambda: x, lambda: x, lambda: x, lambda: x],
     )
-    y = jax.lax.switch(
+    y, reward = jax.lax.switch(
         action,
         [
-            lambda: y,
-            lambda: y,
+            lambda: (y, 0),
+            lambda: (y, 0),
             move_down,
-            lambda: y,
-            lambda: y,
-            lambda: y,
+            lambda: (y, 0),
+            lambda: (y, 0),
+            lambda: (y, 0),
             lambda: hard_drop(board, active_tetromino_matrix, x, y),
         ],
     )
@@ -163,7 +179,7 @@ def step(
         queue=state.queue,
         queue_index=state.queue_index,
         game_over=False,
-        score=state.score,
+        score=state.score + reward,
     )
 
     # If should lock or it's a hard drop, commit the tetromino
@@ -233,7 +249,7 @@ def reset(
         queue=queue,
         queue_index=queue_index,
         game_over=False,
-        score=jnp.uint8(0),
+        score=jnp.int32(0),
     )
 
     observation = get_observation(
@@ -318,7 +334,6 @@ def batched_step(
     queue_fn: QueueFunction = bag_queue_get_next_element,
 ) -> Tuple[chex.PRNGKey, State, chex.Array, chex.Array, chex.Array, dict]:
     """Vectorized version of step function that handles batches of states."""
-
     # Create a partial function with static config
     step_partial = partial(step, tetrominoes, config=config, queue_fn=queue_fn)
 
@@ -345,7 +360,6 @@ def batched_reset(
     batch_size: int = 1,
 ) -> Tuple[chex.PRNGKey, chex.Array, State]:
     """Vectorized version of reset function that handles batches."""
-
     # Create a partial function with static config
     reset_partial = partial(
         reset,

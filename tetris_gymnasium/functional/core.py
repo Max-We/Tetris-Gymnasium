@@ -214,7 +214,7 @@ def clear_filled_rows(
     return board, n_filled
 
 
-def hard_drop(board: chex.Array, tetromino: chex.Array, x: int, y: int) -> int:
+def hard_drop(board: chex.Array, tetromino: chex.Array, x: int, y: int) -> tuple:
     """Performs a hard drop of the tetromino, moving it down as far as possible.
 
     Args:
@@ -233,7 +233,9 @@ def hard_drop(board: chex.Array, tetromino: chex.Array, x: int, y: int) -> int:
     def body_fun(y):
         return y + 1
 
-    return jax.lax.while_loop(cond_fun, body_fun, y)
+    new_y = jax.lax.while_loop(cond_fun, body_fun, y)
+    reward = 2 * (new_y - y)  # 2 points per cell dropped
+    return new_y, reward
 
 
 def lock_active_tetromino(

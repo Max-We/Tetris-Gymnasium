@@ -29,7 +29,9 @@ class TetrisVisualizer:
         self.config = config
         self.cell_size = 30
         self.window_width = self.config.width * self.cell_size
-        self.window_height = self.config.height * self.cell_size
+        # Add extra height for score display
+        self.score_height = 40
+        self.window_height = self.config.height * self.cell_size + self.score_height
 
         # Initialize game state
         self.key = jax.random.PRNGKey(0)
@@ -41,72 +43,80 @@ class TetrisVisualizer:
             bag_queue_get_next_element,
         )
 
-    def rgb_to_bgr(self, rgb_color):
-        """Convert RGB color tuple to BGR for cv2"""
-        return (rgb_color[2], rgb_color[1], rgb_color[0])
+        # Create color mapping array (piece_id -> RGB)
+        # Index 0: empty cell (black)
+        # Index 1: ghost piece if any (grey)
+        # Indices 2+: tetromino colors from TETROMINOES
+        self.colors = np.array(
+            [[0, 0, 0]]
+            + [[128, 128, 128]]
+            + [tuple(map(int, color)) for color in TETROMINOES.colors]
+        )
 
     def render(self) -> np.ndarray:
-        image = np.zeros((self.window_height, self.window_width, 3), dtype=np.uint8)
+        # Create the score area (dark grey background)
+        score_area = np.full(
+            (self.score_height, self.window_width, 3), [30, 30, 30], dtype=np.uint8
+        )
 
-        # Convert JAX observation to numpy
+        # Add score text
+        score_text = f"Score: {self.state.score}"
+        cv2.putText(
+            score_area,
+            score_text,
+            (10, 30),  # Position (x, y)
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,  # Font scale
+            (255, 255, 255),  # White color
+            2,  # Thickness
+        )
+
+        # Convert observation to color indices and create game board
         board = np.array(self.observation)
+        rgb_board = self.colors[board.astype(np.int32)]
 
-        # Draw the board
-        for i in range(self.config.height):
-            for j in range(self.config.width):
-                if board[i, j] > 0:
-                    # Get color from TETROMINOES colors and convert to BGR
-                    rgb_color = tuple(
-                        map(int, TETROMINOES.colors[board[i, j] - 2])
-                    )  # -2 because piece IDs start at 2
-                    bgr_color = self.rgb_to_bgr(rgb_color)
-                    cv2.rectangle(
-                        image,
-                        (j * self.cell_size, i * self.cell_size),
-                        ((j + 1) * self.cell_size, (i + 1) * self.cell_size),
-                        bgr_color,
-                        -1,
-                    )
-
-        # Draw grid lines
-        grid_color = self.rgb_to_bgr((50, 50, 50))
-        text_color = self.rgb_to_bgr((255, 255, 255))
-
-        for i in range(self.config.height + 1):
-            cv2.line(
-                image,
-                (0, i * self.cell_size),
-                (self.window_width, i * self.cell_size),
-                grid_color,
-                1,
-            )
-        for j in range(self.config.width + 1):
-            cv2.line(
-                image,
-                (j * self.cell_size, 0),
-                (j * self.cell_size, self.window_height),
-                grid_color,
-                1,
+        # Resize using nearest neighbor interpolation
+        if self.cell_size > 1:
+            rgb_board = rgb_board.repeat(self.cell_size, axis=0).repeat(
+                self.cell_size, axis=1
             )
 
+        # Add grid lines
+        if self.cell_size >= 10:  # Only add grid if cells are large enough
+            # Vertical lines
+            rgb_board[:, :: self.cell_size] = [50, 50, 50]
+            # Horizontal lines
+            rgb_board[:: self.cell_size, :] = [50, 50, 50]
+
+        # Add game over text if needed
         if self.state.game_over:
+            # Calculate text position
+            text_img = np.zeros_like(rgb_board)
+            text_pos = (
+                self.window_width // 4,
+                self.config.height * self.cell_size // 2,
+            )
             cv2.putText(
-                image,
+                text_img,
                 "GAME OVER",
-                (self.window_width // 4, self.window_height // 2),
+                text_pos,
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
-                text_color,
+                (255, 255, 255),
                 2,
             )
+            # Overlay text
+            mask = text_img.any(axis=2)
+            rgb_board[mask] = text_img[mask]
 
-        return image
+        # Combine score area and game board
+        full_display = np.vstack([score_area, rgb_board])
+        return full_display
 
     def process_action(self, action: int) -> bool:
         if self.state.game_over:
             return False
 
-        # Use the existing step function
         self.key, self.state, self.observation, reward, done, info = step(
             TETROMINOES,
             self.key,
@@ -119,7 +129,7 @@ class TetrisVisualizer:
         return not done
 
     def reset_game(self):
-        self.key = jax.random.PRNGKey(int(time.time()))  # New random seed
+        self.key = jax.random.PRNGKey(int(time.time()))
         self.key, self.state, self.observation = reset(
             TETROMINOES,
             self.key,
@@ -140,7 +150,9 @@ def main():
     while True:
         # Render and display
         frame = game.render()
-        cv2.imshow("Tetris", frame)
+        # Convert RGB to BGR for OpenCV
+        frame_bgr = cv2.cvtColor(frame.astype(np.uint8), cv2.COLOR_RGB2BGR)
+        cv2.imshow("Tetris", frame_bgr)
 
         # Wait for keypress
         key = cv2.waitKey(0) & 0xFF
@@ -168,7 +180,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # disable jit jax
-    # jax.config.update("jax_disable_jit", True)
-
     main()
