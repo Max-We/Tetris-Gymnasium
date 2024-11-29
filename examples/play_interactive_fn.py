@@ -42,6 +42,7 @@ class TetrisVisualizer:
             create_bag_queue,
             bag_queue_get_next_element,
         )
+        print(self.observation)
 
         # Create color mapping array (piece_id -> RGB)
         # Index 0: empty cell (black)

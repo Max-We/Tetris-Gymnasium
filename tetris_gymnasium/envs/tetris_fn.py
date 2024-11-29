@@ -29,7 +29,14 @@ from tetris_gymnasium.functional.tetrominoes import Tetrominoes, get_tetromino_m
 
 
 def get_observation(
-    board, x, y, active_tetromino, rotation, tetrominoes: Tetrominoes, config: EnvConfig
+    board,
+    x,
+    y,
+    active_tetromino,
+    rotation,
+    game_over,
+    tetrominoes: Tetrominoes,
+    config: EnvConfig,
 ) -> chex.Array:
     """Returns the observation of the environment.
 
@@ -49,10 +56,14 @@ def get_observation(
     # convert board to values 0 1 (0 if 0, 1 otherwise)
     board = jnp.where(board > 0, 1, 0).astype(jnp.int8)
 
-    board = project_tetromino(
-        board, tetromino_matrix, x, y, -1  # display falling tetromino
+    result = jax.lax.cond(
+        ~game_over,
+        lambda _: project_tetromino(board, tetromino_matrix, x, y, -1),
+        lambda _: board,
+        None,
     )
-    return board[0 : -config.padding, config.padding : -config.padding]
+
+    return result[0 : -config.padding, config.padding : -config.padding]
 
 
 def step(
@@ -184,7 +195,7 @@ def step(
 
     # If should lock or it's a hard drop, commit the tetromino
     new_state, new_key = jax.lax.cond(
-        should_lock | (action == 6),
+        (should_lock | (action == 6)) & ~state.game_over,
         lambda: place_active_tetromino(config, tetrominoes, state, queue_fn, key),
         lambda: (state, key),
     )
@@ -198,6 +209,7 @@ def step(
         new_state.y,
         new_state.active_tetromino,
         new_state.rotation,
+        new_state.game_over,
         tetrominoes,
         config,
     )
@@ -261,6 +273,7 @@ def reset(
         state.y,
         state.active_tetromino,
         state.rotation,
+        state.game_over,
         tetrominoes,
         config,
     )

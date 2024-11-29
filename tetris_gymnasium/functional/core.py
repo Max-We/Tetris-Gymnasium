@@ -130,7 +130,7 @@ def score(config: EnvConfig, rows_cleared: int) -> jnp.uint8:
     Returns:
         The calculated score as a uint8.
     """
-    return jnp.uint8((rows_cleared**2) * config.width)
+    return jnp.int32((rows_cleared**2) * config.width)
 
 
 # Core game logic functions
