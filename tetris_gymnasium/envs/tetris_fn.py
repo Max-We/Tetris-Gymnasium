@@ -148,7 +148,7 @@ def step(
         action,
         [move_left, move_right, lambda: x, lambda: x, lambda: x, lambda: x, lambda: x],
     )
-    y, reward = jax.lax.switch(
+    y, drop_reward = jax.lax.switch(
         action,
         [
             lambda: (y, 0),
@@ -194,14 +194,14 @@ def step(
     )
 
     # If should lock or it's a hard drop, commit the tetromino
-    new_state, new_key = jax.lax.cond(
+    new_state, new_key, lock_reward = jax.lax.cond(
         (should_lock | (action == 6)) & ~state.game_over,
         lambda: place_active_tetromino(config, tetrominoes, state, queue_fn, key),
-        lambda: (state, key),
+        lambda: (state, key, 0),
     )
 
     # add reward to new state
-    new_state = new_state.replace(score=new_state.score + reward)
+    new_state = new_state.replace(score=new_state.score + drop_reward + lock_reward)
 
     new_observation = get_observation(
         new_state.board,
@@ -218,7 +218,7 @@ def step(
         key,
         new_state,
         new_observation,
-        new_state.score - state.score,
+        drop_reward + lock_reward,
         new_state.game_over,
         {},  # info
     )
@@ -334,10 +334,10 @@ def place_active_tetromino(
         queue=new_queue,
         queue_index=new_queue_index,
         game_over=game_over,
-        score=state.score + reward,
+        score=state.score,
     )
 
-    return new_state, new_key
+    return new_state, new_key, reward
 
 
 def batched_step(

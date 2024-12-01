@@ -126,6 +126,7 @@ class TetrisVisualizer:
             self.config,
             bag_queue_get_next_element,
         )
+        print(reward)
 
         return not done
 
@@ -142,7 +143,7 @@ class TetrisVisualizer:
 
 def main():
     config = EnvConfig(
-        width=10, height=20, padding=10, queue_size=7, gravity_enabled=False
+        width=10, height=20, padding=10, queue_size=7, gravity_enabled=True
     )
     game = TetrisVisualizer(config)
 

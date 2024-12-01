@@ -130,7 +130,19 @@ def score(config: EnvConfig, rows_cleared: int) -> jnp.uint8:
     Returns:
         The calculated score as a uint8.
     """
-    return jnp.int32((rows_cleared**2) * config.width)
+    standard_clears_reward = jax.lax.cond(
+        rows_cleared > 0,
+        lambda _: jnp.int32(rows_cleared * 200 - 100),
+        lambda _: jnp.int32(0),
+        operand=None,
+    )
+    tetris_reward = jax.lax.cond(
+        rows_cleared == 4,
+        lambda _: jnp.int32(800),
+        lambda _: standard_clears_reward,
+        operand=None,
+    )
+    return tetris_reward
 
 
 # Core game logic functions
