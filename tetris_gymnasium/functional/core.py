@@ -252,7 +252,7 @@ def hard_drop(board: chex.Array, tetromino: chex.Array, x: int, y: int) -> tuple
 
 def lock_active_tetromino(
     config: EnvConfig, tetrominoes: Tetrominoes, board, active_tetromino, rotation, x, y
-) -> Tuple[chex.Array, chex.Array]:
+) -> Tuple[chex.Array, chex.Array, chex.Array]:
     """Locks the active tetromino in place, clears any filled rows, and calculates the reward.
 
     Args:
@@ -277,7 +277,7 @@ def lock_active_tetromino(
     # calculate reward
     reward = score(config, lines_cleared)
 
-    return updated_board, reward
+    return updated_board, reward, lines_cleared
 
 
 def check_game_over(

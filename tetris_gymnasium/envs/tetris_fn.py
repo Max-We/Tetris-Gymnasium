@@ -194,10 +194,10 @@ def step(
     )
 
     # If should lock or it's a hard drop, commit the tetromino
-    new_state, new_key, lock_reward = jax.lax.cond(
+    new_state, new_key, lock_reward, lines_cleared = jax.lax.cond(
         (should_lock | (action == 6)) & ~state.game_over,
         lambda: place_active_tetromino(config, tetrominoes, state, queue_fn, key),
-        lambda: (state, key, 0),
+        lambda: (state, key, 0, 0),
     )
 
     # add reward to new state
@@ -220,7 +220,7 @@ def step(
         new_observation,
         drop_reward + lock_reward,
         new_state.game_over,
-        {},  # info
+        {"lines_cleared": lines_cleared},  # info
     )
 
 
@@ -287,7 +287,7 @@ def place_active_tetromino(
     state: State,
     queue_fn: QueueFunction,
     key: chex.PRNGKey,
-) -> Tuple[State, chex.PRNGKey]:
+) -> Tuple[State, chex.PRNGKey, chex.Array, chex.Array]:
     """Places the active tetromino on the board and updates the game state.
 
     Args:
@@ -303,7 +303,7 @@ def place_active_tetromino(
         - Updated random number generator key
     """
     # Commit the active tetromino
-    new_board, reward = lock_active_tetromino(
+    new_board, reward, lines_cleared = lock_active_tetromino(
         config,
         tetrominoes,
         state.board,
@@ -337,7 +337,7 @@ def place_active_tetromino(
         score=state.score,
     )
 
-    return new_state, new_key, reward
+    return new_state, new_key, reward, lines_cleared
 
 
 def batched_step(
@@ -358,7 +358,7 @@ def batched_step(
         vmap(
             step_partial,
             in_axes=(0, 0, 0),  # Batch key, state, and action
-            out_axes=(0, 0, 0, 0, 0, None),  # Batch all outputs except info dict
+            out_axes=(0, 0, 0, 0, 0, 0),
         ),
         static_argnames=["config"],
     )
