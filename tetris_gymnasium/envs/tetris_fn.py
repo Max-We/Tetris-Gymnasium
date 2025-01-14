@@ -38,22 +38,8 @@ def get_observation(
     tetrominoes: Tetrominoes,
     config: EnvConfig,
 ) -> chex.Array:
-    """Returns the observation of the environment.
-
-    Args:
-        board: The current state of the board.
-        x: The x-coordinate of the active tetromino.
-        y: The y-coordinate of the active tetromino.
-        active_tetromino: The ID of the active tetromino.
-        rotation: The rotation of the active tetromino.
-        tetrominoes: Tetrominoes object containing tetromino configurations.
-        config: The environment configuration.
-
-    Returns: The observation of the environment.
-    """
+    """Returns the observation of the environment."""
     tetromino_matrix = get_tetromino_matrix(tetrominoes, active_tetromino, rotation)
-
-    # convert board to values 0 1 (0 if 0, 1 otherwise)
     board = jnp.where(board > 0, 1, 0).astype(jnp.int8)
 
     result = jax.lax.cond(
@@ -68,30 +54,14 @@ def get_observation(
 
 def step(
     tetrominoes: Tetrominoes,
-    key: chex.PRNGKey,
     state: State,
     action: int,
     config: EnvConfig,
     queue_fn: QueueFunction = bag_queue_get_next_element,
-) -> Tuple[chex.PRNGKey, State, chex.Array, float, bool, dict]:
+) -> Tuple[State, chex.Array, float, bool, dict]:
     """Performs a single step in the Tetris environment.
 
-    Args:
-        tetrominoes: Tetrominoes object containing tetromino configurations.
-        key: Random number generator key.
-        state: Current state of the environment.
-        action: Integer representing the action to take.
-        config: Environment configuration.
-        queue_fn: Function to get the next element from the queue.
-
-    Returns:
-        A tuple containing:
-        - Updated random number generator key
-        - New state after the action
-        - Reward obtained from the action
-        - Boolean indicating if the game is over
-        - Dictionary containing additional information
-    """
+    Note: RNG key is now stored in and retrieved from state."""
     x, y, rotation = state.x, state.y, state.rotation
     board = state.board
     active_tetromino_matrix = get_tetromino_matrix(
@@ -119,7 +89,6 @@ def step(
             lambda: y,
         )
         move_reward = jnp.int32(new_y - y)
-
         return new_y, move_reward
 
     def rotate_clockwise():
@@ -173,7 +142,6 @@ def step(
         ],
     )
 
-    # Check if the tetromino should be locked
     y_gravity = jax.lax.cond(
         config.gravity_enabled,
         lambda: graviy_step(tetrominoes, board, state.active_tetromino, rotation, x, y),
@@ -181,7 +149,9 @@ def step(
     )
     should_lock = (y_gravity == y) & config.gravity_enabled
 
-    state = State(
+    # Create intermediate state with updated position and rotation
+    intermediate_state = State(
+        rng_key=state.rng_key,  # Preserve RNG key
         board=board,
         active_tetromino=state.active_tetromino,
         rotation=rotation,
@@ -193,14 +163,16 @@ def step(
         score=state.score,
     )
 
-    # If should lock or it's a hard drop, commit the tetromino
-    new_state, new_key, lock_reward, lines_cleared = jax.lax.cond(
+    # Handle locking and new piece spawning
+    new_state, lock_reward, lines_cleared = jax.lax.cond(
         (should_lock | (action == 6)) & ~state.game_over,
-        lambda: place_active_tetromino(config, tetrominoes, state, queue_fn, key),
-        lambda: (state, key, 0, 0),
+        lambda: place_active_tetromino(
+            config, tetrominoes, intermediate_state, queue_fn
+        ),
+        lambda: (intermediate_state, 0, 0),
     )
 
-    # add reward to new state
+    # Update score
     new_state = new_state.replace(score=new_state.score + drop_reward + lock_reward)
 
     new_observation = get_observation(
@@ -215,7 +187,6 @@ def step(
     )
 
     return (
-        key,
         new_state,
         new_observation,
         drop_reward + lock_reward,
@@ -256,6 +227,7 @@ def reset(
     x, y = get_initial_x_y(config, tetrominoes, active_tetromino)
 
     state = State(
+        rng_key=subkey,
         board=board,
         active_tetromino=active_tetromino,
         rotation=0,
@@ -286,22 +258,8 @@ def place_active_tetromino(
     tetrominoes: Tetrominoes,
     state: State,
     queue_fn: QueueFunction,
-    key: chex.PRNGKey,
-) -> Tuple[State, chex.PRNGKey, chex.Array, chex.Array]:
-    """Places the active tetromino on the board and updates the game state.
-
-    Args:
-        config: Environment configuration.
-        tetrominoes: Tetrominoes object containing tetromino configurations.
-        state: Current state of the environment.
-        queue_fn: Function to get the next element from the queue.
-        key: Random number generator key.
-
-    Returns:
-        A tuple containing:
-        - Updated state after placing the tetromino
-        - Updated random number generator key
-    """
+) -> Tuple[State, chex.Array, chex.Array]:
+    """Places the active tetromino on the board and updates the game state."""
     # Commit the active tetromino
     new_board, reward, lines_cleared = lock_active_tetromino(
         config,
@@ -313,9 +271,12 @@ def place_active_tetromino(
         state.y,
     )
 
+    # Split the RNG key for next piece generation
+    rng_key, subkey = random.split(state.rng_key)
+
     # Spawn a new tetromino
-    new_active_tetromino, new_queue, new_queue_index, new_key = queue_fn(
-        config, state.queue, state.queue_index, key
+    new_active_tetromino, new_queue, new_queue_index, _ = queue_fn(
+        config, state.queue, state.queue_index, subkey
     )
     new_x, new_y = get_initial_x_y(config, tetrominoes, new_active_tetromino)
     new_rotation = 0
@@ -335,35 +296,32 @@ def place_active_tetromino(
         queue_index=new_queue_index,
         game_over=game_over,
         score=state.score,
+        rng_key=rng_key,  # Store the new RNG key
     )
 
-    return new_state, new_key, reward, lines_cleared
+    return new_state, reward, lines_cleared
 
 
 def batched_step(
     tetrominoes: Tetrominoes,
-    keys: chex.PRNGKey,  # [B, 2]
     states: State,
     actions: chex.Array,  # [B]
     *,  # Force config to be a keyword argument
     config: EnvConfig,
     queue_fn: QueueFunction = bag_queue_get_next_element,
-) -> Tuple[chex.PRNGKey, State, chex.Array, chex.Array, chex.Array, dict]:
+) -> Tuple[State, chex.Array, chex.Array, chex.Array, dict]:
     """Vectorized version of step function that handles batches of states."""
-    # Create a partial function with static config
     step_partial = partial(step, tetrominoes, config=config, queue_fn=queue_fn)
-
-    # Combine vmap and jit with static config
     batched_step_fn = jax.jit(
         vmap(
             step_partial,
-            in_axes=(0, 0, 0),  # Batch key, state, and action
-            out_axes=(0, 0, 0, 0, 0, 0),
+            in_axes=(0, 0),  # Batch state and action
+            out_axes=(0, 0, 0, 0, 0),
         ),
         static_argnames=["config"],
     )
 
-    return batched_step_fn(keys, states, actions)
+    return batched_step_fn(states, actions)
 
 
 def batched_reset(
