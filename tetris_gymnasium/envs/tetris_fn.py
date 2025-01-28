@@ -51,6 +51,7 @@ def get_observation(
 
     return result[0 : -config.padding, config.padding : -config.padding]
 
+
 def update_state(action, config, state, queue_fn, tetrominoes):
     x, y, rotation = state.x, state.y, state.rotation
     board = state.board
@@ -178,7 +179,7 @@ def step(
         state.game_over,
         lambda _: (state, 0),
         lambda _: update_state(action, config, state, queue_fn, tetrominoes),
-        None
+        None,
     )
 
     new_observation = get_observation(
@@ -193,11 +194,11 @@ def step(
     )
 
     return (
-    new_state,                              # state
-        new_observation,                    # observation
-        new_state.score - state.score,      # reward
-        new_state.game_over,                # terminated
-        {"lines_cleared": lines_cleared},   # info
+        new_state,  # state
+        new_observation,  # observation
+        new_state.score - state.score,  # reward
+        new_state.game_over,  # terminated
+        {"lines_cleared": lines_cleared},  # info
     )
 
 
