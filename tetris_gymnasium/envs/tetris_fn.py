@@ -51,17 +51,7 @@ def get_observation(
 
     return result[0 : -config.padding, config.padding : -config.padding]
 
-
-def step(
-    tetrominoes: Tetrominoes,
-    state: State,
-    action: int,
-    config: EnvConfig,
-    queue_fn: QueueFunction = bag_queue_get_next_element,
-) -> Tuple[State, chex.Array, float, bool, dict]:
-    """Performs a single step in the Tetris environment.
-
-    Note: RNG key is now stored in and retrieved from state."""
+def update_state(action, config, state, queue_fn, tetrominoes):
     x, y, rotation = state.x, state.y, state.rotation
     board = state.board
     active_tetromino_matrix = get_tetromino_matrix(
@@ -141,7 +131,6 @@ def step(
             lambda: (rotation, active_tetromino_matrix),
         ],
     )
-
     y_gravity = jax.lax.cond(
         config.gravity_enabled,
         lambda: graviy_step(tetrominoes, board, state.active_tetromino, rotation, x, y),
@@ -151,7 +140,7 @@ def step(
 
     # Create intermediate state with updated position and rotation
     intermediate_state = State(
-        rng_key=state.rng_key,  # Preserve RNG key
+        rng_key=state.rng_key,
         board=board,
         active_tetromino=state.active_tetromino,
         rotation=rotation,
@@ -162,18 +151,35 @@ def step(
         game_over=False,
         score=state.score,
     )
-
     # Handle locking and new piece spawning
     new_state, lock_reward, lines_cleared = jax.lax.cond(
-        (should_lock | (action == 6)) & ~state.game_over,
+        (should_lock | (action == 6)),
         lambda: place_active_tetromino(
             config, tetrominoes, intermediate_state, queue_fn
         ),
         lambda: (intermediate_state, 0, 0),
     )
-
     # Update score
     new_state = new_state.replace(score=new_state.score + drop_reward + lock_reward)
+
+    return new_state, lines_cleared
+
+
+def step(
+    tetrominoes: Tetrominoes,
+    state: State,
+    action: int,
+    config: EnvConfig,
+    queue_fn: QueueFunction = bag_queue_get_next_element,
+) -> Tuple[State, chex.Array, float, bool, dict]:
+    """Performs a single step in the Tetris environment."""
+
+    new_state, lines_cleared = jax.lax.cond(
+        state.game_over,
+        lambda _: (state, 0),
+        lambda _: update_state(action, config, state, queue_fn, tetrominoes),
+        None
+    )
 
     new_observation = get_observation(
         new_state.board,
@@ -187,11 +193,11 @@ def step(
     )
 
     return (
-        new_state,
-        new_observation,
-        drop_reward + lock_reward,
-        new_state.game_over,
-        {"lines_cleared": lines_cleared},  # info
+    new_state,                              # state
+        new_observation,                    # observation
+        new_state.score - state.score,      # reward
+        new_state.game_over,                # terminated
+        {"lines_cleared": lines_cleared},   # info
     )
 
 
@@ -271,12 +277,9 @@ def place_active_tetromino(
         state.y,
     )
 
-    # Split the RNG key for next piece generation
-    rng_key, subkey = random.split(state.rng_key)
-
     # Spawn a new tetromino
     new_active_tetromino, new_queue, new_queue_index, _ = queue_fn(
-        config, state.queue, state.queue_index, subkey
+        config, state.queue, state.queue_index, state.rng_key
     )
     new_x, new_y = get_initial_x_y(config, tetrominoes, new_active_tetromino)
     new_rotation = 0
@@ -286,6 +289,7 @@ def place_active_tetromino(
         tetrominoes, new_board, new_active_tetromino, new_rotation, new_x, new_y
     )
 
+    new_rng_key = random.split(state.rng_key)[0]
     new_state = State(
         board=new_board,
         active_tetromino=new_active_tetromino,
@@ -296,7 +300,7 @@ def place_active_tetromino(
         queue_index=new_queue_index,
         game_over=game_over,
         score=state.score,
-        rng_key=rng_key,  # Store the new RNG key
+        rng_key=new_rng_key,
     )
 
     return new_state, reward, lines_cleared

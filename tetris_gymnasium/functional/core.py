@@ -28,7 +28,6 @@ class EnvConfig(NamedTuple):
 @chex.dataclass
 class State:
     """State of the Tetris environment."""
-
     rng_key: chex.PRNGKey
     board: chex.Array  # [B, H, W]
     active_tetromino: chex.Array  # [B, 1]
