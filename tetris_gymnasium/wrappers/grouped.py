@@ -155,6 +155,8 @@ class GroupedActionsObservations(gym.ObservationWrapper):
                 # do rotation
                 if r > 0:
                     t = self.env.unwrapped.rotate(t)
+                    t_matrix_backup = t.matrix.copy()
+                    t.matrix = self.shift_ones_to_bottom_left(t.matrix, t.id)
 
                 # hard drop
                 while not self.env.unwrapped.collision(t, x, y + 1):
@@ -192,6 +194,8 @@ class GroupedActionsObservations(gym.ObservationWrapper):
                             self.env.unwrapped.project_tetromino(t, x, y)
                         )[0]
                     )
+                if r > 0:
+                    t.matrix = t_matrix_backup
 
             t = self.env.unwrapped.rotate(
                 t
@@ -262,7 +266,9 @@ class GroupedActionsObservations(gym.ObservationWrapper):
         # Set new rotation
         for _ in range(r):
             new_tetromino = self.env.unwrapped.rotate(new_tetromino)
-
+        # added
+        new_tetromino.matrix = self.shift_ones_to_bottom_left(new_tetromino.matrix, new_tetromino.id)
+        # added ends
         # Apply rotation and movement (x,y)
         self.env.unwrapped.x = x
         self.env.unwrapped.active_tetromino = new_tetromino
@@ -306,3 +312,40 @@ class GroupedActionsObservations(gym.ObservationWrapper):
         info["action_mask"] = self.legal_actions_mask
 
         return observation, info
+
+    def shift_ones_to_bottom_left(self, arr, arr_id):
+        """
+        Shift all '1's in a 2D array so that the bounding box of the '1's
+        touches the leftmost column and bottom row.
+        
+        Specifically:
+        - The leftmost '1' moves to column 0.
+        - The bottommost '1' moves to row (arr.shape[0] - 1).
+        
+        Returns a new array with the shifted '1's.
+        """
+        # Find the coordinates of all cells that are 1
+        rows, cols = np.where(arr == arr_id)
+        
+        # If there are no 1s, just return the original array (no shift needed)
+        if len(rows) == 0:
+            return arr.copy()
+
+        # Determine how far to shift:
+        # 1) Shift left so that the minimum column becomes 0
+        min_col = cols.min()
+        
+        # 2) Shift down so that the maximum row becomes the bottom (arr.shape[0] - 1)
+        max_row = rows.max()
+        shift_down = (arr.shape[0] - 1) - max_row
+        
+        # Create a new array of the same shape, initialized to 0
+        shifted = np.zeros_like(arr)
+        
+        # Move each '1' to its new location
+        for r, c in zip(rows, cols):
+            new_r = r + shift_down
+            new_c = c - min_col
+            shifted[new_r, new_c] = int(arr_id)
+            
+        return shifted
