@@ -322,20 +322,7 @@ def reset(
     create_queue_fn: CreateQueueFunction = create_bag_queue,
     queue_fn: QueueFunction = bag_queue_get_next_element,
 ) -> Tuple[chex.PRNGKey, State, chex.Array]:
-    """Resets the Tetris environment to its initial state.
-
-    Args:
-        tetrominoes: Tetrominoes object containing tetromino configurations.
-        key: Random number generator key.
-        config: Environment configuration.
-        create_queue_fn: Function to create the initial queue.
-        queue_fn: Function to get the next element from the queue.
-
-    Returns:
-        A tuple containing:
-        - Updated random number generator key
-        - Initial state of the environment
-    """
+    """Resets the Tetris environment to its initial state."""
     board = create_board(config, tetrominoes)
 
     key, subkey = random.split(key)
@@ -387,7 +374,6 @@ def place_active_tetromino(
     queue_fn: QueueFunction,
 ) -> Tuple[State, chex.Array, chex.Array]:
     """Places the active tetromino on the board and updates the game state."""
-    # Commit the active tetromino
     new_board, reward, lines_cleared = lock_active_tetromino(
         config,
         tetrominoes,
