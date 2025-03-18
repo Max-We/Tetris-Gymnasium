@@ -30,16 +30,16 @@ class State:
     """State of the Tetris environment."""
 
     rng_key: chex.PRNGKey
-    board: chex.Array  # [B, H, W]
-    active_tetromino: chex.Array  # [B, 1]
-    rotation: chex.Array  # [B, 1]
-    x: chex.Array  # [B, 1]
-    y: chex.Array  # [B, 1]
-    queue: chex.Array  # [B, L, 1]
-    queue_index: chex.Array  # [B, 1]
+    board: chex.Array  # [H, W]
+    active_tetromino: chex.Array  # [1]
+    rotation: chex.Array  # [1]
+    x: chex.Array  # [1]
+    y: chex.Array  # [1]
+    queue: chex.Array  # [L, 1]
+    queue_index: chex.Array  # [1]
     # holder: Optional[int]
-    game_over: chex.Array  # [B, 1]
-    score: chex.Array  # [B, 1]
+    game_over: chex.Array  # [1]
+    score: chex.Array  # [1]
 
 
 # Utility functions
