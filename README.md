@@ -75,6 +75,15 @@ contribute to further exploration and development in Tetris RL.
 For detailed information on using and customizing Tetris Gymnasium, please refer to
 our [full documentation](https://max-we.github.io/Tetris-Gymnasium/).
 
+## JAX & functional environment
+
+> This functionality is new and may be subject to change.
+
+We recently added a JAX-based functional environment for Tetris Gymnasium. The functions for using the environment are
+defined inside `tetris_fn`. We opted NOT to use a library like `gymnax` as these interfaces are still very volatile and
+to allow for better flexibility. The functional environment is especially useful when performance is a concern, but does
+not currently include all the features of the `gymnasium` environment.
+
 ## Background
 
 Tetris Gymnasium addresses the limitations of existing Tetris environments by offering a modular, understandable, and

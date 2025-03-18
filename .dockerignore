@@ -27,3 +27,7 @@ venv
 # OS generated files
 .DS_Store
 Thumbs.db
+
+examples/runs
+examples/videos
+examples/wandb
