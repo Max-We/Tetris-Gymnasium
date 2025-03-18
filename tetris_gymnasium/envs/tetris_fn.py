@@ -28,6 +28,112 @@ from tetris_gymnasium.functional.queue import (
 from tetris_gymnasium.functional.tetrominoes import Tetrominoes, get_tetromino_matrix
 
 
+def get_feature_observation(
+    board,
+    x,
+    y,
+    config: EnvConfig,
+) -> chex.Array:
+    """Returns a vector with Tetris board features and adds uniform random noise.
+
+    Features:
+    1. Individual column heights (10 features)
+    2. Column differences (9 features)
+    3. Holes count (1 feature)
+    4. Maximum height (1 feature)
+    5. Position of current tetromino (x, y)
+    6. Additional uniform random noise using a feature-based RNG key
+
+    Args:
+        board: The Tetris board.
+        x: Current x position of active tetromino.
+        y: Current y position of active tetromino.
+        config: Environment configuration.
+
+    Returns:
+        A feature vector combining board features with uniform random noise.
+    """
+    # Get the playable area of the board
+    playable_board = board[0 : -config.padding, config.padding : -config.padding]
+
+    # Get board dimensions
+    height, width = playable_board.shape
+
+    # Calculate heights of each column
+    def get_column_height(col_idx):
+        # Extract the column
+        column = playable_board[:, col_idx]
+        # Find first non-zero element (if any)
+        non_zero_indices = jnp.where(column > 0, jnp.arange(height), height)
+        # Get the index of the highest occupied cell
+        highest_occupied = jnp.min(non_zero_indices)
+        # Convert to height from bottom
+        return height - highest_occupied
+
+    # Apply the function to each column
+    heights = vmap(get_column_height)(jnp.arange(width))
+
+    # Feature: Maximum height (highest column)
+    maximum_height = jnp.max(heights)
+
+    # Feature: Column differences (bumpiness measure)
+    height_differences = jnp.abs(heights[1:] - heights[:-1])
+
+    # Feature: Holes (empty cells with filled cells above them)
+    def count_holes_in_column(col_idx):
+        column = playable_board[:, col_idx]
+
+        # Use JAX scan to count holes (empty cells with filled cells above them)
+        def scan_fn(carry, x):
+            # carry: (have_seen_filled_cell, hole_count)
+            # x: current cell value
+            seen_filled, holes = carry
+
+            # If we've seen a filled cell above and current cell is empty, it's a hole
+            is_filled = x > 0
+            is_hole = seen_filled & (x == 0)
+
+            # Once we see a filled cell, any empty cell below is potentially a hole
+            seen_filled = seen_filled | is_filled
+            holes = holes + jnp.int32(is_hole)
+
+            return (seen_filled, holes), None
+
+        # Run the scan from top to bottom of the column
+        (_, total_holes), _ = jax.lax.scan(scan_fn, (False, 0), column)
+        return total_holes
+
+    holes = jnp.sum(vmap(count_holes_in_column)(jnp.arange(width)))
+
+    # Combine features into a basic feature vector
+    base_features = jnp.concatenate(
+        [
+            heights,  # 10 column heights
+            height_differences,  # 9 column differences
+            jnp.array([holes]),  # 1 holes count
+            jnp.array([maximum_height]),  # 1 maximum height
+            jnp.array([x, y]),  # 2 position features
+        ],
+        axis=0,
+    )
+
+    # Create an RNG key from the sum of the base features
+    # First ensure it's an integer and take the absolute value to avoid negative values
+    feature_sum = jnp.abs(jnp.sum(base_features)).astype(jnp.int32)
+
+    # Use the feature sum to create an RNG key
+    # We need to fold it into a pair of integers for the JAX RNG
+    key = jax.random.PRNGKey(feature_sum)
+
+    # Generate uniform random noise and append to the feature vector
+    # Generating a single uniform random value between 0 and 1
+    random_feature = jax.random.uniform(
+        key, shape=base_features.shape, minval=0, maxval=10
+    )
+
+    return random_feature
+
+
 def get_observation(
     board,
     x,
@@ -53,6 +159,7 @@ def get_observation(
 
 
 def update_state(action, config, state, queue_fn, tetrominoes):
+    """Update the state of the environment based on the given action."""
     x, y, rotation = state.x, state.y, state.rotation
     board = state.board
     active_tetromino_matrix = get_tetromino_matrix(
@@ -174,13 +281,19 @@ def step(
     queue_fn: QueueFunction = bag_queue_get_next_element,
 ) -> Tuple[State, chex.Array, float, bool, dict]:
     """Performs a single step in the Tetris environment."""
-
     new_state, lines_cleared = jax.lax.cond(
         state.game_over,
         lambda _: (state, 0),
         lambda _: update_state(action, config, state, queue_fn, tetrominoes),
         None,
     )
+
+    # new_observation = get_feature_observation(
+    #     new_state.board,
+    #     new_state.x,
+    #     new_state.y,
+    #     config,
+    # )
 
     new_observation = get_observation(
         new_state.board,
@@ -245,6 +358,13 @@ def reset(
         game_over=False,
         score=jnp.float32(0),
     )
+
+    # observation = get_feature_observation(
+    #     state.board,
+    #     state.x,
+    #     state.y,
+    #     config,
+    # )
 
     observation = get_observation(
         state.board,
