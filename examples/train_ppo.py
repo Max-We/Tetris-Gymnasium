@@ -106,8 +106,8 @@ def make_env(env_id, idx, capture_video, run_name):
         #     env = FireResetEnv(env)
         env = ClipRewardEnv(env)
         env = gym.wrappers.ResizeObservation(env, (84, 84))
-        env = gym.wrappers.GrayScaleObservation(env)
-        env = gym.wrappers.FrameStack(env, 4)
+        env = gym.wrappers.GrayscaleObservation(env)
+        env = gym.wrappers.FrameStackObservation(env, 4)
         return env
 
     return thunk
@@ -243,17 +243,21 @@ if __name__ == "__main__":
                 next_done
             ).to(device)
 
-            if "final_info" in infos:
-                for info in infos["final_info"]:
-                    if info and "episode" in info:
+            if "episode" in infos and any(infos["_episode"]):
+                for i in range(len(infos["_episode"])):
+                    if infos["_episode"][i]:
                         print(
-                            f"global_step={global_step}, episodic_return={info['episode']['r']}"
+                            f"global_step={global_step}, episodic_return={infos['episode']['r'][i]}"
                         )
                         writer.add_scalar(
-                            "charts/episodic_return", info["episode"]["r"], global_step
+                            "charts/episodic_return",
+                            infos["episode"]["r"][i],
+                            global_step,
                         )
                         writer.add_scalar(
-                            "charts/episodic_length", info["episode"]["l"], global_step
+                            "charts/episodic_length",
+                            infos["episode"]["l"][i],
+                            global_step,
                         )
 
         # bootstrap value if not done
