@@ -8,10 +8,10 @@ packages = [{include = "tetris_gymnasium"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
-gymnasium = ">=0.28.1"
-numpy = "^1.21.6"
+gymnasium = ">=0.28.1,<2.0.0"
+numpy = ">=2.0.0,<3.0.0"
 opencv-python = "^4.10.0.84"
-jax = "^0.4.34"
+jax = ">=0.5.1,<0.6.0"
 chex = "^0.1.87"
 
 [tool.poetry.group.examples]

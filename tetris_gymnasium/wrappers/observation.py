@@ -24,7 +24,7 @@ class RgbObservation(gym.ObservationWrapper):
         super().__init__(env)
         self.observation_space = Box(
             low=0,
-            high=len(env.unwrapped.tetrominoes),
+            high=255,
             shape=(
                 env.unwrapped.height_padded,
                 env.unwrapped.width_padded
@@ -81,7 +81,11 @@ class RgbObservation(gym.ObservationWrapper):
         """
         matrix = self.observation(self.env.unwrapped._get_obs())
         kernel = np.ones(
-            (self.render_scaling_factor, self.render_scaling_factor, 1),
+            (
+                self.env.unwrapped.render_scaling_factor,
+                self.env.unwrapped.render_scaling_factor,
+                1,
+            ),
             dtype=np.uint8,
         )
         matrix = np.kron(matrix, kernel)

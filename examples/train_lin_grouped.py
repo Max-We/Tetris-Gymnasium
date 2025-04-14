@@ -322,28 +322,24 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         epoch_lines_cleared += infos["lines_cleared"][0]
 
         # # TRY NOT TO MODIFY: record rewards for plotting purposes
-        if "final_info" in infos:
-            for info in infos["final_info"]:
-                if info and "episode" in info:
-                    print(
-                        f"epoch={epoch}, "
-                        f"timestep={global_step} ({round((global_step / args.total_timesteps)* 100, 2)}%), "
-                        f"epsilon={epsilon:.3f}, "
-                        f"episodic_return={info['episode']['r']}, "
-                        f"episodic_len={info['episode']['l']}, "
-                        f"episodic_lines={epoch_lines_cleared}"
-                    )
-                    writer.add_scalar(
-                        "charts/episodic_return", info["episode"]["r"], global_step
-                    )
-                    writer.add_scalar(
-                        "charts/episodic_lines", epoch_lines_cleared, global_step
-                    )
-                    writer.add_scalar(
-                        "charts/episodic_length", info["episode"]["l"], global_step
-                    )
-                    epoch_lines_cleared = 0
-                    epoch += 1
+        if "episode" in infos:
+            print(
+                f"epoch={epoch}, "
+                f"timestep={global_step} ({round((global_step / args.total_timesteps)* 100, 2)}%), "
+                f"epsilon={epsilon:.3f}, "
+                f"episodic_return={infos['episode']['r']}, "
+                f"episodic_len={infos['episode']['l']}, "
+                f"episodic_lines={epoch_lines_cleared}"
+            )
+            writer.add_scalar(
+                "charts/episodic_return", infos["episode"]["r"], global_step
+            )
+            writer.add_scalar("charts/episodic_lines", epoch_lines_cleared, global_step)
+            writer.add_scalar(
+                "charts/episodic_length", infos["episode"]["l"], global_step
+            )
+            epoch_lines_cleared = 0
+            epoch += 1
 
         # TRY NOT TO MODIFY: save data to reply buffer; handle `final_observation`
         real_next_obs = next_obs.copy()
