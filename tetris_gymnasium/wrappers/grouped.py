@@ -21,19 +21,15 @@ class GroupedActionsObservations(gym.ObservationWrapper):
     can be found in "*Playing Tetris with Deep Reinforcement Learning* (Stevens & Pradhan)."
 
     **Action space**
-        For each viable column position on the board, the agent can choose between four different rotations. The number of
-        viable positions depends on the tetromino size, as tetrominoes are stored as padded quadratic 2D arrays. The total
-        number of positions is `padding-1+width`, where `padding` is `max(len,width)` of the largest tetromino. We subtract 1
-        because placing a tetromino at x=0 is never viable due to full padding. This results in a total of
-        `(padding-1+width) * 4` possible actions. Therefore, the action space is a `Discrete` space with `(padding-1+width) * 4`
-        possible actions. The value is interpreted as column index and number of rotations in ascending order. So the actions
-        [0, 1, 2, 3] correspond to the first viable column position and the tetromino rotated 0, 1, 2, 3 times respectively.
-        The actions [4, 5, 6, 7] correspond to the second viable column position and the tetromino rotated 0, 1, 2, 3 times
-        respectively, and so on.
+        For each column on the board, the agent can choose between four different rotations. This results in a total of
+        `width * 4` possible actions. Therefore, the action space is a `Discrete` space with `width * 4` possible actions.
+        The value is interpreted as column index and number of rotations in ascending order. So the actions [0, 1, 2, 3]
+        correspond to the first column and the tetromino rotated 0, 1, 2, 3 times respectively. The actions [4, 5, 6, 7]
+        correspond to the second column and the tetromino rotated 0, 1, 2, 3 times respectively, and so on.
 
     **Observation space**
         For each possible action, the wrapper generates a new observation. This means, that an additional dimension of size
-        `(padding-1+width) * 4` is added to the observation space. Observation wrappers have to be passed to the constructor to apply
+        `width * 4` is added to the observation space. Observation wrappers have to be passed to the constructor to apply
         them to the generated observations instead of wrapping them around the `GroupedActions` wrapper.
 
     **Legal actions**
@@ -59,27 +55,23 @@ class GroupedActionsObservations(gym.ObservationWrapper):
             terminate_on_illegal_action: Whether to terminate the episode if an illegal action is taken.
         """
         super().__init__(env)
+        self.action_space = Discrete((env.unwrapped.width) * 4)
 
-        self.n_placement_columns = (
-            env.unwrapped.width + env.unwrapped.padding - 1
-        )  # from left (including padding, ignoring x=0) to right (excluding padding)
-        self.n_actions = self.n_placement_columns * 4  # for each column 4 rotations
-
-        self.action_space = Discrete(self.n_actions)
-
+        grouped_env_shape = (env.unwrapped.width * 4,)
         single_env_shape = (
             observation_wrappers[-1].observation_space.shape
             if observation_wrappers
             else env.observation_space["board"].shape
         )
+
         self.observation_space = Box(
             low=0,
             high=env.unwrapped.height * env.unwrapped.width,
-            shape=((self.n_actions,) + single_env_shape),
+            shape=(grouped_env_shape + single_env_shape),
             dtype=np.float32,
         )
 
-        self.legal_actions_mask = np.ones(self.n_actions)
+        self.legal_actions_mask = np.ones(self.action_space.n)
         self.observation_wrappers = observation_wrappers
         self.terminate_on_illegal_action = terminate_on_illegal_action
 
@@ -93,9 +85,7 @@ class GroupedActionsObservations(gym.ObservationWrapper):
         Returns:
             The action id.
         """
-        return (
-            x - 1
-        ) * 4 + r  # -1 as first valid x position is 1 (0 is completely padded)
+        return x * 4 + r
 
     def decode_action(self, action):
         """Converts the action id to the x-position and number of rotations `r`.
@@ -106,9 +96,7 @@ class GroupedActionsObservations(gym.ObservationWrapper):
         Returns:
             The x-position and number of rotations.
         """
-        return (
-            action // 4
-        ) + 1, action % 4  # +1 as first valid x position is 1 (0 is completely padded)
+        return action // 4, action % 4
 
     def collision_with_frame(self, tetromino: Tetromino, x: int, y: int) -> bool:
         """Check if the tetromino collides with the frame.
@@ -157,7 +145,7 @@ class GroupedActionsObservations(gym.ObservationWrapper):
             np.zeros(self.observation_space.shape)
 
         t = self.env.unwrapped.active_tetromino
-        for x in range(1, self.n_placement_columns + 1):
+        for x_base in range(self.env.unwrapped.width):
             for r in range(4):
                 y = 0
 
@@ -165,13 +153,17 @@ class GroupedActionsObservations(gym.ObservationWrapper):
                 if r > 0:
                     t = self.env.unwrapped.rotate(t)
 
+                # reset position to tetromino center
+                t_center = t.matrix.shape[1] // 2
+                x = x_base + self.env.unwrapped.padding - t_center
+
                 # hard drop
                 while not self.env.unwrapped.collision(t, x, y + 1):
                     y += 1
 
                 if self.collision_with_frame(t, x, y):
                     # illegal action
-                    self.legal_actions_mask[self.encode_action(x, r)] = 0
+                    self.legal_actions_mask[self.encode_action(x_base, r)] = 0
                     grouped_board_obs.append(np.ones_like(board_obs))
                 elif self.env.unwrapped.collision(t, x, y):
                     # game over placement
@@ -248,6 +240,11 @@ class GroupedActionsObservations(gym.ObservationWrapper):
 
         new_tetromino = copy.deepcopy(self.env.unwrapped.active_tetromino)
 
+        # Set new x position relative to tetromino center and board padding
+        x += (
+            self.env.unwrapped.padding
+            - self.env.unwrapped.active_tetromino.matrix.shape[1] // 2
+        )
         # Set new rotation
         for _ in range(r):
             new_tetromino = self.env.unwrapped.rotate(new_tetromino)
