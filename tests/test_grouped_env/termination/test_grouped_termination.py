@@ -1,7 +1,7 @@
 def test_grouped_termination_out_of_border(tetris_env_grouped):
     """Test that the environment terminates when a tetromino is placed outside the border"""
     observation, reward, terminated, truncated, info = tetris_env_grouped.step(
-        51
+        39
     )  # illegal action: tetromino outside matrix
     assert terminated
 
