@@ -26,6 +26,15 @@ def o_tetromino():
 
 
 @pytest.fixture
+def tetris_env_no_gravity():
+    """Fixture to create and return a Tetris environment with gravity disabled."""
+    env = gym.make("tetris_gymnasium/Tetris", render_mode="ansi", gravity=False)
+    env.reset(seed=42)
+    yield env
+    env.close()
+
+
+@pytest.fixture
 def vertical_i_tetromino():
     """Fixture to create and return a vertical I-tetromino."""
     tetromino = copy.deepcopy(Tetris.TETROMINOES[0])

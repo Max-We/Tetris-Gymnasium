@@ -16,6 +16,37 @@ def test_observation_space_is_correct_after_reset(tetris_env):
     assert tetris_env.observation_space.keys() == observation.keys()
 
 
+def test_observation_space_contains_all_expected_keys(tetris_env):
+    """Test that observation contains board, active_tetromino_mask, holder, queue."""
+    observation, _ = tetris_env.reset(seed=42)
+    expected_keys = {"board", "active_tetromino_mask", "holder", "queue"}
+    assert set(observation.keys()) == expected_keys
+
+
+def test_board_dimensions_match_config(tetris_env):
+    """Test that padded board shape matches height_padded x width_padded."""
+    observation, _ = tetris_env.reset(seed=42)
+    expected_shape = (
+        tetris_env.unwrapped.height_padded,
+        tetris_env.unwrapped.width_padded,
+    )
+    assert observation["board"].shape == expected_shape
+
+
+def test_gravity_disabled():
+    """Test that piece doesn't fall on no_op when gravity is disabled."""
+    from tetris_gymnasium.mappings.actions import ActionsMapping
+
+    env = gym.make("tetris_gymnasium/Tetris", render_mode="ansi", gravity=False)
+    env.reset(seed=42)
+    original_y = env.unwrapped.y
+
+    env.step(ActionsMapping.no_op)
+
+    assert env.unwrapped.y == original_y, "Piece should not move with gravity disabled"
+    env.close()
+
+
 def create_env():
     env = gym.make("tetris_gymnasium/Tetris", render_mode="rgb_array")
     return RgbObservation(env)

@@ -93,6 +93,28 @@ def test_move_down_blocked_by_tetromino(tetris_env):
     assert tetris_env.unwrapped.y == 5
 
 
+# No-gravity movement test
+def test_move_down_without_gravity(tetris_env_no_gravity):
+    """Test that move_down moves exactly 1 cell without gravity."""
+    tetris_env_no_gravity.reset(seed=42)
+    tetris_env_no_gravity.unwrapped.y = 5
+    tetris_env_no_gravity.step(ActionsMapping.move_down)
+    assert tetris_env_no_gravity.unwrapped.y == 6  # only movement, no gravity
+
+
+# Multiple consecutive moves test
+def test_multiple_consecutive_moves_left(tetris_env_no_gravity):
+    """Test that chaining several move_left steps produces cumulative position change."""
+    tetris_env_no_gravity.reset(seed=42)
+    start_x = tetris_env_no_gravity.unwrapped.width_padded // 2
+    tetris_env_no_gravity.unwrapped.x = start_x
+
+    for i in range(3):
+        tetris_env_no_gravity.step(ActionsMapping.move_left)
+
+    assert tetris_env_no_gravity.unwrapped.x == start_x - 3
+
+
 # Gravity test
 def test_gravity(tetris_env):
     """Test gravity effect on a tetromino."""

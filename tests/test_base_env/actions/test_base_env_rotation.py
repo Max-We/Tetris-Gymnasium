@@ -51,3 +51,42 @@ def test_rotate_counter_clockwise_blocked(tetris_env):
     assert np.array_equal(
         tetromino.matrix, tetris_env.unwrapped.active_tetromino.matrix
     )
+
+
+def test_rotate_blocked_by_wall(tetris_env_no_gravity):
+    """Test that rotation is blocked when piece is at the left edge."""
+    tetris_env_no_gravity.reset(seed=42)
+    # Move piece to left wall (padding boundary)
+    tetris_env_no_gravity.unwrapped.x = 0
+    tetromino = copy.copy(tetris_env_no_gravity.unwrapped.active_tetromino)
+    tetris_env_no_gravity.step(ActionsMapping.rotate_clockwise)
+    # Rotation should be rejected due to wall collision
+    assert np.array_equal(
+        tetromino.matrix, tetris_env_no_gravity.unwrapped.active_tetromino.matrix
+    )
+
+
+def test_full_360_rotation_returns_to_original(tetris_env_no_gravity):
+    """Test that rotating CW 4 times returns to the original orientation."""
+    tetris_env_no_gravity.reset(seed=42)
+    original_matrix = np.copy(tetris_env_no_gravity.unwrapped.active_tetromino.matrix)
+
+    for _ in range(4):
+        tetris_env_no_gravity.step(ActionsMapping.rotate_clockwise)
+
+    assert np.array_equal(
+        original_matrix, tetris_env_no_gravity.unwrapped.active_tetromino.matrix
+    )
+
+
+def test_ccw_rotation_is_inverse_of_cw(tetris_env_no_gravity):
+    """Test that rotating CW then CCW returns to the same orientation."""
+    tetris_env_no_gravity.reset(seed=42)
+    original_matrix = np.copy(tetris_env_no_gravity.unwrapped.active_tetromino.matrix)
+
+    tetris_env_no_gravity.step(ActionsMapping.rotate_clockwise)
+    tetris_env_no_gravity.step(ActionsMapping.rotate_counterclockwise)
+
+    assert np.array_equal(
+        original_matrix, tetris_env_no_gravity.unwrapped.active_tetromino.matrix
+    )

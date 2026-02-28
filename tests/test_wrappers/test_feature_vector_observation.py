@@ -162,3 +162,39 @@ def test_bumpiness_observation_values(tetris_env_bumpiness):
     tetris_env_bumpiness.unwrapped.board = example_board
     observation, _, _, _, _ = tetris_env_bumpiness.step(ActionsMapping.no_op)
     assert np.all(observation == correct_bumpiness)
+
+
+def test_features_on_empty_board(tetris_env_all_features):
+    """Test that all features are 0 on an empty board."""
+    tetris_env_all_features.reset(seed=42)
+    # Create a clean board (no pieces)
+    env = tetris_env_all_features.unwrapped
+    env.board = env.create_board()
+
+    observation, _, _, _, _ = tetris_env_all_features.step(ActionsMapping.no_op)
+
+    heights = observation[: env.width]
+    max_height = observation[env.width]
+    holes = observation[env.width + 1]
+    bumpiness = observation[env.width + 2]
+
+    assert np.all(heights == 0), "All heights should be 0 on empty board"
+    assert max_height == 0, "Max height should be 0 on empty board"
+    assert holes == 0, "Holes should be 0 on empty board"
+    assert bumpiness == 0, "Bumpiness should be 0 on empty board"
+
+
+def test_active_tetromino_masked_out(tetris_env_all_features):
+    """Test that the active piece doesn't affect feature calculation."""
+    tetris_env_all_features.reset(seed=42)
+    env = tetris_env_all_features.unwrapped
+    env.board = env.create_board()
+
+    # Get features with piece at top (should be masked out)
+    env.y = 0
+    observation, _, _, _, _ = tetris_env_all_features.step(ActionsMapping.no_op)
+
+    # Even though there's an active tetromino, features should reflect empty board
+    # (active tetromino is masked out in the FeatureVectorObservation wrapper)
+    heights = observation[: env.width]
+    assert np.all(heights == 0), "Active tetromino should not affect height calculation"

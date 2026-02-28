@@ -115,6 +115,11 @@ If you use Tetris Gymnasium in your research, please cite our work:
   year      = {EasyChair, 2024}}
 ```
 
+## Contributing
+
+Interested in contributing? Check out our [contributing guide](docs/development/contributing.md) for guidelines on
+how to get started, set up your development environment, and submit changes.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
