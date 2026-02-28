@@ -87,6 +87,7 @@ class BagRandomizer(Randomizer):
     def reset(self, seed=None):
         """Resets the randomizer to start from a fresh state."""
         super().reset(seed)
+        self.bag = np.arange(self.size, dtype=np.int8)
         self.shuffle_bag()
 
     def __copy__(self):
@@ -118,7 +119,7 @@ class TrueRandomizer(Randomizer):
 
     def get_next_tetromino(self) -> int:
         """Samples a new tetromino randomly."""
-        return self.rng.randint(0, self.size)
+        return self.rng.integers(0, self.size)
 
     def reset(self, seed=None):
         """Resets the randomizer to start from a fresh state."""
