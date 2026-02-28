@@ -182,6 +182,7 @@
 <p class="caption" role="heading"><span class="caption-text">Environment</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../environments/tetris/">Tetris</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environments/tetris_functional/">Tetris (JAX)</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Components</span></p>
 <ul>
@@ -248,13 +249,37 @@
             
 <section class="genindex-section">
   <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"><a href="#B"><strong>B</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a></div>
+  <div class="genindex-jumpbox"><a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#K"><strong>K</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#V"><strong>V</strong></a></div>
 </section>
 <section id="B" class="genindex-section">
   <h2>B</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="../components/randomizer/#tetris_gymnasium.components.tetromino_randomizer.BagRandomizer">BagRandomizer (class in tetris_gymnasium.components.tetromino_randomizer)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.envs.tetris_fn.batched_reset">batched_reset() (in module tetris_gymnasium.envs.tetris_fn)</a>
+</li>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.envs.tetris_fn.batched_step">batched_step() (in module tetris_gymnasium.envs.tetris_fn)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="C" class="genindex-section">
+  <h2>C</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.functional.core.check_game_over">check_game_over() (in module tetris_gymnasium.functional.core)</a>
+</li>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.functional.core.clear_filled_rows">clear_filled_rows() (in module tetris_gymnasium.functional.core)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.functional.core.collision">collision() (in module tetris_gymnasium.functional.core)</a>
+</li>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.functional.core.create_board">create_board() (in module tetris_gymnasium.functional.core)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -286,11 +311,53 @@
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.envs.tetris_fn.get_observation">get_observation() (in module tetris_gymnasium.envs.tetris_fn)</a>
+</li>
         <li><a href="../components/queue/#tetris_gymnasium.components.tetromino_queue.TetrominoQueue.get_queue">get_queue() (tetris_gymnasium.components.tetromino_queue.TetrominoQueue method)</a>
 </li>
         <li><a href="../components/holder/#tetris_gymnasium.components.tetromino_holder.TetrominoHolder.get_tetrominoes">get_tetrominoes() (tetris_gymnasium.components.tetromino_holder.TetrominoHolder method)</a>
 </li>
         <li><a href="../utilities/wrappers/#tetris_gymnasium.wrappers.grouped.GroupedActionsObservations">GroupedActionsObservations (class in tetris_gymnasium.wrappers.grouped)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="H" class="genindex-section">
+  <h2>H</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.functional.core.hard_drop">hard_drop() (in module tetris_gymnasium.functional.core)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="I" class="genindex-section">
+  <h2>I</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.functional.core.State.items">items() (tetris_gymnasium.functional.core.State method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="K" class="genindex-section">
+  <h2>K</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.functional.core.State.keys">keys() (tetris_gymnasium.functional.core.State method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="L" class="genindex-section">
+  <h2>L</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.functional.core.lock_active_tetromino">lock_active_tetromino() (in module tetris_gymnasium.functional.core)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -312,9 +379,11 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="../components/randomizer/#tetris_gymnasium.components.tetromino_randomizer.Randomizer">Randomizer (class in tetris_gymnasium.components.tetromino_randomizer)</a>
 </li>
-        <li><a href="../components/holder/#tetris_gymnasium.components.tetromino_holder.TetrominoHolder.reset">reset() (tetris_gymnasium.components.tetromino_holder.TetrominoHolder method)</a>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.envs.tetris_fn.reset">reset() (in module tetris_gymnasium.envs.tetris_fn)</a>
 
         <ul>
+          <li><a href="../components/holder/#tetris_gymnasium.components.tetromino_holder.TetrominoHolder.reset">(tetris_gymnasium.components.tetromino_holder.TetrominoHolder method)</a>
+</li>
           <li><a href="../components/queue/#tetris_gymnasium.components.tetromino_queue.TetrominoQueue.reset">(tetris_gymnasium.components.tetromino_queue.TetrominoQueue method)</a>
 </li>
           <li><a href="../components/randomizer/#tetris_gymnasium.components.tetromino_randomizer.Randomizer.reset">(tetris_gymnasium.components.tetromino_randomizer.Randomizer method)</a>
@@ -332,6 +401,14 @@
   <h2>S</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.functional.core.score">score() (in module tetris_gymnasium.functional.core)</a>
+</li>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.functional.core.State">State (class in tetris_gymnasium.functional.core)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.envs.tetris_fn.step">step() (in module tetris_gymnasium.envs.tetris_fn)</a>
+</li>
         <li><a href="../components/holder/#tetris_gymnasium.components.tetromino_holder.TetrominoHolder.swap">swap() (tetris_gymnasium.components.tetromino_holder.TetrominoHolder method)</a>
 </li>
     </ul></td>
@@ -353,6 +430,16 @@
         <li><a href="../components/queue/#tetris_gymnasium.components.tetromino_queue.TetrominoQueue">TetrominoQueue (class in tetris_gymnasium.components.tetromino_queue)</a>
 </li>
         <li><a href="../components/randomizer/#tetris_gymnasium.components.tetromino_randomizer.TrueRandomizer">TrueRandomizer (class in tetris_gymnasium.components.tetromino_randomizer)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="V" class="genindex-section">
+  <h2>V</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="../environments/tetris_functional/#tetris_gymnasium.functional.core.State.values">values() (tetris_gymnasium.functional.core.State method)</a>
 </li>
     </ul></td>
   </tr></table>
