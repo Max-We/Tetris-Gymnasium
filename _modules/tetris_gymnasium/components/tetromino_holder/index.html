@@ -12,7 +12,7 @@
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2023.08.19.dev1 -->
         <title>tetris_gymnasium.components.tetromino_holder - Tetris Gymnasium</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=3e7f4c72" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=49cbaffd" />
     
@@ -248,21 +248,21 @@
             
             <h1>Source code for tetris_gymnasium.components.tetromino_holder</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Module for the Holder class, which stores one or more tetrominoes for later use in a game of Tetris.&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">deque</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.components.tetromino</span> <span class="kn">import</span> <span class="n">Tetromino</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tetris_gymnasium.components.tetromino</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tetromino</span>
 
 
 <div class="viewcode-block" id="TetrominoHolder">
 <a class="viewcode-back" href="../../../../components/holder/#tetris_gymnasium.components.tetromino_holder.TetrominoHolder">[docs]</a>
-<span class="k">class</span> <span class="nc">TetrominoHolder</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TetrominoHolder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A holder can store one or more tetrominoes for later use in a game of Tetris.</span>
 
 <span class="sd">    Tetrominoes can be swapped in- and out during the game.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new holder with the given number of tetrominoes.</span>
 
 <span class="sd">        Args:</span>
@@ -271,17 +271,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">size</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_tetromino</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tetromino</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_tetromino</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tetromino</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the next tetromino from the holder.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_store_tetromino</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">Tetromino</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_store_tetromino</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">Tetromino</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Store a tetromino in the holder.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tetromino</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TetrominoHolder.swap">
 <a class="viewcode-back" href="../../../../components/holder/#tetris_gymnasium.components.tetromino_holder.TetrominoHolder.swap">[docs]</a>
-    <span class="k">def</span> <span class="nf">swap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">Tetromino</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tetromino</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">swap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">Tetromino</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tetromino</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Swap the given tetromino with the one in the holder.</span>
 
 <span class="sd">        This implementation uses a queue to store the tetrominoes. Tetrominoes are only returned once the queue is full.</span>
@@ -304,19 +304,19 @@
 
 <div class="viewcode-block" id="TetrominoHolder.reset">
 <a class="viewcode-back" href="../../../../components/holder/#tetris_gymnasium.components.tetromino_holder.TetrominoHolder.reset">[docs]</a>
-    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset the holder to its initial state. This involves clearing the queue.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="TetrominoHolder.get_tetrominoes">
 <a class="viewcode-back" href="../../../../components/holder/#tetris_gymnasium.components.tetromino_holder.TetrominoHolder.get_tetrominoes">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_tetrominoes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tetrominoes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all the tetrominoes currently in the holder.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a copy of the holder.&quot;&quot;&quot;</span>
         <span class="n">new_holder</span> <span class="o">=</span> <span class="n">TetrominoHolder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
         <span class="n">new_holder</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">)</span>

@@ -12,7 +12,7 @@
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2023.08.19.dev1 -->
         <title>tetris_gymnasium.wrappers.grouped - Tetris Gymnasium</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=3e7f4c72" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=49cbaffd" />
     
@@ -252,20 +252,20 @@
 <span class="sd">This wrapper introduces action-grouping as commonly used in current Tetris RL approaches. An example of this idea</span>
 <span class="sd">can be found in &quot;Playing Tetris with Deep Reinforcement Learning (Stevens &amp; Pradhan).&quot;</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
-<span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">gymnasium.spaces</span> <span class="kn">import</span> <span class="n">Box</span><span class="p">,</span> <span class="n">Discrete</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gymnasium.spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">Box</span><span class="p">,</span> <span class="n">Discrete</span>
 
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.components.tetromino</span> <span class="kn">import</span> <span class="n">Tetromino</span>
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.envs</span> <span class="kn">import</span> <span class="n">Tetris</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tetris_gymnasium.components.tetromino</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tetromino</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tetris_gymnasium.envs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tetris</span>
 
 
 <div class="viewcode-block" id="GroupedActionsObservations">
 <a class="viewcode-back" href="../../../../utilities/wrappers/#tetris_gymnasium.wrappers.grouped.GroupedActionsObservations">[docs]</a>
-<span class="k">class</span> <span class="nc">GroupedActionsObservations</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">ObservationWrapper</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupedActionsObservations</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">ObservationWrapper</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper that changes the observation and actions space into grouped actions.</span>
 
 <span class="sd">    This wrapper introduces action-grouping as commonly used in current Tetris RL approaches. An example of this idea</span>
@@ -292,7 +292,7 @@
 <span class="sd">        high) are not considered illegal.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">env</span><span class="p">:</span> <span class="n">Tetris</span><span class="p">,</span>
         <span class="n">observation_wrappers</span><span class="p">:</span> <span class="s2">&quot;list[gym.ObservationWrapper]&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -326,7 +326,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">observation_wrappers</span> <span class="o">=</span> <span class="n">observation_wrappers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">terminate_on_illegal_action</span> <span class="o">=</span> <span class="n">terminate_on_illegal_action</span>
 
-    <span class="k">def</span> <span class="nf">encode_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">encode_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert x-position and number of rotations `r` to action id.</span>
 
 <span class="sd">        Args:</span>
@@ -338,7 +338,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="n">r</span>
 
-    <span class="k">def</span> <span class="nf">decode_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">decode_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Converts the action id to the x-position and number of rotations `r`.</span>
 
 <span class="sd">        Args:</span>
@@ -349,7 +349,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">action</span> <span class="o">//</span> <span class="mi">4</span><span class="p">,</span> <span class="n">action</span> <span class="o">%</span> <span class="mi">4</span>
 
-    <span class="k">def</span> <span class="nf">collision_with_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">Tetromino</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">collision_with_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">Tetromino</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the tetromino collides with the frame.</span>
 
 <span class="sd">        Only collisions with the frame are checked, not with other tetrominos on the board. This is used to detect</span>
@@ -372,7 +372,7 @@
         <span class="c1"># Check collision using numpy element-wise operations.</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">board_subsection</span><span class="p">[</span><span class="n">tetromino</span><span class="o">.</span><span class="n">matrix</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">observation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">observation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Observation wrapper that groups the actions into placements and applies additional wrappers (optional).</span>
 
 <span class="sd">        This function also generates the legal-action mask.</span>
@@ -457,7 +457,7 @@
         <span class="n">grouped_board_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">grouped_board_obs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">grouped_board_obs</span>
 
-    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Performs the action.</span>
 
 <span class="sd">        Args:</span>
@@ -519,7 +519,7 @@
 
         <span class="k">return</span> <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">game_over</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span>
 
-    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="s2">&quot;int | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="s2">&quot;dict[str, Any] | None&quot;</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[dict[str, Any], dict[str, Any]]&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Resets the environment.</span>

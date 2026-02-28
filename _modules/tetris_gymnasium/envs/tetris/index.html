@@ -12,7 +12,7 @@
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2023.08.19.dev1 -->
         <title>tetris_gymnasium.envs.tetris - Tetris Gymnasium</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=3e7f4c72" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=49cbaffd" />
     
@@ -248,26 +248,26 @@
             
             <h1>Source code for tetris_gymnasium.envs.tetris</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Tetris environment for Gymnasium.&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>
 
-<span class="kn">import</span> <span class="nn">cv2</span>
-<span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">gymnasium.core</span> <span class="kn">import</span> <span class="n">ActType</span><span class="p">,</span> <span class="n">RenderFrame</span>
-<span class="kn">from</span> <span class="nn">gymnasium.spaces</span> <span class="kn">import</span> <span class="n">Box</span><span class="p">,</span> <span class="n">Discrete</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gymnasium.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActType</span><span class="p">,</span> <span class="n">RenderFrame</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gymnasium.spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">Box</span><span class="p">,</span> <span class="n">Discrete</span>
 
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.components.tetromino</span> <span class="kn">import</span> <span class="n">Pixel</span><span class="p">,</span> <span class="n">Tetromino</span>
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.components.tetromino_holder</span> <span class="kn">import</span> <span class="n">TetrominoHolder</span>
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.components.tetromino_queue</span> <span class="kn">import</span> <span class="n">TetrominoQueue</span>
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.components.tetromino_randomizer</span> <span class="kn">import</span> <span class="n">BagRandomizer</span><span class="p">,</span> <span class="n">Randomizer</span>
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.mappings.actions</span> <span class="kn">import</span> <span class="n">ActionsMapping</span>
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.mappings.rewards</span> <span class="kn">import</span> <span class="n">RewardsMapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tetris_gymnasium.components.tetromino</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pixel</span><span class="p">,</span> <span class="n">Tetromino</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tetris_gymnasium.components.tetromino_holder</span><span class="w"> </span><span class="kn">import</span> <span class="n">TetrominoHolder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tetris_gymnasium.components.tetromino_queue</span><span class="w"> </span><span class="kn">import</span> <span class="n">TetrominoQueue</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tetris_gymnasium.components.tetromino_randomizer</span><span class="w"> </span><span class="kn">import</span> <span class="n">BagRandomizer</span><span class="p">,</span> <span class="n">Randomizer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tetris_gymnasium.mappings.actions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionsMapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tetris_gymnasium.mappings.rewards</span><span class="w"> </span><span class="kn">import</span> <span class="n">RewardsMapping</span>
 
 
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">TetrisState</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TetrisState</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;State of the Tetris environment.&quot;&quot;&quot;</span>
 
     <span class="n">board</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
@@ -284,7 +284,7 @@
 
 <div class="viewcode-block" id="Tetris">
 <a class="viewcode-back" href="../../../../environments/tetris/#tetris_gymnasium.envs.tetris.Tetris">[docs]</a>
-<span class="k">class</span> <span class="nc">Tetris</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">Env</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Tetris</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">Env</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tetris environment for Gymnasium.&quot;&quot;&quot;</span>
 
     <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
@@ -325,7 +325,7 @@
         <span class="p">),</span>  <span class="c1"># L</span>
     <span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">render_mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">width</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
@@ -451,7 +451,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">render_scaling_factor</span> <span class="o">=</span> <span class="n">render_upscale</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window_name</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[dict, float, bool, bool, dict]&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[dict, float, bool, bool, dict]&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform one step of the environment&#39;s dynamics.</span>
 
 <span class="sd">        Args:</span>
@@ -522,7 +522,7 @@
             <span class="p">{</span><span class="s2">&quot;lines_cleared&quot;</span><span class="p">:</span> <span class="n">lines_cleared</span><span class="p">},</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="s2">&quot;int | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="s2">&quot;dict[str, Any] | None&quot;</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[dict[str, Any], dict[str, Any]]&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Resets the state of the environment.</span>
@@ -557,7 +557,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_obs</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_info</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">get_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Observation wrapper that displays all observations (board, holder, queue) as one single RGB Image.</span>
 
 <span class="sd">        The observation contains the board on the left, the queue on the top right and the holder on the bottom right.</span>
@@ -593,7 +593,7 @@
 
         <span class="k">return</span> <span class="n">rgb</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RenderFrame | list[RenderFrame] | None&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RenderFrame | list[RenderFrame] | None&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Renders the environment in various formats.</span>
 
 <span class="sd">        This render function is different from the default as it uses the values from :func:`observation`  to render</span>
@@ -641,7 +641,7 @@
 
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">spawn_tetromino</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spawn_tetromino</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Spawns a new tetromino at the top of the board and checks for collision.</span>
 
 <span class="sd">        Returns</span>
@@ -651,12 +651,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">reset_tetromino_position</span><span class="p">()</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">collision</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">place_active_tetromino</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">place_active_tetromino</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Locks the active tetromino in place on the board.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_tetromino</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">collision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">Tetromino</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">collision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">Tetromino</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the tetromino collides with the board at the given position.</span>
 
 <span class="sd">        A collision is detected if the tetromino overlaps with any non-zero cell on the board.</span>
@@ -677,7 +677,7 @@
         <span class="c1"># Check collision using numpy element-wise operations.</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">board_subsection</span><span class="p">[</span><span class="n">tetromino</span><span class="o">.</span><span class="n">matrix</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">Tetromino</span><span class="p">,</span> <span class="n">clockwise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tetromino</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">Tetromino</span><span class="p">,</span> <span class="n">clockwise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tetromino</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate a tetromino by 90 degrees.</span>
 
 <span class="sd">        Args:</span>
@@ -693,12 +693,12 @@
             <span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">tetromino</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">clockwise</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span><span class="p">)),</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">drop_active_tetromino</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_active_tetromino</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Drop the active tetromino to the lowest possible position on the board.&quot;&quot;&quot;</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">collision</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+=</span> <span class="mi">1</span>
 
-    <span class="k">def</span> <span class="nf">commit_active_tetromino</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">commit_active_tetromino</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Commit the active tetromino to the board.</span>
 
 <span class="sd">        After locking in the tetromino, the game checks if any rows are filled and clears them.</span>
@@ -729,7 +729,7 @@
 
         <span class="k">return</span> <span class="n">reward</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_over</span><span class="p">,</span> <span class="n">lines_cleared</span>
 
-    <span class="k">def</span> <span class="nf">clear_filled_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple(np.ndarray, int)&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_filled_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple(np.ndarray, int)&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear any filled rows on the board.</span>
 
 <span class="sd">        The clearing is performed using numpy by indexing only the rows that are not filled and</span>
@@ -762,7 +762,7 @@
 
         <span class="k">return</span> <span class="n">board</span><span class="p">,</span> <span class="n">n_filled</span>
 
-    <span class="k">def</span> <span class="nf">crop_padding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">crop_padding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Crop the padding from the given matrix.</span>
 
 <span class="sd">        The Tetris board has padding on all sides except the top to simplify collision detection.</span>
@@ -773,7 +773,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">matrix</span><span class="p">[</span><span class="mi">0</span> <span class="p">:</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">padding</span> <span class="p">:</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">padding</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">get_tetromino_slices</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tetromino_slices</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">Tetromino</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple(slice, slice)&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the slices of the active tetromino on the board.</span>
@@ -784,14 +784,14 @@
         <span class="n">tetromino_height</span><span class="p">,</span> <span class="n">tetromino_width</span> <span class="o">=</span> <span class="n">tetromino</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">((</span><span class="nb">slice</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">tetromino_height</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">tetromino_width</span><span class="p">)))</span>
 
-    <span class="k">def</span> <span class="nf">reset_tetromino_position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_tetromino_position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset the x and y position of the active tetromino to the center of the board.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">width_padded</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
             <span class="mi">0</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">project_tetromino</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">project_tetromino</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">tetromino</span><span class="p">:</span> <span class="n">Tetromino</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Project the active tetromino on the board.</span>
@@ -814,7 +814,7 @@
         <span class="n">projection</span><span class="p">[</span><span class="n">slices</span><span class="p">]</span> <span class="o">+=</span> <span class="n">tetromino</span><span class="o">.</span><span class="n">matrix</span>
         <span class="k">return</span> <span class="n">projection</span>
 
-    <span class="k">def</span> <span class="nf">_get_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;dict[str, Any]&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;dict[str, Any]&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the current board as an observation.&quot;&quot;&quot;</span>
         <span class="c1"># Include the active tetromino on the board for the observation.</span>
         <span class="n">board_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_tetromino</span><span class="p">()</span>
@@ -865,11 +865,11 @@
             <span class="s2">&quot;queue&quot;</span><span class="p">:</span> <span class="n">queue_obs</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
         <span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">_get_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the current game state as info.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;lines_cleared&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows_cleared</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows_cleared</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the score based on the number of lines cleared.</span>
 
 <span class="sd">        Args:</span>
@@ -880,7 +880,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">rows_cleared</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span>
 
-    <span class="k">def</span> <span class="nf">create_board</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_board</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new board with the given dimensions.&quot;&quot;&quot;</span>
         <span class="n">board</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
         <span class="n">board</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
@@ -891,7 +891,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">board</span>
 
-    <span class="k">def</span> <span class="nf">parse_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tetrominoes</span><span class="p">:</span> <span class="s2">&quot;List[Tetromino]&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;List[Pixel]&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tetrominoes</span><span class="p">:</span> <span class="s2">&quot;List[Tetromino]&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;List[Pixel]&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a list of pixels from the base pixels and the tetrominoes.</span>
 
 <span class="sd">        Pixels are used to represent the board and the tetrominoes in the environment.</span>
@@ -906,7 +906,7 @@
             <span class="n">Pixel</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_pixels</span><span class="p">),</span> <span class="n">t</span><span class="o">.</span><span class="n">color_rgb</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tetrominoes</span>
         <span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">offset_tetromino_id</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">offset_tetromino_id</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">tetrominoes</span><span class="p">:</span> <span class="s2">&quot;List[Tetromino]&quot;</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;List[Tetromino]&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;In order to make the tetominos distinguishable, each tetromino should have a unique value.</span>
@@ -929,7 +929,7 @@
 
         <span class="k">return</span> <span class="n">tetrominoes</span>
 
-    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">TetrisState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">TetrisState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Restore the state of the environment. Should be used instead of deepcopy for performance.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">board</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active_tetromino</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">active_tetromino</span>
@@ -942,7 +942,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">game_over</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">game_over</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">score</span>
 
-    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TetrisState</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TetrisState</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clone the current state of the environment. Should be used instead of deepcopy for performance.&quot;&quot;&quot;</span>
         <span class="n">randomizer</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">randomizer</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">TetrisState</span><span class="p">(</span>

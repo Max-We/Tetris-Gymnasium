@@ -12,7 +12,7 @@
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2023.08.19.dev1 -->
         <title>tetris_gymnasium.components.tetromino - Tetris Gymnasium</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=3e7f4c72" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=49cbaffd" />
     
@@ -248,15 +248,15 @@
             
             <h1>Source code for tetris_gymnasium.components.tetromino</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Data structures for Tetris.&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 
 <div class="viewcode-block" id="Pixel">
 <a class="viewcode-back" href="../../../../components/tetromino/#tetris_gymnasium.components.tetromino.Pixel">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">Pixel</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Pixel</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A single pixel in a game of Tetris.</span>
 
 <span class="sd">    A pixel is the basic building block of the game and has an id and a color.</span>
@@ -273,7 +273,7 @@
 <div class="viewcode-block" id="Tetromino">
 <a class="viewcode-back" href="../../../../components/tetromino/#tetris_gymnasium.components.tetromino.Tetromino">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">Tetromino</span><span class="p">(</span><span class="n">Pixel</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Tetromino</span><span class="p">(</span><span class="n">Pixel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A Tetris &quot;piece&quot; is called a Tetromino. Examples are the I, J, L, O, S, T, and Z pieces.</span>
 
 <span class="sd">    On a conceptual basis, a tetromino is a 2D-array composed of multiple pixels. All pixels that compose the tetromino</span>
@@ -297,7 +297,7 @@
 
     <span class="n">matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 
-    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a copy of the tetromino.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Tetromino</span><span class="p">(</span>
             <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>

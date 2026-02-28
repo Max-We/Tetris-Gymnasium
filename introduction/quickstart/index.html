@@ -13,7 +13,7 @@
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2023.08.19.dev1 -->
         <title>Quickstart - Tetris Gymnasium</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=3e7f4c72" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=49cbaffd" />
     
@@ -259,8 +259,8 @@
             <section class="tex2jax_ignore mathjax_ignore" id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Link to this heading">¶</a></h1>
 <p>After completing the <a class="reference internal" href="../installation/"><span class="std std-doc">Installation</span></a>, you can start using the environment by importing it in your Python code and calling the <code class="docutils literal notranslate"><span class="pre">gymnasium.make</span></code> function.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.envs</span> <span class="kn">import</span> <span class="n">Tetris</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tetris_gymnasium.envs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tetris</span>
 
 <span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;tetris_gymnasium/Tetris&quot;</span><span class="p">)</span>
 </pre></div>
@@ -269,9 +269,9 @@
 <section id="simple-random-agent">
 <h2>Simple random agent<a class="headerlink" href="#simple-random-agent" title="Link to this heading">¶</a></h2>
 <p>For example, a simple loop that interacts with the environment using random actions could look like this:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
 
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.envs.tetris</span> <span class="kn">import</span> <span class="n">Tetris</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tetris_gymnasium.envs.tetris</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tetris</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;tetris_gymnasium/Tetris&quot;</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;ansi&quot;</span><span class="p">)</span>
@@ -290,12 +290,12 @@
 <h2>Interactive environment<a class="headerlink" href="#interactive-environment" title="Link to this heading">¶</a></h2>
 <p>You can play around with the environment by using the interactive scripts in the <code class="docutils literal notranslate"><span class="pre">examples</span></code> directory.</p>
 <p>For example, the <code class="docutils literal notranslate"><span class="pre">play_interactive.py</span></code> script allows you to play the Tetris environment using the keyboard.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 
-<span class="kn">import</span> <span class="nn">cv2</span>
-<span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
 
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.envs</span> <span class="kn">import</span> <span class="n">Tetris</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tetris_gymnasium.envs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tetris</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="c1"># Create an instance of Tetris</span>

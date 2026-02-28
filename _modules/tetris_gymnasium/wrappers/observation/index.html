@@ -12,7 +12,7 @@
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2023.08.19.dev1 -->
         <title>tetris_gymnasium.wrappers.observation - Tetris Gymnasium</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=3e7f4c72" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=49cbaffd" />
     
@@ -248,25 +248,25 @@
             
             <h1>Source code for tetris_gymnasium.wrappers.observation</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Observation wrapper module for the Tetris Gymnasium environment.&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">cv2</span>
-<span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">gymnasium.core</span> <span class="kn">import</span> <span class="n">RenderFrame</span>
-<span class="kn">from</span> <span class="nn">gymnasium.spaces</span> <span class="kn">import</span> <span class="n">Box</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gymnasium.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">RenderFrame</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gymnasium.spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">Box</span>
 
-<span class="kn">from</span> <span class="nn">tetris_gymnasium.envs</span> <span class="kn">import</span> <span class="n">Tetris</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tetris_gymnasium.envs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tetris</span>
 
 
 <div class="viewcode-block" id="RgbObservation">
 <a class="viewcode-back" href="../../../../utilities/wrappers/#tetris_gymnasium.wrappers.observation.RgbObservation">[docs]</a>
-<span class="k">class</span> <span class="nc">RgbObservation</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">ObservationWrapper</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RgbObservation</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">ObservationWrapper</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Observation wrapper that displays all observations (board, holder, queue) as one single RGB Image.</span>
 
 <span class="sd">    The observation contains the board on the left, the queue on the top right and the holder on the bottom right.</span>
 <span class="sd">    The size of the matrix depends on how many tetrominoes can be stored in the queue / holder.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">Tetris</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">Tetris</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the RgbObservation wrapper.</span>
 
 <span class="sd">        Args:</span>
@@ -275,7 +275,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">Box</span><span class="p">(</span>
             <span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-            <span class="n">high</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">tetrominoes</span><span class="p">),</span>
+            <span class="n">high</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
             <span class="n">shape</span><span class="o">=</span><span class="p">(</span>
                 <span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">height_padded</span><span class="p">,</span>
                 <span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">width_padded</span>
@@ -286,7 +286,7 @@
             <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">observation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">observation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Observation wrapper that displays all observations (board, holder, queue) as one single RGB Image.</span>
 
 <span class="sd">        The observation contains the board on the left, the queue on the top right and the holder on the bottom right.</span>
@@ -324,7 +324,7 @@
 
         <span class="k">return</span> <span class="n">rgb</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RenderFrame | list[RenderFrame] | None&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RenderFrame | list[RenderFrame] | None&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Renders the environment in various formats.</span>
 
 <span class="sd">        This render function is different from the default as it uses the values from :func:`observation`  to render</span>
@@ -332,7 +332,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">_get_obs</span><span class="p">())</span>
         <span class="n">kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">render_scaling_factor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_scaling_factor</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">render_scaling_factor</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">render_scaling_factor</span><span class="p">,</span>
+                <span class="mi">1</span><span class="p">,</span>
+            <span class="p">),</span>
             <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
@@ -365,7 +369,7 @@
 
 <div class="viewcode-block" id="FeatureVectorObservation">
 <a class="viewcode-back" href="../../../../utilities/wrappers/#tetris_gymnasium.wrappers.observation.FeatureVectorObservation">[docs]</a>
-<span class="k">class</span> <span class="nc">FeatureVectorObservation</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">ObservationWrapper</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FeatureVectorObservation</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">ObservationWrapper</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Observation wrapper that returns a feature vector as observation.</span>
 
 <span class="sd">    **State representation**</span>
@@ -387,7 +391,7 @@
 <span class="sd">        More features can be added in the future or by introducing new wrappers.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">env</span><span class="p">:</span> <span class="n">Tetris</span><span class="p">,</span>
         <span class="n">report_height</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -424,7 +428,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">report_holes</span> <span class="o">=</span> <span class="n">report_holes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">report_bumpiness</span> <span class="o">=</span> <span class="n">report_bumpiness</span>
 
-    <span class="k">def</span> <span class="nf">calc_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calc_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the height of the board.</span>
 
 <span class="sd">        Args:</span>
@@ -442,7 +446,7 @@
         <span class="p">)</span>  <span class="c1"># empty columns should be 0 (not 20)</span>
         <span class="k">return</span> <span class="n">heights</span>
 
-    <span class="k">def</span> <span class="nf">calc_max_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calc_max_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the maximum height of the board.</span>
 
 <span class="sd">        Args:</span>
@@ -454,7 +458,7 @@
         <span class="c1"># Find the maximum height across all columns</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_height</span><span class="p">(</span><span class="n">board</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">calc_bumpiness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calc_bumpiness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the bumpiness of the board.</span>
 
 <span class="sd">        Bumpiness is the sum of the absolute differences between adjacent column heights.</span>
@@ -469,7 +473,7 @@
         <span class="c1"># Calculate differences between adjacent heights and sum their absolute values</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">heights</span><span class="p">)))</span>
 
-    <span class="k">def</span> <span class="nf">calc_holes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calc_holes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the number of holes in the stack.</span>
 
 <span class="sd">        Args:</span>
@@ -485,7 +489,7 @@
         <span class="c1"># Count cells that are empty but have filled cells above them</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">board</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">cumsum</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">observation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">observation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Observation wrapper that returns the feature vector as the observation.</span>
 
 <span class="sd">        Args:</span>
