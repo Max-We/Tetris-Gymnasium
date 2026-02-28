@@ -396,10 +396,7 @@
             <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
         <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">active_tetromino</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
-            <span class="c1"># reset position</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">padding</span> <span class="o">+</span> <span class="n">x</span>
-
+        <span class="k">for</span> <span class="n">x_base</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
                 <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
 
@@ -407,31 +404,17 @@
                 <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
 
+                <span class="c1"># reset position to tetromino center</span>
+                <span class="n">t_center</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x_base</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">padding</span> <span class="o">-</span> <span class="n">t_center</span>
+
                 <span class="c1"># hard drop</span>
                 <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">collision</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
                     <span class="n">y</span> <span class="o">+=</span> <span class="mi">1</span>
 
-                <span class="c1"># # append to results</span>
-                <span class="c1"># if self.collision_with_frame(t, x, y):</span>
-                <span class="c1">#     self.legal_actions_mask[</span>
-                <span class="c1">#         self.encode_action(x - self.env.unwrapped.padding, r)</span>
-                <span class="c1">#     ] = 0</span>
-                <span class="c1">#     grouped_board_obs.append(np.ones_like(board_obs))</span>
-                <span class="c1"># elif not self.env.unwrapped.collision(t, x, y):</span>
-                <span class="c1">#     grouped_board_obs.append(</span>
-                <span class="c1">#         self.env.unwrapped.project_tetromino(t, x, y)</span>
-                <span class="c1">#     )</span>
-                <span class="c1"># else:</span>
-                <span class="c1">#     # regular game over</span>
-                <span class="c1">#     grouped_board_obs.append(np.zeros_like(board_obs))</span>
-
-                <span class="c1"># append to results</span>
-
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">collision_with_frame</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
                     <span class="c1"># illegal action</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">legal_actions_mask</span><span class="p">[</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">encode_action</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">padding</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
-                    <span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">legal_actions_mask</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">encode_action</span><span class="p">(</span><span class="n">x_base</span><span class="p">,</span> <span class="n">r</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
                     <span class="n">grouped_board_obs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">board_obs</span><span class="p">))</span>
                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">collision</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
                     <span class="c1"># game over placement</span>
@@ -508,8 +491,11 @@
 
         <span class="n">new_tetromino</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">active_tetromino</span><span class="p">)</span>
 
-        <span class="c1"># Set new x position</span>
-        <span class="n">x</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">padding</span>
+        <span class="c1"># Set new x position relative to tetromino center and board padding</span>
+        <span class="n">x</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">padding</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">active_tetromino</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="p">)</span>
         <span class="c1"># Set new rotation</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
             <span class="n">new_tetromino</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">new_tetromino</span><span class="p">)</span>
