@@ -92,6 +92,8 @@ key, state, observation = reset(TETROMINOES, key, config)
 state, observation, reward, terminated, info = step(TETROMINOES, state, 0, config)
 ```
 
+For more information, please refer to the  [full documentation](https://max-we.github.io/Tetris-Gymnasium/).
+
 ## Background
 
 Tetris Gymnasium addresses the limitations of existing Tetris environments by offering a modular, understandable, and
