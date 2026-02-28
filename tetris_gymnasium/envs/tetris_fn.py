@@ -149,7 +149,7 @@ def get_observation(
     board = jnp.where(board > 0, 1, 0).astype(jnp.int8)
 
     result = jax.lax.cond(
-        ~game_over,
+        jnp.logical_not(game_over),
         lambda _: project_tetromino(board, tetromino_matrix, x, y, -1),
         lambda _: board,
         None,
@@ -471,8 +471,8 @@ ACTION_ID_TO_NAME = {
     0: "move_left",
     1: "move_right",
     2: "move_down",
-    3: "rotate_clockwise",
-    4: "rotate_counterclockwise",
+    3: "rotate_counterclockwise",
+    4: "rotate_clockwise",
     5: "do_nothing",
     6: "hard_drop",
 }

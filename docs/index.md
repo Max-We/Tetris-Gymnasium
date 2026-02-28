@@ -70,6 +70,7 @@ introduction/quickstart
 :hidden:
 
 environments/tetris
+environments/tetris_functional
 ```
 
 ```{toctree}

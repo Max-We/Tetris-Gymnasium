@@ -75,14 +75,22 @@ contribute to further exploration and development in Tetris RL.
 For detailed information on using and customizing Tetris Gymnasium, please refer to
 our [full documentation](https://max-we.github.io/Tetris-Gymnasium/).
 
-## JAX & functional environment
+## JAX Functional Environment
 
-> This functionality is new and may be subject to change.
+A JAX-native functional environment is now available, designed for high-performance training pipelines that use `jax.jit`, `jax.vmap`, or other JAX transforms.
 
-We recently added a JAX-based functional environment for Tetris Gymnasium. The functions for using the environment are
-defined inside `tetris_fn`. We opted NOT to use a library like `gymnax` as these interfaces are still very volatile and
-to allow for better flexibility. The functional environment is especially useful when performance is a concern, but does
-not currently include all the features of the `gymnasium` environment.
+```python
+import jax
+from tetris_gymnasium.envs.tetris_fn import reset, step
+from tetris_gymnasium.functional.core import EnvConfig
+from tetris_gymnasium.functional.tetrominoes import TETROMINOES
+
+config = EnvConfig(width=10, height=20, padding=4, queue_size=7)
+key = jax.random.PRNGKey(42)
+
+key, state, observation = reset(TETROMINOES, key, config)
+state, observation, reward, terminated, info = step(TETROMINOES, state, 0, config)
+```
 
 ## Background
 

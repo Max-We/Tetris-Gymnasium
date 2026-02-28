@@ -51,7 +51,7 @@ You can use `sphinx-autobuild` to build the documentation locally.
 ```shell
 cd docs
 poetry run sphinx-autobuild -b dirhtml --watch ../tetris_gymnasium --re-ignore "pickle$" . _build
-```
+````
 
 ## Tests
 

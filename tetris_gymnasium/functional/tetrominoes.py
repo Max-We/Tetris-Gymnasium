@@ -135,7 +135,7 @@ padded_rotations = [
 # Define base pixels
 base_pixels = jnp.array([0, 1], dtype=jnp.int8)
 base_pixels_colors = jnp.array(
-    [[0, 0, 0], [128, 128, 128]], dtype=jnp.int8  # Empty  # Bedrock
+    [[0, 0, 0], [128, 128, 128]], dtype=jnp.uint8  # Empty  # Bedrock
 )
 
 # Create the tetrominoes object
@@ -143,7 +143,7 @@ TETROMINOES = Tetrominoes(
     base_pixels=base_pixels,
     base_pixel_colors=base_pixels_colors,
     ids=jnp.array([t.id for t in base_tetrominoes], dtype=jnp.int8),
-    colors=jnp.array([t.color for t in base_tetrominoes], dtype=jnp.int8),
+    colors=jnp.array([t.color for t in base_tetrominoes], dtype=jnp.uint8),
     matrices=jnp.array(padded_rotations, dtype=jnp.int8),
 )
 
