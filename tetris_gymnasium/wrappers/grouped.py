@@ -145,10 +145,7 @@ class GroupedActionsObservations(gym.ObservationWrapper):
             np.zeros(self.observation_space.shape)
 
         t = self.env.unwrapped.active_tetromino
-        for x in range(self.env.unwrapped.width):
-            # reset position
-            x = self.env.unwrapped.padding + x
-
+        for x_base in range(self.env.unwrapped.width):
             for r in range(4):
                 y = 0
 
@@ -156,31 +153,17 @@ class GroupedActionsObservations(gym.ObservationWrapper):
                 if r > 0:
                     t = self.env.unwrapped.rotate(t)
 
+                # reset position to tetromino center
+                t_center = t.matrix.shape[1] // 2
+                x = x_base + self.env.unwrapped.padding - t_center
+
                 # hard drop
                 while not self.env.unwrapped.collision(t, x, y + 1):
                     y += 1
 
-                # # append to results
-                # if self.collision_with_frame(t, x, y):
-                #     self.legal_actions_mask[
-                #         self.encode_action(x - self.env.unwrapped.padding, r)
-                #     ] = 0
-                #     grouped_board_obs.append(np.ones_like(board_obs))
-                # elif not self.env.unwrapped.collision(t, x, y):
-                #     grouped_board_obs.append(
-                #         self.env.unwrapped.project_tetromino(t, x, y)
-                #     )
-                # else:
-                #     # regular game over
-                #     grouped_board_obs.append(np.zeros_like(board_obs))
-
-                # append to results
-
                 if self.collision_with_frame(t, x, y):
                     # illegal action
-                    self.legal_actions_mask[
-                        self.encode_action(x - self.env.unwrapped.padding, r)
-                    ] = 0
+                    self.legal_actions_mask[self.encode_action(x_base, r)] = 0
                     grouped_board_obs.append(np.ones_like(board_obs))
                 elif self.env.unwrapped.collision(t, x, y):
                     # game over placement
@@ -257,8 +240,11 @@ class GroupedActionsObservations(gym.ObservationWrapper):
 
         new_tetromino = copy.deepcopy(self.env.unwrapped.active_tetromino)
 
-        # Set new x position
-        x += self.env.unwrapped.padding
+        # Set new x position relative to tetromino center and board padding
+        x += (
+            self.env.unwrapped.padding
+            - self.env.unwrapped.active_tetromino.matrix.shape[1] // 2
+        )
         # Set new rotation
         for _ in range(r):
             new_tetromino = self.env.unwrapped.rotate(new_tetromino)

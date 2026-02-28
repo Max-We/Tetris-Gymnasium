@@ -21,5 +21,5 @@ def test_observation_index_is_correct(
     assert observation.shape == (40, 24, 18)
 
     assert np.all(
-        observation[13] == expected_result_i_placement
+        observation[5 * 4 + 1] == expected_result_i_placement
     )  # expected: column (index) 3, rotation 1
